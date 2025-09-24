@@ -1,0 +1,24 @@
+# Binaries for the current OS and architecture
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Compiled Go binaries
+*.test
+*.prof
+
+# Dependency caches
+# Go module cache:
+# This can be in your home directory or specific to a project.
+# You might want to ignore the project-specific cache for faster builds.
+# For example, if you have a vendor directory created by `go mod vendor`
+vendor/
+
+# Operating System and Editor specific files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.bak
