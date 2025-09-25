@@ -4,8 +4,14 @@ version: '3'
 
 vars:
   GREETING: Hello, World!
+  PROTO_PATH: internal/common/grpc/proto
 
 tasks:
+  gen:proto:
+    desc: Generate proto
+    cmds:
+      - (cd {{.PROTO_PATH}};protoc --go_out=gen --go_opt=paths=source_relative --go-grpc_out=gen --go-grpc_opt=paths=source_relative --go_opt=default_api_level=API_OPAQUE *.proto)
+
   default:
     cmds:
       - echo "{{.GREETING}}"
