@@ -1,0 +1,78 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+
+package gophkeeper;
+
+option go_package = "gophkeeper/gen;gophkeeper";
+
+// Entity
+
+message Login {
+  string name = 1;
+  string login = 2;
+  string password = 3;
+  map<string, string> metadata = 4;
+}
+
+message Note {
+  string name = 1;
+  string text = 2;
+  map<string, string> metadata = 3;
+}
+
+message Binary {
+  string name = 1;
+  bytes data = 2;
+  map<string, string> metadata = 3;
+}
+
+message Card {
+  string name = 1;
+  string number = 2;
+  string exp_date = 3;
+  string cvv = 4;
+  string cardholder = 5;
+  map<string, string> metadata = 6;
+}
+
+// Request
+
+message SaveDataRequest {
+  oneof data {
+    Login login = 1;
+    Note note = 2;
+    Binary binary = 3;
+    Card card = 4;
+  }
+}
+
+// Response
+
+message GetAllLoginsResponse {
+  repeated Login result = 1;
+}
+
+message GetAllNotesResponse {
+  repeated Note result = 1;
+}
+
+message GetAllBinariesResponse {
+  repeated Binary result = 1;
+}
+
+message GetAllCardsResponse {
+  repeated Card result = 1;
+}
+
+service DataService {
+  rpc SaveData(SaveDataRequest) returns (google.protobuf.Empty);
+
+  rpc GetAllLogins(google.protobuf.Empty) returns (GetAllLoginsResponse);
+
+  rpc GetAllNotes(google.protobuf.Empty) returns (GetAllNotesResponse);
+
+  rpc GetAllBinaries(google.protobuf.Empty) returns (GetAllBinariesResponse);
+
+  rpc GetAllCards(google.protobuf.Empty) returns (GetAllCardsResponse);
+}
