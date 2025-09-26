@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
@@ -22,11 +23,12 @@ type dataServiceServer struct {
 	noteService   server.NoteService
 	binaryService server.BinaryService
 	cardService   server.CardService
+	dataValidator *validator.Validate
 	logger        *zap.Logger
 }
 
 func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*empty.Empty, error) {
-	// TODO: in validation
+	var validate func() error // TODO: придумать решение получше
 	var save func() error
 
 	switch in.WhichData() {
@@ -39,6 +41,9 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 			Password: login.GetPassword(),
 			Metadata: login.GetMetadata(),
 		}
+		validate = func() error {
+			return d.dataValidator.StructCtx(ctx, &data)
+		}
 		save = func() error {
 			return d.loginService.Save(ctx, data)
 		}
@@ -50,6 +55,9 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 			Text:     note.GetText(),
 			Metadata: note.GetMetadata(),
 		}
+		validate = func() error {
+			return d.dataValidator.StructCtx(ctx, &data)
+		}
 		save = func() error {
 			return d.noteService.Save(ctx, data)
 		}
@@ -60,6 +68,9 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 			Name:     binary.GetName(),
 			Data:     binary.GetData(),
 			Metadata: binary.GetMetadata(),
+		}
+		validate = func() error {
+			return d.dataValidator.StructCtx(ctx, &data)
 		}
 		save = func() error {
 			return d.binaryService.Save(ctx, data)
@@ -75,11 +86,19 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 			Cardholder: card.GetCardholder(),
 			Metadata:   card.GetMetadata(),
 		}
+		validate = func() error {
+			return d.dataValidator.StructCtx(ctx, &data)
+		}
 		save = func() error {
 			return d.cardService.Save(ctx, data)
 		}
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid data type")
+	}
+
+	if err := validate(); err != nil {
+		// TODO: посмотреть какая структура ошибки и сделать лучше
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	if err := save(); err != nil {
@@ -94,7 +113,9 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 }
 
 func (d *dataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest) (*pb.GetAllDataResponse, error) {
-	// TODO: user validation
+	if in.GetUser() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user is required")
+	}
 
 	var data []*pb.DataWrapper
 
@@ -186,6 +207,12 @@ func (d *dataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest
 
 func (d *dataServiceServer) Remove(ctx context.Context, in *pb.RemoveDataRequest) (*empty.Empty, error) {
 	// TODO: validate name and user
+	if in.GetUser() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user is required")
+	}
+	if in.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
 
 	var remove func() error
 
@@ -231,6 +258,7 @@ func NewServer(
 	noteService server.NoteService,
 	binaryService server.BinaryService,
 	cardService server.CardService,
+	dataValidator *validator.Validate,
 	logger *zap.Logger,
 ) *Server {
 	dataServiceServer := &dataServiceServer{
@@ -238,6 +266,7 @@ func NewServer(
 		noteService:   noteService,
 		binaryService: binaryService,
 		cardService:   cardService,
+		dataValidator: dataValidator,
 		logger:        logger,
 	}
 
