@@ -7,10 +7,9 @@ import (
 	"regexp"
 )
 
-// TODO: какой порядок объявления?
-
 var ErrDataAlreadyExists = errors.New("data already exists")
 var ErrDataNotFound = errors.New("data not found")
+var ErrUserNotFound = errors.New("user not found")
 
 type (
 	Data interface {
@@ -56,21 +55,13 @@ type (
 		Remove(ctx context.Context, name string, user string) error
 	}
 
-	LoginService interface {
-		TypedDataService[LoginData]
-	}
+	LoginService TypedDataService[LoginData]
 
-	NoteService interface {
-		TypedDataService[NoteData]
-	}
+	NoteService TypedDataService[NoteData]
 
-	BinaryService interface {
-		TypedDataService[BinaryData]
-	}
+	BinaryService TypedDataService[BinaryData]
 
-	CardService interface {
-		TypedDataService[CardData]
-	}
+	CardService TypedDataService[CardData]
 )
 
 func NewDataValidator() (*validator.Validate, error) {
