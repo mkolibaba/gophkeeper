@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/golang/protobuf v1.5.4
+	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.75.1
 	google.golang.org/protobuf v1.36.9
 )
@@ -29,6 +30,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/sahilm/fuzzy v0.1.1 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
