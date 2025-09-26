@@ -121,4 +121,5 @@ func (c CardData) Validate() error {
 type DataService interface {
 	Save(ctx context.Context, user string, data Data) error
 	GetAll(ctx context.Context, user string, dataType DataType) ([]Data, error)
+	Remove(ctx context.Context, user string, name string, dataType DataType) error
 }

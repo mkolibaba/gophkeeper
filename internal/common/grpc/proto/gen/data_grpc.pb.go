@@ -20,22 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DataService_SaveData_FullMethodName       = "/gophkeeper.DataService/SaveData"
-	DataService_GetAllLogins_FullMethodName   = "/gophkeeper.DataService/GetAllLogins"
-	DataService_GetAllNotes_FullMethodName    = "/gophkeeper.DataService/GetAllNotes"
-	DataService_GetAllBinaries_FullMethodName = "/gophkeeper.DataService/GetAllBinaries"
-	DataService_GetAllCards_FullMethodName    = "/gophkeeper.DataService/GetAllCards"
+	DataService_Save_FullMethodName   = "/gophkeeper.DataService/Save"
+	DataService_GetAll_FullMethodName = "/gophkeeper.DataService/GetAll"
+	DataService_Remove_FullMethodName = "/gophkeeper.DataService/Remove"
 )
 
 // DataServiceClient is the client API for DataService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataServiceClient interface {
-	SaveData(ctx context.Context, in *SaveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetAllLogins(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllLoginsResponse, error)
-	GetAllNotes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllNotesResponse, error)
-	GetAllBinaries(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllBinariesResponse, error)
-	GetAllCards(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllCardsResponse, error)
+	Save(ctx context.Context, in *SaveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetAll(ctx context.Context, in *GetAllDataRequest, opts ...grpc.CallOption) (*GetAllDataResponse, error)
+	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type dataServiceClient struct {
@@ -46,50 +42,30 @@ func NewDataServiceClient(cc grpc.ClientConnInterface) DataServiceClient {
 	return &dataServiceClient{cc}
 }
 
-func (c *dataServiceClient) SaveData(ctx context.Context, in *SaveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *dataServiceClient) Save(ctx context.Context, in *SaveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, DataService_SaveData_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, DataService_Save_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *dataServiceClient) GetAllLogins(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllLoginsResponse, error) {
+func (c *dataServiceClient) GetAll(ctx context.Context, in *GetAllDataRequest, opts ...grpc.CallOption) (*GetAllDataResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllLoginsResponse)
-	err := c.cc.Invoke(ctx, DataService_GetAllLogins_FullMethodName, in, out, cOpts...)
+	out := new(GetAllDataResponse)
+	err := c.cc.Invoke(ctx, DataService_GetAll_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *dataServiceClient) GetAllNotes(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllNotesResponse, error) {
+func (c *dataServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllNotesResponse)
-	err := c.cc.Invoke(ctx, DataService_GetAllNotes_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *dataServiceClient) GetAllBinaries(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllBinariesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllBinariesResponse)
-	err := c.cc.Invoke(ctx, DataService_GetAllBinaries_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *dataServiceClient) GetAllCards(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllCardsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetAllCardsResponse)
-	err := c.cc.Invoke(ctx, DataService_GetAllCards_FullMethodName, in, out, cOpts...)
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, DataService_Remove_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +76,9 @@ func (c *dataServiceClient) GetAllCards(ctx context.Context, in *empty.Empty, op
 // All implementations must embed UnimplementedDataServiceServer
 // for forward compatibility.
 type DataServiceServer interface {
-	SaveData(context.Context, *SaveDataRequest) (*empty.Empty, error)
-	GetAllLogins(context.Context, *empty.Empty) (*GetAllLoginsResponse, error)
-	GetAllNotes(context.Context, *empty.Empty) (*GetAllNotesResponse, error)
-	GetAllBinaries(context.Context, *empty.Empty) (*GetAllBinariesResponse, error)
-	GetAllCards(context.Context, *empty.Empty) (*GetAllCardsResponse, error)
+	Save(context.Context, *SaveDataRequest) (*empty.Empty, error)
+	GetAll(context.Context, *GetAllDataRequest) (*GetAllDataResponse, error)
+	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedDataServiceServer()
 }
 
@@ -115,20 +89,14 @@ type DataServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDataServiceServer struct{}
 
-func (UnimplementedDataServiceServer) SaveData(context.Context, *SaveDataRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SaveData not implemented")
+func (UnimplementedDataServiceServer) Save(context.Context, *SaveDataRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
 }
-func (UnimplementedDataServiceServer) GetAllLogins(context.Context, *empty.Empty) (*GetAllLoginsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllLogins not implemented")
+func (UnimplementedDataServiceServer) GetAll(context.Context, *GetAllDataRequest) (*GetAllDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedDataServiceServer) GetAllNotes(context.Context, *empty.Empty) (*GetAllNotesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllNotes not implemented")
-}
-func (UnimplementedDataServiceServer) GetAllBinaries(context.Context, *empty.Empty) (*GetAllBinariesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllBinaries not implemented")
-}
-func (UnimplementedDataServiceServer) GetAllCards(context.Context, *empty.Empty) (*GetAllCardsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAllCards not implemented")
+func (UnimplementedDataServiceServer) Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }
 func (UnimplementedDataServiceServer) mustEmbedUnimplementedDataServiceServer() {}
 func (UnimplementedDataServiceServer) testEmbeddedByValue()                     {}
@@ -151,92 +119,56 @@ func RegisterDataServiceServer(s grpc.ServiceRegistrar, srv DataServiceServer) {
 	s.RegisterService(&DataService_ServiceDesc, srv)
 }
 
-func _DataService_SaveData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DataService_Save_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SaveDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataServiceServer).SaveData(ctx, in)
+		return srv.(DataServiceServer).Save(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DataService_SaveData_FullMethodName,
+		FullMethod: DataService_Save_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataServiceServer).SaveData(ctx, req.(*SaveDataRequest))
+		return srv.(DataServiceServer).Save(ctx, req.(*SaveDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DataService_GetAllLogins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+func _DataService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataServiceServer).GetAllLogins(ctx, in)
+		return srv.(DataServiceServer).GetAll(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DataService_GetAllLogins_FullMethodName,
+		FullMethod: DataService_GetAll_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataServiceServer).GetAllLogins(ctx, req.(*empty.Empty))
+		return srv.(DataServiceServer).GetAll(ctx, req.(*GetAllDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DataService_GetAllNotes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
+func _DataService_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DataServiceServer).GetAllNotes(ctx, in)
+		return srv.(DataServiceServer).Remove(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DataService_GetAllNotes_FullMethodName,
+		FullMethod: DataService_Remove_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataServiceServer).GetAllNotes(ctx, req.(*empty.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _DataService_GetAllBinaries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DataServiceServer).GetAllBinaries(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DataService_GetAllBinaries_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataServiceServer).GetAllBinaries(ctx, req.(*empty.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _DataService_GetAllCards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(DataServiceServer).GetAllCards(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: DataService_GetAllCards_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DataServiceServer).GetAllCards(ctx, req.(*empty.Empty))
+		return srv.(DataServiceServer).Remove(ctx, req.(*RemoveDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -249,24 +181,16 @@ var DataService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DataServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SaveData",
-			Handler:    _DataService_SaveData_Handler,
+			MethodName: "Save",
+			Handler:    _DataService_Save_Handler,
 		},
 		{
-			MethodName: "GetAllLogins",
-			Handler:    _DataService_GetAllLogins_Handler,
+			MethodName: "GetAll",
+			Handler:    _DataService_GetAll_Handler,
 		},
 		{
-			MethodName: "GetAllNotes",
-			Handler:    _DataService_GetAllNotes_Handler,
-		},
-		{
-			MethodName: "GetAllBinaries",
-			Handler:    _DataService_GetAllBinaries_Handler,
-		},
-		{
-			MethodName: "GetAllCards",
-			Handler:    _DataService_GetAllCards_Handler,
+			MethodName: "Remove",
+			Handler:    _DataService_Remove_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

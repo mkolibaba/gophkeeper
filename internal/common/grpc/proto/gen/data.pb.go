@@ -21,6 +21,312 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DataType int32
+
+const (
+	DataType_LOGIN  DataType = 0
+	DataType_NOTE   DataType = 1
+	DataType_BINARY DataType = 2
+	DataType_CARD   DataType = 3
+)
+
+// Enum value maps for DataType.
+var (
+	DataType_name = map[int32]string{
+		0: "LOGIN",
+		1: "NOTE",
+		2: "BINARY",
+		3: "CARD",
+	}
+	DataType_value = map[string]int32{
+		"LOGIN":  0,
+		"NOTE":   1,
+		"BINARY": 2,
+		"CARD":   3,
+	}
+)
+
+func (x DataType) Enum() *DataType {
+	p := new(DataType)
+	*p = x
+	return p
+}
+
+func (x DataType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DataType) Descriptor() protoreflect.EnumDescriptor {
+	return file_data_proto_enumTypes[0].Descriptor()
+}
+
+func (DataType) Type() protoreflect.EnumType {
+	return &file_data_proto_enumTypes[0]
+}
+
+func (x DataType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+type DataWrapper struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data isDataWrapper_Data     `protobuf_oneof:"data"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DataWrapper) Reset() {
+	*x = DataWrapper{}
+	mi := &file_data_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataWrapper) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataWrapper) ProtoMessage() {}
+
+func (x *DataWrapper) ProtoReflect() protoreflect.Message {
+	mi := &file_data_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *DataWrapper) GetLogin() *Login {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*dataWrapper_Login); ok {
+			return x.Login
+		}
+	}
+	return nil
+}
+
+func (x *DataWrapper) GetNote() *Note {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*dataWrapper_Note); ok {
+			return x.Note
+		}
+	}
+	return nil
+}
+
+func (x *DataWrapper) GetBinary() *Binary {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*dataWrapper_Binary); ok {
+			return x.Binary
+		}
+	}
+	return nil
+}
+
+func (x *DataWrapper) GetCard() *Card {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Data.(*dataWrapper_Card); ok {
+			return x.Card
+		}
+	}
+	return nil
+}
+
+func (x *DataWrapper) SetLogin(v *Login) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &dataWrapper_Login{v}
+}
+
+func (x *DataWrapper) SetNote(v *Note) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &dataWrapper_Note{v}
+}
+
+func (x *DataWrapper) SetBinary(v *Binary) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &dataWrapper_Binary{v}
+}
+
+func (x *DataWrapper) SetCard(v *Card) {
+	if v == nil {
+		x.xxx_hidden_Data = nil
+		return
+	}
+	x.xxx_hidden_Data = &dataWrapper_Card{v}
+}
+
+func (x *DataWrapper) HasData() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Data != nil
+}
+
+func (x *DataWrapper) HasLogin() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*dataWrapper_Login)
+	return ok
+}
+
+func (x *DataWrapper) HasNote() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*dataWrapper_Note)
+	return ok
+}
+
+func (x *DataWrapper) HasBinary() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*dataWrapper_Binary)
+	return ok
+}
+
+func (x *DataWrapper) HasCard() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Data.(*dataWrapper_Card)
+	return ok
+}
+
+func (x *DataWrapper) ClearData() {
+	x.xxx_hidden_Data = nil
+}
+
+func (x *DataWrapper) ClearLogin() {
+	if _, ok := x.xxx_hidden_Data.(*dataWrapper_Login); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *DataWrapper) ClearNote() {
+	if _, ok := x.xxx_hidden_Data.(*dataWrapper_Note); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *DataWrapper) ClearBinary() {
+	if _, ok := x.xxx_hidden_Data.(*dataWrapper_Binary); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+func (x *DataWrapper) ClearCard() {
+	if _, ok := x.xxx_hidden_Data.(*dataWrapper_Card); ok {
+		x.xxx_hidden_Data = nil
+	}
+}
+
+const DataWrapper_Data_not_set_case case_DataWrapper_Data = 0
+const DataWrapper_Login_case case_DataWrapper_Data = 1
+const DataWrapper_Note_case case_DataWrapper_Data = 2
+const DataWrapper_Binary_case case_DataWrapper_Data = 3
+const DataWrapper_Card_case case_DataWrapper_Data = 4
+
+func (x *DataWrapper) WhichData() case_DataWrapper_Data {
+	if x == nil {
+		return DataWrapper_Data_not_set_case
+	}
+	switch x.xxx_hidden_Data.(type) {
+	case *dataWrapper_Login:
+		return DataWrapper_Login_case
+	case *dataWrapper_Note:
+		return DataWrapper_Note_case
+	case *dataWrapper_Binary:
+		return DataWrapper_Binary_case
+	case *dataWrapper_Card:
+		return DataWrapper_Card_case
+	default:
+		return DataWrapper_Data_not_set_case
+	}
+}
+
+type DataWrapper_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Data:
+	Login  *Login
+	Note   *Note
+	Binary *Binary
+	Card   *Card
+	// -- end of xxx_hidden_Data
+}
+
+func (b0 DataWrapper_builder) Build() *DataWrapper {
+	m0 := &DataWrapper{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Login != nil {
+		x.xxx_hidden_Data = &dataWrapper_Login{b.Login}
+	}
+	if b.Note != nil {
+		x.xxx_hidden_Data = &dataWrapper_Note{b.Note}
+	}
+	if b.Binary != nil {
+		x.xxx_hidden_Data = &dataWrapper_Binary{b.Binary}
+	}
+	if b.Card != nil {
+		x.xxx_hidden_Data = &dataWrapper_Card{b.Card}
+	}
+	return m0
+}
+
+type case_DataWrapper_Data protoreflect.FieldNumber
+
+func (x case_DataWrapper_Data) String() string {
+	md := file_data_proto_msgTypes[0].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isDataWrapper_Data interface {
+	isDataWrapper_Data()
+}
+
+type dataWrapper_Login struct {
+	Login *Login `protobuf:"bytes,1,opt,name=login,oneof"`
+}
+
+type dataWrapper_Note struct {
+	Note *Note `protobuf:"bytes,2,opt,name=note,oneof"`
+}
+
+type dataWrapper_Binary struct {
+	Binary *Binary `protobuf:"bytes,3,opt,name=binary,oneof"`
+}
+
+type dataWrapper_Card struct {
+	Card *Card `protobuf:"bytes,4,opt,name=card,oneof"`
+}
+
+func (*dataWrapper_Login) isDataWrapper_Data() {}
+
+func (*dataWrapper_Note) isDataWrapper_Data() {}
+
+func (*dataWrapper_Binary) isDataWrapper_Data() {}
+
+func (*dataWrapper_Card) isDataWrapper_Data() {}
+
 type Login struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
@@ -35,7 +341,7 @@ type Login struct {
 
 func (x *Login) Reset() {
 	*x = Login{}
-	mi := &file_data_proto_msgTypes[0]
+	mi := &file_data_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +353,7 @@ func (x *Login) String() string {
 func (*Login) ProtoMessage() {}
 
 func (x *Login) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[0]
+	mi := &file_data_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +498,7 @@ type Note struct {
 
 func (x *Note) Reset() {
 	*x = Note{}
-	mi := &file_data_proto_msgTypes[1]
+	mi := &file_data_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -204,7 +510,7 @@ func (x *Note) String() string {
 func (*Note) ProtoMessage() {}
 
 func (x *Note) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[1]
+	mi := &file_data_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -317,7 +623,7 @@ type Binary struct {
 
 func (x *Binary) Reset() {
 	*x = Binary{}
-	mi := &file_data_proto_msgTypes[2]
+	mi := &file_data_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -329,7 +635,7 @@ func (x *Binary) String() string {
 func (*Binary) ProtoMessage() {}
 
 func (x *Binary) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[2]
+	mi := &file_data_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,7 +751,7 @@ type Card struct {
 
 func (x *Card) Reset() {
 	*x = Card{}
-	mi := &file_data_proto_msgTypes[3]
+	mi := &file_data_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +763,7 @@ func (x *Card) String() string {
 func (*Card) ProtoMessage() {}
 
 func (x *Card) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[3]
+	mi := &file_data_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,15 +960,18 @@ func (b0 Card_builder) Build() *Card {
 }
 
 type SaveDataRequest struct {
-	state           protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Data isSaveDataRequest_Data `protobuf_oneof:"data"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data        isSaveDataRequest_Data `protobuf_oneof:"data"`
+	xxx_hidden_User        *string                `protobuf:"bytes,5,opt,name=user"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *SaveDataRequest) Reset() {
 	*x = SaveDataRequest{}
-	mi := &file_data_proto_msgTypes[4]
+	mi := &file_data_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -674,7 +983,7 @@ func (x *SaveDataRequest) String() string {
 func (*SaveDataRequest) ProtoMessage() {}
 
 func (x *SaveDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[4]
+	mi := &file_data_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -721,6 +1030,16 @@ func (x *SaveDataRequest) GetCard() *Card {
 	return nil
 }
 
+func (x *SaveDataRequest) GetUser() string {
+	if x != nil {
+		if x.xxx_hidden_User != nil {
+			return *x.xxx_hidden_User
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *SaveDataRequest) SetLogin(v *Login) {
 	if v == nil {
 		x.xxx_hidden_Data = nil
@@ -751,6 +1070,11 @@ func (x *SaveDataRequest) SetCard(v *Card) {
 		return
 	}
 	x.xxx_hidden_Data = &saveDataRequest_Card{v}
+}
+
+func (x *SaveDataRequest) SetUser(v string) {
+	x.xxx_hidden_User = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
 func (x *SaveDataRequest) HasData() bool {
@@ -792,6 +1116,13 @@ func (x *SaveDataRequest) HasCard() bool {
 	return ok
 }
 
+func (x *SaveDataRequest) HasUser() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
 func (x *SaveDataRequest) ClearData() {
 	x.xxx_hidden_Data = nil
 }
@@ -818,6 +1149,11 @@ func (x *SaveDataRequest) ClearCard() {
 	if _, ok := x.xxx_hidden_Data.(*saveDataRequest_Card); ok {
 		x.xxx_hidden_Data = nil
 	}
+}
+
+func (x *SaveDataRequest) ClearUser() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_User = nil
 }
 
 const SaveDataRequest_Data_not_set_case case_SaveDataRequest_Data = 0
@@ -853,6 +1189,7 @@ type SaveDataRequest_builder struct {
 	Binary *Binary
 	Card   *Card
 	// -- end of xxx_hidden_Data
+	User *string
 }
 
 func (b0 SaveDataRequest_builder) Build() *SaveDataRequest {
@@ -871,13 +1208,17 @@ func (b0 SaveDataRequest_builder) Build() *SaveDataRequest {
 	if b.Card != nil {
 		x.xxx_hidden_Data = &saveDataRequest_Card{b.Card}
 	}
+	if b.User != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_User = b.User
+	}
 	return m0
 }
 
 type case_SaveDataRequest_Data protoreflect.FieldNumber
 
 func (x case_SaveDataRequest_Data) String() string {
-	md := file_data_proto_msgTypes[4].Descriptor()
+	md := file_data_proto_msgTypes[5].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -912,86 +1253,30 @@ func (*saveDataRequest_Binary) isSaveDataRequest_Data() {}
 
 func (*saveDataRequest_Card) isSaveDataRequest_Data() {}
 
-type GetAllLoginsResponse struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Result *[]*Login              `protobuf:"bytes,1,rep,name=result"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+type GetAllDataRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DataType    DataType               `protobuf:"varint,1,opt,name=data_type,json=dataType,enum=gophkeeper.DataType"`
+	xxx_hidden_User        *string                `protobuf:"bytes,2,opt,name=user"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
-func (x *GetAllLoginsResponse) Reset() {
-	*x = GetAllLoginsResponse{}
-	mi := &file_data_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAllLoginsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAllLoginsResponse) ProtoMessage() {}
-
-func (x *GetAllLoginsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_data_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *GetAllLoginsResponse) GetResult() []*Login {
-	if x != nil {
-		if x.xxx_hidden_Result != nil {
-			return *x.xxx_hidden_Result
-		}
-	}
-	return nil
-}
-
-func (x *GetAllLoginsResponse) SetResult(v []*Login) {
-	x.xxx_hidden_Result = &v
-}
-
-type GetAllLoginsResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Result []*Login
-}
-
-func (b0 GetAllLoginsResponse_builder) Build() *GetAllLoginsResponse {
-	m0 := &GetAllLoginsResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Result = &b.Result
-	return m0
-}
-
-type GetAllNotesResponse struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Result *[]*Note               `protobuf:"bytes,1,rep,name=result"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *GetAllNotesResponse) Reset() {
-	*x = GetAllNotesResponse{}
+func (x *GetAllDataRequest) Reset() {
+	*x = GetAllDataRequest{}
 	mi := &file_data_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetAllNotesResponse) String() string {
+func (x *GetAllDataRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetAllNotesResponse) ProtoMessage() {}
+func (*GetAllDataRequest) ProtoMessage() {}
 
-func (x *GetAllNotesResponse) ProtoReflect() protoreflect.Message {
+func (x *GetAllDataRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_data_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1003,54 +1288,106 @@ func (x *GetAllNotesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *GetAllNotesResponse) GetResult() []*Note {
+func (x *GetAllDataRequest) GetDataType() DataType {
 	if x != nil {
-		if x.xxx_hidden_Result != nil {
-			return *x.xxx_hidden_Result
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 0) {
+			return x.xxx_hidden_DataType
 		}
 	}
-	return nil
+	return DataType_LOGIN
 }
 
-func (x *GetAllNotesResponse) SetResult(v []*Note) {
-	x.xxx_hidden_Result = &v
+func (x *GetAllDataRequest) GetUser() string {
+	if x != nil {
+		if x.xxx_hidden_User != nil {
+			return *x.xxx_hidden_User
+		}
+		return ""
+	}
+	return ""
 }
 
-type GetAllNotesResponse_builder struct {
+func (x *GetAllDataRequest) SetDataType(v DataType) {
+	x.xxx_hidden_DataType = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *GetAllDataRequest) SetUser(v string) {
+	x.xxx_hidden_User = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+}
+
+func (x *GetAllDataRequest) HasDataType() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *GetAllDataRequest) HasUser() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *GetAllDataRequest) ClearDataType() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_DataType = DataType_LOGIN
+}
+
+func (x *GetAllDataRequest) ClearUser() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_User = nil
+}
+
+type GetAllDataRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Result []*Note
+	DataType *DataType
+	User     *string
 }
 
-func (b0 GetAllNotesResponse_builder) Build() *GetAllNotesResponse {
-	m0 := &GetAllNotesResponse{}
+func (b0 GetAllDataRequest_builder) Build() *GetAllDataRequest {
+	m0 := &GetAllDataRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Result = &b.Result
+	if b.DataType != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_DataType = *b.DataType
+	}
+	if b.User != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_User = b.User
+	}
 	return m0
 }
 
-type GetAllBinariesResponse struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Result *[]*Binary             `protobuf:"bytes,1,rep,name=result"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+type RemoveDataRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_DataType    DataType               `protobuf:"varint,1,opt,name=data_type,json=dataType,enum=gophkeeper.DataType"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_User        *string                `protobuf:"bytes,3,opt,name=user"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
-func (x *GetAllBinariesResponse) Reset() {
-	*x = GetAllBinariesResponse{}
+func (x *RemoveDataRequest) Reset() {
+	*x = RemoveDataRequest{}
 	mi := &file_data_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetAllBinariesResponse) String() string {
+func (x *RemoveDataRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetAllBinariesResponse) ProtoMessage() {}
+func (*RemoveDataRequest) ProtoMessage() {}
 
-func (x *GetAllBinariesResponse) ProtoReflect() protoreflect.Message {
+func (x *RemoveDataRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_data_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1062,54 +1399,134 @@ func (x *GetAllBinariesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *GetAllBinariesResponse) GetResult() []*Binary {
+func (x *RemoveDataRequest) GetDataType() DataType {
 	if x != nil {
-		if x.xxx_hidden_Result != nil {
-			return *x.xxx_hidden_Result
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 0) {
+			return x.xxx_hidden_DataType
 		}
 	}
-	return nil
+	return DataType_LOGIN
 }
 
-func (x *GetAllBinariesResponse) SetResult(v []*Binary) {
-	x.xxx_hidden_Result = &v
+func (x *RemoveDataRequest) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
 }
 
-type GetAllBinariesResponse_builder struct {
+func (x *RemoveDataRequest) GetUser() string {
+	if x != nil {
+		if x.xxx_hidden_User != nil {
+			return *x.xxx_hidden_User
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *RemoveDataRequest) SetDataType(v DataType) {
+	x.xxx_hidden_DataType = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *RemoveDataRequest) SetName(v string) {
+	x.xxx_hidden_Name = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *RemoveDataRequest) SetUser(v string) {
+	x.xxx_hidden_User = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *RemoveDataRequest) HasDataType() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *RemoveDataRequest) HasName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *RemoveDataRequest) HasUser() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *RemoveDataRequest) ClearDataType() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_DataType = DataType_LOGIN
+}
+
+func (x *RemoveDataRequest) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Name = nil
+}
+
+func (x *RemoveDataRequest) ClearUser() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_User = nil
+}
+
+type RemoveDataRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Result []*Binary
+	DataType *DataType
+	Name     *string
+	User     *string
 }
 
-func (b0 GetAllBinariesResponse_builder) Build() *GetAllBinariesResponse {
-	m0 := &GetAllBinariesResponse{}
+func (b0 RemoveDataRequest_builder) Build() *RemoveDataRequest {
+	m0 := &RemoveDataRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Result = &b.Result
+	if b.DataType != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_DataType = *b.DataType
+	}
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Name = b.Name
+	}
+	if b.User != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_User = b.User
+	}
 	return m0
 }
 
-type GetAllCardsResponse struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Result *[]*Card               `protobuf:"bytes,1,rep,name=result"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+type GetAllDataResponse struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data *[]*DataWrapper        `protobuf:"bytes,1,rep,name=data"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
-func (x *GetAllCardsResponse) Reset() {
-	*x = GetAllCardsResponse{}
+func (x *GetAllDataResponse) Reset() {
+	*x = GetAllDataResponse{}
 	mi := &file_data_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetAllCardsResponse) String() string {
+func (x *GetAllDataResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetAllCardsResponse) ProtoMessage() {}
+func (*GetAllDataResponse) ProtoMessage() {}
 
-func (x *GetAllCardsResponse) ProtoReflect() protoreflect.Message {
+func (x *GetAllDataResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_data_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1121,30 +1538,30 @@ func (x *GetAllCardsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *GetAllCardsResponse) GetResult() []*Card {
+func (x *GetAllDataResponse) GetData() []*DataWrapper {
 	if x != nil {
-		if x.xxx_hidden_Result != nil {
-			return *x.xxx_hidden_Result
+		if x.xxx_hidden_Data != nil {
+			return *x.xxx_hidden_Data
 		}
 	}
 	return nil
 }
 
-func (x *GetAllCardsResponse) SetResult(v []*Card) {
-	x.xxx_hidden_Result = &v
+func (x *GetAllDataResponse) SetData(v []*DataWrapper) {
+	x.xxx_hidden_Data = &v
 }
 
-type GetAllCardsResponse_builder struct {
+type GetAllDataResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Result []*Card
+	Data []*DataWrapper
 }
 
-func (b0 GetAllCardsResponse_builder) Build() *GetAllCardsResponse {
-	m0 := &GetAllCardsResponse{}
+func (b0 GetAllDataResponse_builder) Build() *GetAllDataResponse {
+	m0 := &GetAllDataResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Result = &b.Result
+	x.xxx_hidden_Data = &b.Data
 	return m0
 }
 
@@ -1154,7 +1571,13 @@ const file_data_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"data.proto\x12\n" +
-	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\"\xc7\x01\n" +
+	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\"\xbe\x01\n" +
+	"\vDataWrapper\x12)\n" +
+	"\x05login\x18\x01 \x01(\v2\x11.gophkeeper.LoginH\x00R\x05login\x12&\n" +
+	"\x04note\x18\x02 \x01(\v2\x10.gophkeeper.NoteH\x00R\x04note\x12,\n" +
+	"\x06binary\x18\x03 \x01(\v2\x12.gophkeeper.BinaryH\x00R\x06binary\x12&\n" +
+	"\x04card\x18\x04 \x01(\v2\x10.gophkeeper.CardH\x00R\x04cardB\x06\n" +
+	"\x04data\"\xc7\x01\n" +
 	"\x05Login\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05login\x18\x02 \x01(\tR\x05login\x12\x1a\n" +
@@ -1188,73 +1611,80 @@ const file_data_proto_rawDesc = "" +
 	"\bmetadata\x18\x06 \x03(\v2\x1e.gophkeeper.Card.MetadataEntryR\bmetadata\x1a;\n" +
 	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd6\x01\n" +
 	"\x0fSaveDataRequest\x12)\n" +
 	"\x05login\x18\x01 \x01(\v2\x11.gophkeeper.LoginH\x00R\x05login\x12&\n" +
 	"\x04note\x18\x02 \x01(\v2\x10.gophkeeper.NoteH\x00R\x04note\x12,\n" +
 	"\x06binary\x18\x03 \x01(\v2\x12.gophkeeper.BinaryH\x00R\x06binary\x12&\n" +
-	"\x04card\x18\x04 \x01(\v2\x10.gophkeeper.CardH\x00R\x04cardB\x06\n" +
-	"\x04data\"A\n" +
-	"\x14GetAllLoginsResponse\x12)\n" +
-	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result\"?\n" +
-	"\x13GetAllNotesResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result\"D\n" +
-	"\x16GetAllBinariesResponse\x12*\n" +
-	"\x06result\x18\x01 \x03(\v2\x12.gophkeeper.BinaryR\x06result\"?\n" +
-	"\x13GetAllCardsResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xf6\x02\n" +
-	"\vDataService\x12?\n" +
-	"\bSaveData\x12\x1b.gophkeeper.SaveDataRequest\x1a\x16.google.protobuf.Empty\x12H\n" +
-	"\fGetAllLogins\x12\x16.google.protobuf.Empty\x1a .gophkeeper.GetAllLoginsResponse\x12F\n" +
-	"\vGetAllNotes\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllNotesResponse\x12L\n" +
-	"\x0eGetAllBinaries\x12\x16.google.protobuf.Empty\x1a\".gophkeeper.GetAllBinariesResponse\x12F\n" +
-	"\vGetAllCards\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllCardsResponseB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
+	"\x04card\x18\x04 \x01(\v2\x10.gophkeeper.CardH\x00R\x04card\x12\x12\n" +
+	"\x04user\x18\x05 \x01(\tR\x04userB\x06\n" +
+	"\x04data\"Z\n" +
+	"\x11GetAllDataRequest\x121\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x14.gophkeeper.DataTypeR\bdataType\x12\x12\n" +
+	"\x04user\x18\x02 \x01(\tR\x04user\"n\n" +
+	"\x11RemoveDataRequest\x121\n" +
+	"\tdata_type\x18\x01 \x01(\x0e2\x14.gophkeeper.DataTypeR\bdataType\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04user\x18\x03 \x01(\tR\x04user\"A\n" +
+	"\x12GetAllDataResponse\x12+\n" +
+	"\x04data\x18\x01 \x03(\v2\x17.gophkeeper.DataWrapperR\x04data*5\n" +
+	"\bDataType\x12\t\n" +
+	"\x05LOGIN\x10\x00\x12\b\n" +
+	"\x04NOTE\x10\x01\x12\n" +
+	"\n" +
+	"\x06BINARY\x10\x02\x12\b\n" +
+	"\x04CARD\x10\x032\xd4\x01\n" +
+	"\vDataService\x12;\n" +
+	"\x04Save\x12\x1b.gophkeeper.SaveDataRequest\x1a\x16.google.protobuf.Empty\x12G\n" +
+	"\x06GetAll\x12\x1d.gophkeeper.GetAllDataRequest\x1a\x1e.gophkeeper.GetAllDataResponse\x12?\n" +
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
+var file_data_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_data_proto_goTypes = []any{
-	(*Login)(nil),                  // 0: gophkeeper.Login
-	(*Note)(nil),                   // 1: gophkeeper.Note
-	(*Binary)(nil),                 // 2: gophkeeper.Binary
-	(*Card)(nil),                   // 3: gophkeeper.Card
-	(*SaveDataRequest)(nil),        // 4: gophkeeper.SaveDataRequest
-	(*GetAllLoginsResponse)(nil),   // 5: gophkeeper.GetAllLoginsResponse
-	(*GetAllNotesResponse)(nil),    // 6: gophkeeper.GetAllNotesResponse
-	(*GetAllBinariesResponse)(nil), // 7: gophkeeper.GetAllBinariesResponse
-	(*GetAllCardsResponse)(nil),    // 8: gophkeeper.GetAllCardsResponse
-	nil,                            // 9: gophkeeper.Login.MetadataEntry
-	nil,                            // 10: gophkeeper.Note.MetadataEntry
-	nil,                            // 11: gophkeeper.Binary.MetadataEntry
-	nil,                            // 12: gophkeeper.Card.MetadataEntry
-	(*empty.Empty)(nil),            // 13: google.protobuf.Empty
+	(DataType)(0),              // 0: gophkeeper.DataType
+	(*DataWrapper)(nil),        // 1: gophkeeper.DataWrapper
+	(*Login)(nil),              // 2: gophkeeper.Login
+	(*Note)(nil),               // 3: gophkeeper.Note
+	(*Binary)(nil),             // 4: gophkeeper.Binary
+	(*Card)(nil),               // 5: gophkeeper.Card
+	(*SaveDataRequest)(nil),    // 6: gophkeeper.SaveDataRequest
+	(*GetAllDataRequest)(nil),  // 7: gophkeeper.GetAllDataRequest
+	(*RemoveDataRequest)(nil),  // 8: gophkeeper.RemoveDataRequest
+	(*GetAllDataResponse)(nil), // 9: gophkeeper.GetAllDataResponse
+	nil,                        // 10: gophkeeper.Login.MetadataEntry
+	nil,                        // 11: gophkeeper.Note.MetadataEntry
+	nil,                        // 12: gophkeeper.Binary.MetadataEntry
+	nil,                        // 13: gophkeeper.Card.MetadataEntry
+	(*empty.Empty)(nil),        // 14: google.protobuf.Empty
 }
 var file_data_proto_depIdxs = []int32{
-	9,  // 0: gophkeeper.Login.metadata:type_name -> gophkeeper.Login.MetadataEntry
-	10, // 1: gophkeeper.Note.metadata:type_name -> gophkeeper.Note.MetadataEntry
-	11, // 2: gophkeeper.Binary.metadata:type_name -> gophkeeper.Binary.MetadataEntry
-	12, // 3: gophkeeper.Card.metadata:type_name -> gophkeeper.Card.MetadataEntry
-	0,  // 4: gophkeeper.SaveDataRequest.login:type_name -> gophkeeper.Login
-	1,  // 5: gophkeeper.SaveDataRequest.note:type_name -> gophkeeper.Note
-	2,  // 6: gophkeeper.SaveDataRequest.binary:type_name -> gophkeeper.Binary
-	3,  // 7: gophkeeper.SaveDataRequest.card:type_name -> gophkeeper.Card
-	0,  // 8: gophkeeper.GetAllLoginsResponse.result:type_name -> gophkeeper.Login
-	1,  // 9: gophkeeper.GetAllNotesResponse.result:type_name -> gophkeeper.Note
-	2,  // 10: gophkeeper.GetAllBinariesResponse.result:type_name -> gophkeeper.Binary
-	3,  // 11: gophkeeper.GetAllCardsResponse.result:type_name -> gophkeeper.Card
-	4,  // 12: gophkeeper.DataService.SaveData:input_type -> gophkeeper.SaveDataRequest
-	13, // 13: gophkeeper.DataService.GetAllLogins:input_type -> google.protobuf.Empty
-	13, // 14: gophkeeper.DataService.GetAllNotes:input_type -> google.protobuf.Empty
-	13, // 15: gophkeeper.DataService.GetAllBinaries:input_type -> google.protobuf.Empty
-	13, // 16: gophkeeper.DataService.GetAllCards:input_type -> google.protobuf.Empty
-	13, // 17: gophkeeper.DataService.SaveData:output_type -> google.protobuf.Empty
-	5,  // 18: gophkeeper.DataService.GetAllLogins:output_type -> gophkeeper.GetAllLoginsResponse
-	6,  // 19: gophkeeper.DataService.GetAllNotes:output_type -> gophkeeper.GetAllNotesResponse
-	7,  // 20: gophkeeper.DataService.GetAllBinaries:output_type -> gophkeeper.GetAllBinariesResponse
-	8,  // 21: gophkeeper.DataService.GetAllCards:output_type -> gophkeeper.GetAllCardsResponse
-	17, // [17:22] is the sub-list for method output_type
-	12, // [12:17] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	2,  // 0: gophkeeper.DataWrapper.login:type_name -> gophkeeper.Login
+	3,  // 1: gophkeeper.DataWrapper.note:type_name -> gophkeeper.Note
+	4,  // 2: gophkeeper.DataWrapper.binary:type_name -> gophkeeper.Binary
+	5,  // 3: gophkeeper.DataWrapper.card:type_name -> gophkeeper.Card
+	10, // 4: gophkeeper.Login.metadata:type_name -> gophkeeper.Login.MetadataEntry
+	11, // 5: gophkeeper.Note.metadata:type_name -> gophkeeper.Note.MetadataEntry
+	12, // 6: gophkeeper.Binary.metadata:type_name -> gophkeeper.Binary.MetadataEntry
+	13, // 7: gophkeeper.Card.metadata:type_name -> gophkeeper.Card.MetadataEntry
+	2,  // 8: gophkeeper.SaveDataRequest.login:type_name -> gophkeeper.Login
+	3,  // 9: gophkeeper.SaveDataRequest.note:type_name -> gophkeeper.Note
+	4,  // 10: gophkeeper.SaveDataRequest.binary:type_name -> gophkeeper.Binary
+	5,  // 11: gophkeeper.SaveDataRequest.card:type_name -> gophkeeper.Card
+	0,  // 12: gophkeeper.GetAllDataRequest.data_type:type_name -> gophkeeper.DataType
+	0,  // 13: gophkeeper.RemoveDataRequest.data_type:type_name -> gophkeeper.DataType
+	1,  // 14: gophkeeper.GetAllDataResponse.data:type_name -> gophkeeper.DataWrapper
+	6,  // 15: gophkeeper.DataService.Save:input_type -> gophkeeper.SaveDataRequest
+	7,  // 16: gophkeeper.DataService.GetAll:input_type -> gophkeeper.GetAllDataRequest
+	8,  // 17: gophkeeper.DataService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	14, // 18: gophkeeper.DataService.Save:output_type -> google.protobuf.Empty
+	9,  // 19: gophkeeper.DataService.GetAll:output_type -> gophkeeper.GetAllDataResponse
+	14, // 20: gophkeeper.DataService.Remove:output_type -> google.protobuf.Empty
+	18, // [18:21] is the sub-list for method output_type
+	15, // [15:18] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_data_proto_init() }
@@ -1262,7 +1692,13 @@ func file_data_proto_init() {
 	if File_data_proto != nil {
 		return
 	}
-	file_data_proto_msgTypes[4].OneofWrappers = []any{
+	file_data_proto_msgTypes[0].OneofWrappers = []any{
+		(*dataWrapper_Login)(nil),
+		(*dataWrapper_Note)(nil),
+		(*dataWrapper_Binary)(nil),
+		(*dataWrapper_Card)(nil),
+	}
+	file_data_proto_msgTypes[5].OneofWrappers = []any{
 		(*saveDataRequest_Login)(nil),
 		(*saveDataRequest_Note)(nil),
 		(*saveDataRequest_Binary)(nil),
@@ -1273,13 +1709,14 @@ func file_data_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_data_proto_rawDesc), len(file_data_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_data_proto_goTypes,
 		DependencyIndexes: file_data_proto_depIdxs,
+		EnumInfos:         file_data_proto_enumTypes,
 		MessageInfos:      file_data_proto_msgTypes,
 	}.Build()
 	File_data_proto = out.File

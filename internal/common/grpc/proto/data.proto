@@ -8,6 +8,22 @@ option go_package = "gophkeeper/gen;gophkeeper";
 
 // Entity
 
+enum DataType {
+  LOGIN = 0;
+  NOTE = 1;
+  BINARY = 2;
+  CARD = 3;
+}
+
+message DataWrapper {
+  oneof data {
+    Login login = 1;
+    Note note = 2;
+    Binary binary = 3;
+    Card card = 4;
+  }
+}
+
 message Login {
   string name = 1;
   string login = 2;
@@ -45,34 +61,28 @@ message SaveDataRequest {
     Binary binary = 3;
     Card card = 4;
   }
+  string user = 5;
+}
+
+message GetAllDataRequest {
+  DataType data_type = 1;
+  string user = 2;
+}
+
+message RemoveDataRequest {
+  DataType data_type = 1;
+  string name = 2;
+  string user = 3;
 }
 
 // Response
 
-message GetAllLoginsResponse {
-  repeated Login result = 1;
-}
-
-message GetAllNotesResponse {
-  repeated Note result = 1;
-}
-
-message GetAllBinariesResponse {
-  repeated Binary result = 1;
-}
-
-message GetAllCardsResponse {
-  repeated Card result = 1;
+message GetAllDataResponse {
+  repeated DataWrapper data = 1;
 }
 
 service DataService {
-  rpc SaveData(SaveDataRequest) returns (google.protobuf.Empty);
-
-  rpc GetAllLogins(google.protobuf.Empty) returns (GetAllLoginsResponse);
-
-  rpc GetAllNotes(google.protobuf.Empty) returns (GetAllNotesResponse);
-
-  rpc GetAllBinaries(google.protobuf.Empty) returns (GetAllBinariesResponse);
-
-  rpc GetAllCards(google.protobuf.Empty) returns (GetAllCardsResponse);
+  rpc Save(SaveDataRequest) returns (google.protobuf.Empty);
+  rpc GetAll(GetAllDataRequest) returns (GetAllDataResponse);
+  rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
 }
