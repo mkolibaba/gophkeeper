@@ -30,9 +30,9 @@ tasks:
   build:client:
     desc: Build client
     cmds:
-      - go build -o {{.CLIENT_OUT_PATH}} cmd/client/main.go
+      - go build -ldflags "-s -w" -o {{.CLIENT_OUT_PATH}} cmd/client/main.go
 
   build:server:
     desc: Build server
     cmds:
-      - go build -o {{.SERVER_OUT_PATH}} cmd/server/main.go
+      - go build -ldflags "-s -w" -o {{.SERVER_OUT_PATH}} cmd/server/main.go
