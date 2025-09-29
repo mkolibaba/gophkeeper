@@ -3,19 +3,19 @@ package sqlite
 import "os"
 
 const (
-	defaultDSN = "gophkeeper.sqlite"
+	dataFolder = "data"
 )
 
 type Config struct {
-	DSN string
+	DataFolder string
 }
 
 func NewConfig() *Config {
 	var cfg Config
 
-	cfg.DSN = os.Getenv("SQLITE_DSN")
-	if cfg.DSN == "" {
-		cfg.DSN = defaultDSN
+	cfg.DataFolder = os.Getenv("SQLITE_DATA_FOLDER")
+	if cfg.DataFolder == "" {
+		cfg.DataFolder = dataFolder
 	}
 
 	return &cfg

@@ -2,124 +2,69 @@ package client
 
 import (
 	"context"
-	"errors"
-)
-
-const (
-	DataTypeLogin DataType = iota
-	DataTypeNote
-	DataTypeBinary
-	DataTypeCard
-)
-
-var (
-	ErrEmptyName = errors.New("name is empty")
+	"github.com/go-playground/validator/v10"
+	"regexp"
 )
 
 type (
-	DataType uint8
-
 	Data interface {
-		Type() DataType
-		Validate() error
+		LoginData | NoteData | BinaryData | CardData
 	}
 
 	LoginData struct {
-		Name     string
-		Login    string
+		Name     string `validate:"required"`
+		Login    string `validate:"required"`
 		Password string
 		Metadata map[string]string
 	}
 
 	NoteData struct {
-		Name     string
+		Name     string `validate:"required"`
 		Text     string
 		Metadata map[string]string
 	}
 
 	BinaryData struct {
-		Name     string
-		Data     []byte
+		Name     string `validate:"required"`
+		Data     []byte `validate:"required"`
 		Metadata map[string]string
 	}
 
 	CardData struct {
-		Name       string
-		Number     string
-		ExpDate    string
-		CVV        string
-		Cardholder string
+		Name       string `validate:"required"`
+		Number     string `validate:"required,credit_card"`
+		ExpDate    string `validate:"required,exp_date"`
+		CVV        string `validate:"required,len=3"`
+		Cardholder string `validate:"required"`
 		Metadata   map[string]string
 	}
+
+	TypedDataService[T Data] interface {
+		Save(ctx context.Context, user string, data T) error
+		GetAll(ctx context.Context, user string) ([]T, error)
+		// TODO: update method
+		Remove(ctx context.Context, name string, user string) error
+	}
+
+	LoginService TypedDataService[LoginData]
+
+	NoteService TypedDataService[NoteData]
+
+	BinaryService TypedDataService[BinaryData]
+
+	CardService TypedDataService[CardData]
 )
 
-func (l LoginData) Type() DataType {
-	return DataTypeLogin
-}
+func NewDataValidator() (*validator.Validate, error) {
+	expDateRegexp, err := regexp.Compile(`^\d{2}/\d{2}$`)
+	if err != nil {
+		return nil, err
+	}
 
-func (l LoginData) Validate() error {
-	if l.Name == "" {
-		return ErrEmptyName
-	}
-	if l.Login == "" {
-		return errors.New("login is empty")
-	}
-	return nil
-}
+	v := validator.New()
+	err = v.RegisterValidation("exp_date", func(fl validator.FieldLevel) bool {
+		return expDateRegexp.MatchString(fl.Field().String())
+	})
 
-func (n NoteData) Type() DataType {
-	return DataTypeNote
-}
-
-func (n NoteData) Validate() error {
-	if n.Name == "" {
-		return ErrEmptyName
-	}
-	if n.Text == "" {
-		return errors.New("text is empty")
-	}
-	return nil
-}
-
-func (b BinaryData) Type() DataType {
-	return DataTypeBinary
-}
-
-func (b BinaryData) Validate() error {
-	if b.Name == "" {
-		return ErrEmptyName
-	}
-	if len(b.Data) == 0 {
-		return errors.New("data is empty")
-	}
-	return nil
-}
-
-func (c CardData) Type() DataType {
-	return DataTypeCard
-}
-
-func (c CardData) Validate() error {
-	if c.Name == "" {
-		return ErrEmptyName
-	}
-	if c.Number == "" {
-		return errors.New("number is empty")
-	}
-	if c.ExpDate == "" {
-		return errors.New("exp date is empty")
-	}
-	if c.CVV == "" {
-		return errors.New("cvv is empty")
-	}
-	if c.Cardholder == "" {
-		return errors.New("cardholder is empty")
-	}
-	return nil
-}
-
-type DataService interface {
-	Save(ctx context.Context, user string, data Data) error
-	GetAll(ctx context.Context, user string, dataType DataType) ([]Data, error)
-	Remove(ctx context.Context, user string, name string, dataType DataType) error
+	return v, err
 }

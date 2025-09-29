@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/go-playground/validator/v10"
+	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc"
 	"github.com/mkolibaba/gophkeeper/internal/server/sqlite"
 	"go.uber.org/fx"
@@ -20,7 +20,7 @@ func createApp() fx.Option {
 		}),
 		fx.Provide(
 			zap.NewDevelopment,
-			validator.New,
+			server.NewDataValidator,
 		),
 		sqlite.Module,
 		grpc.Module,

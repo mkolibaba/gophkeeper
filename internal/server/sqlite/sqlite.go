@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"io/fs"
 	_ "modernc.org/sqlite"
+	"os"
 	"sort"
 )
 
@@ -14,20 +15,27 @@ import (
 var migrationFS embed.FS
 
 type DB struct {
-	db     *sql.DB
-	dsn    string
-	logger *zap.Logger
+	db             *sql.DB
+	dsn            string
+	binariesFolder string
+	logger         *zap.Logger
 }
 
 func NewDB(cfg *Config, logger *zap.Logger) *DB {
 	return &DB{
-		dsn:    cfg.DSN,
-		logger: logger,
+		dsn:            fmt.Sprintf("%s/gophkeeper.sqlite", cfg.DataFolder),
+		binariesFolder: fmt.Sprintf("%s/assets/binary", cfg.DataFolder),
+		logger:         logger,
 	}
 }
 
 func (d *DB) Open() (err error) {
 	d.db, err = sql.Open("sqlite", d.dsn)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(d.binariesFolder, 0755)
 	if err != nil {
 		return err
 	}

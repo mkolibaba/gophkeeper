@@ -2,6 +2,8 @@ package tui
 
 import (
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/mkolibaba/gophkeeper/internal/client"
+	"go.uber.org/fx"
 	"regexp"
 )
 
@@ -12,12 +14,48 @@ type Bubble struct {
 
 	width  int // Ширина терминала
 	height int // Высота терминала
+
+	loginService  client.LoginService
+	noteService   client.NoteService
+	binaryService client.BinaryService
+	cardService   client.CardService
+
+	shutdowner fx.Shutdowner
 }
 
 // NewBubble создает новый экземпляр UI.
-func NewBubble(tabs ...TabItem) Bubble {
+func NewBubble(
+	loginService client.LoginService,
+	noteService client.NoteService,
+	binaryService client.BinaryService,
+	cardService client.CardService,
+	shutdowner fx.Shutdowner,
+) Bubble {
+	loginTab := NewTab("Login", []list.Item{
+		ListItem{Name: "Google", Desc: "iivanov"},
+		ListItem{Name: "Ozon", Desc: "+79031002030"},
+		ListItem{Name: "Wildberries", Desc: "+79031002030"},
+		ListItem{Name: "Госуслуги", Desc: "iivanov@gmail.com"},
+		ListItem{Name: "Mail.ru", Desc: "ivanivanov"},
+		ListItem{Name: "VK", Desc: "ivanivanov@mail.ru"},
+	})
+	noteTab := NewTab("Note", []list.Item{
+		NewNoteItem("Записки о природе", "Кто никогда не видал, как растет клюква, тот может очень долго идти по болоту и не замечать, что он по клюкве идет."),
+		NewNoteItem("Мысль", "Живешь ты, может быть, сам триста лет, и кто породил тебя, тот в яичке своем пересказал все, что он тоже узнал за свои триста лет жизни."),
+	})
+	binaryTab := NewTab("Binary", []list.Item{})
+	cardTab := NewTab("Card", []list.Item{
+		NewCardItem("Сбербанк", "2200123456789019"),
+		NewCardItem("Т-Банк", "2201987654321000"),
+	})
+	settingsTab := NewTab("Settings", []list.Item{})
+
 	return Bubble{
-		tabs: tabs,
+		tabs:          []TabItem{loginTab, noteTab, binaryTab, cardTab, settingsTab},
+		loginService:  loginService,
+		noteService:   noteService,
+		binaryService: binaryService,
+		cardService:   cardService,
 	}
 }
 

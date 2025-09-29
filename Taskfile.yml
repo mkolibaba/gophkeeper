@@ -1,8 +1,9 @@
 version: '3'
 
 vars:
-  CLIENT_OUT_PATH: build/gophkeeper-client
-  SERVER_OUT_PATH: build/gophkeeper-server
+  CLIENT_OUT_PATH: bin/gophkeeper-client
+  CLIENT_LOG_OUTPUT: bin/client.log
+  SERVER_OUT_PATH: bin/gophkeeper-server
 
 tasks:
   gen:proto:
@@ -37,7 +38,29 @@ tasks:
     cmds:
       - go build -ldflags "-s -w" -o {{.SERVER_OUT_PATH}} cmd/server/main.go
 
+  run:client:
+    desc: Run client
+    env:
+      GRPC_SERVER_ADDRESS: localhost:8080
+      LOG_OUTPUT: bin/client.log
+    cmds:
+      - task: build:client
+      - ./{{.CLIENT_OUT_PATH}}
+
+  run:server:
+    desc: Run server
+    env:
+      SQLITE_DATA_FOLDER: data
+    cmds:
+      - task: build:server
+      - ./{{.SERVER_OUT_PATH}}
+
   test:
     desc: Run tests
     cmds:
       - go test ./...
+
+  log:client:
+    desc: Show client log
+    cmds:
+      - tail -n 1000 {{.CLIENT_LOG_OUTPUT}}
