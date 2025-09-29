@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type dataServiceServer struct {
+type DataServiceServer struct {
 	pb.UnimplementedDataServiceServer
 	loginService  server.LoginService
 	noteService   server.NoteService
@@ -22,7 +22,25 @@ type dataServiceServer struct {
 	logger        *zap.Logger
 }
 
-func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*empty.Empty, error) {
+func NewDataServiceServer(
+	loginService server.LoginService,
+	noteService server.NoteService,
+	binaryService server.BinaryService,
+	cardService server.CardService,
+	dataValidator *validator.Validate,
+	logger *zap.Logger,
+) *DataServiceServer {
+	return &DataServiceServer{
+		loginService:  loginService,
+		noteService:   noteService,
+		binaryService: binaryService,
+		cardService:   cardService,
+		dataValidator: dataValidator,
+		logger:        logger,
+	}
+}
+
+func (d *DataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*empty.Empty, error) {
 	var validate func() error // TODO: придумать решение получше
 	var save func() error
 
@@ -107,7 +125,7 @@ func (d *dataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 	return &empty.Empty{}, nil
 }
 
-func (d *dataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest) (*pb.GetAllDataResponse, error) {
+func (d *DataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest) (*pb.GetAllDataResponse, error) {
 	if in.GetUser() == "" {
 		return nil, status.Error(codes.InvalidArgument, "user is required")
 	}
@@ -200,7 +218,7 @@ func (d *dataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest
 	return &out, nil
 }
 
-func (d *dataServiceServer) Remove(ctx context.Context, in *pb.RemoveDataRequest) (*empty.Empty, error) {
+func (d *DataServiceServer) Remove(ctx context.Context, in *pb.RemoveDataRequest) (*empty.Empty, error) {
 	// TODO: validate name and user
 	if in.GetUser() == "" {
 		return nil, status.Error(codes.InvalidArgument, "user is required")

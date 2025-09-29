@@ -24,7 +24,7 @@ func main() {
 	})
 	binaryTab := tui.NewTab("Binary", []list.Item{})
 	cardTab := tui.NewTab("Card", []list.Item{
-		tui.NewCardItem("Сбербанк", "2200123456789012"),
+		tui.NewCardItem("Сбербанк", "2200123456789019"),
 		tui.NewCardItem("Т-Банк", "2201987654321000"),
 	})
 	settingsTab := tui.NewTab("Settings", []list.Item{})
