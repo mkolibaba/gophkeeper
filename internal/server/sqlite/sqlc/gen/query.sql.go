@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"encoding/json"
 )
 
 const getAllBinaries = `-- name: GetAllBinaries :many
@@ -214,7 +213,7 @@ VALUES (?, ?, ?, ?)
 type SaveBinaryParams struct {
 	Name     string
 	Data     []byte
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }
 
@@ -239,7 +238,7 @@ type SaveCardParams struct {
 	ExpDate    string
 	Cvv        string
 	Cardholder string
-	Metadata   json.RawMessage
+	Metadata   []byte
 	User       string
 }
 
@@ -265,7 +264,7 @@ type SaveLoginParams struct {
 	Name     string
 	Login    string
 	Password *string
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }
 
@@ -288,7 +287,7 @@ VALUES (?, ?, ?, ?)
 type SaveNoteParams struct {
 	Name     string
 	Text     *string
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }
 

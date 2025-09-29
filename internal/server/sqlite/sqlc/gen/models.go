@@ -4,14 +4,10 @@
 
 package sqlc
 
-import (
-	"encoding/json"
-)
-
 type Binary struct {
 	Name     string
 	Data     []byte
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }
 
@@ -21,7 +17,7 @@ type Card struct {
 	ExpDate    string
 	Cvv        string
 	Cardholder string
-	Metadata   json.RawMessage
+	Metadata   []byte
 	User       string
 }
 
@@ -29,13 +25,13 @@ type Login struct {
 	Name     string
 	Login    string
 	Password *string
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }
 
 type Note struct {
 	Name     string
 	Text     *string
-	Metadata json.RawMessage
+	Metadata []byte
 	User     string
 }

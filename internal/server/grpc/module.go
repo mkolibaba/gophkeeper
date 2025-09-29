@@ -10,6 +10,9 @@ var Module = fx.Module(
 		NewServer,
 	),
 	fx.Invoke(
-		func(*Server) {},
+		StartServer,
 	),
 )
+
+func StartServer(*Server) {
+}

@@ -11,9 +11,7 @@ var Module = fx.Module(
 	fx.Provide(
 		NewConfig,
 		NewDB,
-		func(db *DB) *sqlc.Queries {
-			return sqlc.New(db.db)
-		},
+		NewQueries,
 		fx.Annotate(NewLoginService, fx.As(new(server.LoginService))),
 		fx.Annotate(NewNoteService, fx.As(new(server.NoteService))),
 		fx.Annotate(NewBinaryService, fx.As(new(server.BinaryService))),
@@ -23,6 +21,10 @@ var Module = fx.Module(
 		OpenDB,
 	),
 )
+
+func NewQueries(db *DB) *sqlc.Queries {
+	return sqlc.New(db.db)
+}
 
 func OpenDB(db *DB) error {
 	return db.Open()

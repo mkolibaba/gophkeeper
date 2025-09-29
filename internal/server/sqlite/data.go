@@ -23,6 +23,10 @@ func tryUnwrapSaveError(err error) error {
 }
 
 func unmarshalMetadata(data []byte) (metadata map[string]string, err error) {
+	if len(data) == 0 {
+		return
+	}
+
 	if err = json.Unmarshal(data, &metadata); err != nil {
 		return nil, fmt.Errorf("unmarshal metadata: %w", err)
 	}
