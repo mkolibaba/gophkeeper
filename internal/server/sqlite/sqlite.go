@@ -19,9 +19,9 @@ type DB struct {
 	logger *zap.Logger
 }
 
-func NewDB(dsn string, logger *zap.Logger) *DB {
+func NewDB(cfg *Config, logger *zap.Logger) *DB {
 	return &DB{
-		dsn:    dsn,
+		dsn:    cfg.DSN,
 		logger: logger,
 	}
 }

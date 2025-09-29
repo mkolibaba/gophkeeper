@@ -36,3 +36,8 @@ tasks:
     desc: Build server
     cmds:
       - go build -ldflags "-s -w" -o {{.SERVER_OUT_PATH}} cmd/server/main.go
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...

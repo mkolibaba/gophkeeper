@@ -12,6 +12,12 @@ type CardService struct {
 	qs *sqlc.Queries
 }
 
+func NewCardService(queries *sqlc.Queries) *CardService {
+	return &CardService{
+		qs: queries,
+	}
+}
+
 func (c *CardService) Save(ctx context.Context, data server.CardData) error {
 	metadata, err := json.Marshal(data.Metadata)
 	if err != nil {
