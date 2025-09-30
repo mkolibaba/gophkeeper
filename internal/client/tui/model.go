@@ -1,24 +1,20 @@
 package tui
 
 import (
-	"context"
-	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
+	"go.uber.org/zap"
 	"io"
 	"os"
-	"regexp"
 )
 
 // Bubble представляет состояние UI.
 type Bubble struct {
-	tabs      []TabItem
-	activeTab int
-
 	width  int // Ширина терминала
 	height int // Высота терминала
-
-	frameHeight int
-	frameWidth  int
 
 	loginService  client.LoginService
 	noteService   client.NoteService
@@ -26,7 +22,20 @@ type Bubble struct {
 	cardService   client.CardService
 
 	dump io.Writer
+
+	dataTable table.Model
 }
+
+var (
+	titleStyle = lipgloss.NewStyle().
+			PaddingLeft(1).
+			Background(lipgloss.Color("105")).
+			SetString("Gophkeeper")
+
+	contentStyle = lipgloss.NewStyle().
+			Border(lipgloss.DoubleBorder()).
+			BorderForeground(lipgloss.Color("141"))
+)
 
 // NewBubble создает новый экземпляр UI.
 func NewBubble(
@@ -34,6 +43,7 @@ func NewBubble(
 	noteService client.NoteService,
 	binaryService client.BinaryService,
 	cardService client.CardService,
+	logger *zap.Logger,
 ) (Bubble, error) {
 	var dump *os.File
 	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
@@ -44,163 +54,76 @@ func NewBubble(
 		}
 	}
 
-	loginTab := NewTab("Login", LoginFetcher(loginService))
-	noteTab := NewTab("Note", NoteFetcher(noteService))
-	binaryTab := NewTab("Binary", BinaryFetcher(binaryService))
-	cardTab := NewTab("Card", CardFetcher(cardService))
-	settingsTab := NewTab("Settings", func() []list.Item {
-		return nil
-	})
+	dataTable := table.NewModel(
+		loginService,
+		noteService,
+		binaryService,
+		cardService,
+		logger,
+	)
 
 	return Bubble{
-		tabs:          []TabItem{loginTab, noteTab, binaryTab, cardTab, settingsTab},
 		loginService:  loginService,
 		noteService:   noteService,
 		binaryService: binaryService,
 		cardService:   cardService,
 		dump:          dump,
+		dataTable:     dataTable,
 	}, nil
 }
 
-type Fetcher func() []list.Item
+// Init инициализирует UI.
+func (b Bubble) Init() tea.Cmd {
+	return b.dataTable.Init()
+}
 
-func LoginFetcher(loginService client.LoginService) Fetcher {
-	return func() []list.Item {
-		logins, err := loginService.GetAll(context.Background(), "demo")
-		if err != nil {
-			panic(err)
+// Update обновляет UI в зависимости от события.
+func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	spew.Fdump(b.dump, msg)
+
+	switch msg := msg.(type) {
+	case table.FetchDataMsg:
+		var cmd tea.Cmd
+		b.dataTable, cmd = b.dataTable.Update(msg)
+		return b, cmd
+	case tea.KeyMsg:
+		switch keypress := msg.String(); keypress {
+		case "up", "down":
+			var cmd tea.Cmd
+			b.dataTable, cmd = b.dataTable.Update(msg)
+			return b, cmd
+		case "ctrl+c", "q":
+			return b, tea.Quit
 		}
-
-		var loginItems []list.Item
-		for _, login := range logins {
-			loginItems = append(loginItems, ListItem{Name: login.Name, Desc: login.Login})
-		}
-
-		return loginItems
+	case tea.WindowSizeMsg:
+		b.height, b.width = msg.Height, msg.Width
 	}
+
+	return b, nil
 }
 
-func NoteFetcher(noteService client.NoteService) Fetcher {
-	return func() []list.Item {
-		notes, err := noteService.GetAll(context.Background(), "demo")
-		if err != nil {
-			panic(err)
-		}
+// View возвращает строковое представление UI.
+func (b Bubble) View() string {
+	// Заголовок приложения
+	title := titleStyle.
+		Width(b.width).
+		Render()
 
-		var noteItems []list.Item
-		for _, note := range notes {
-			noteItems = append(noteItems, NewNoteItem(note.Name, note.Text))
-		}
+	// Окно со списком данных
+	contentLeft := contentStyle.
+		Width(b.width/3*2 - contentStyle.GetHorizontalFrameSize()).
+		Height(b.height - lipgloss.Height(title) - contentStyle.GetVerticalFrameSize()).
+		PaddingLeft(1).
+		Render(b.dataTable.View())
 
-		return noteItems
-	}
-}
+	// Окно детального просмотра
+	contentRight := contentStyle.
+		Width(b.width-lipgloss.Width(contentLeft)-contentStyle.GetHorizontalFrameSize()).
+		Height(b.height-lipgloss.Height(title)-contentStyle.GetVerticalFrameSize()).
+		Align(lipgloss.Center, lipgloss.Center).
+		Render("Right content")
 
-func BinaryFetcher(binaryService client.BinaryService) Fetcher {
-	return func() []list.Item {
-		binaries, err := binaryService.GetAll(context.Background(), "demo")
-		if err != nil {
-			panic(err)
-		}
+	content := lipgloss.JoinHorizontal(lipgloss.Top, contentLeft, contentRight)
 
-		var binaryItems []list.Item
-		for _, binary := range binaries {
-			binaryItems = append(binaryItems, ListItem{Name: binary.Name})
-		}
-
-		return binaryItems
-	}
-}
-
-func CardFetcher(cardService client.CardService) Fetcher {
-	return func() []list.Item {
-		cards, err := cardService.GetAll(context.Background(), "demo")
-		if err != nil {
-			panic(err)
-		}
-
-		var cardItems []list.Item
-		for _, card := range cards {
-			cardItems = append(cardItems, NewCardItem(card.Name, card.Number))
-		}
-
-		return cardItems
-	}
-}
-
-type TabItem struct {
-	Name    string
-	List    list.Model
-	Fetcher Fetcher
-}
-
-func NewTab(name string, fetcher Fetcher) TabItem {
-	l := list.New(nil, list.NewDefaultDelegate(), 0, 0)
-	l.SetShowTitle(false)
-	l.SetShowHelp(false)
-	l.SetShowPagination(false)
-	l.SetShowStatusBar(false)
-
-	return TabItem{
-		Name:    name,
-		List:    l,
-		Fetcher: fetcher,
-	}
-}
-
-func (t TabItem) UpdateItems() TabItem {
-	t.List.SetItems(t.Fetcher())
-	return t
-}
-
-// ListItem представляет элемент списка.
-type ListItem struct {
-	Name string
-	Desc string
-}
-
-func (i ListItem) Title() string {
-	return i.Name
-}
-
-func (i ListItem) Description() string {
-	return i.Desc
-}
-
-func (i ListItem) FilterValue() string {
-	return i.Name
-}
-
-type NoteItem struct {
-	ListItem
-}
-
-func NewNoteItem(name, text string) NoteItem {
-	return NoteItem{ListItem{name, text}}
-}
-
-func (i NoteItem) Description() string {
-	maxLength := 30
-	asRunes := []rune(i.Desc) // TODO: может есть лучше решение?
-	if len(asRunes) > maxLength {
-		return string(asRunes[:maxLength-3]) + "..."
-	}
-	return i.Desc
-}
-
-var maskingCardNumberRegexp = regexp.MustCompile(`(\d{6})\d{6}(\d{4})`)
-var spacingCardNumberRegexp = regexp.MustCompile(`(.{4})(.{4})(.{4})(.{4})`)
-
-// CardItem представляет элемент списка вкладки Card.
-type CardItem struct {
-	ListItem
-}
-
-func NewCardItem(name, number string) CardItem {
-	return CardItem{ListItem{name, number}}
-}
-
-func (c CardItem) Description() string {
-	masked := maskingCardNumberRegexp.ReplaceAllString(c.Desc, "$1******$2")
-	return spacingCardNumberRegexp.ReplaceAllString(masked, "$1 $2 $3 $4")
+	return lipgloss.JoinVertical(lipgloss.Top, title, content)
 }
