@@ -19,7 +19,7 @@ func NewBinaryService(client pb.DataServiceClient) *BinaryService {
 func (b *BinaryService) Save(ctx context.Context, user string, data client.BinaryData) error {
 	var binary pb.Binary
 	binary.SetName(data.Name)
-	binary.SetData(data.Data)
+	binary.SetData(data.Bytes)
 	binary.SetMetadata(data.Metadata)
 
 	var in pb.SaveDataRequest
@@ -45,7 +45,7 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]client.Binar
 		binary := data.GetBinary()
 		binaries = append(binaries, client.BinaryData{
 			Name:     binary.GetName(),
-			Data:     binary.GetData(),
+			Bytes:    binary.GetData(),
 			Metadata: binary.GetMetadata(),
 		})
 	}

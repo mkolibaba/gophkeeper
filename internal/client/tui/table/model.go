@@ -1,10 +1,11 @@
 package table
 
 import (
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
-	"go.uber.org/zap"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"regexp"
 )
 
@@ -35,58 +36,31 @@ type Row struct {
 }
 
 type Model struct {
-	cursor int
-	rows   []Row
-
-	loginService  client.LoginService
-	noteService   client.NoteService
-	binaryService client.BinaryService
-	cardService   client.CardService
-
-	logger *zap.Logger
+	cursor       int
+	data         []client.Data
+	renderedRows []Row
+	manager      *state.Manager
 }
 
-func NewModel(
-	loginService client.LoginService,
-	noteService client.NoteService,
-	binaryService client.BinaryService,
-	cardService client.CardService,
-	logger *zap.Logger,
-) Model {
-	return Model{
-		loginService:  loginService,
-		noteService:   noteService,
-		binaryService: binaryService,
-		cardService:   cardService,
-		logger:        logger,
-	}
+func NewModel() Model {
+	return Model{}
 }
 
 func (m Model) Init() tea.Cmd {
-	return FetchData(
-		m.loginService,
-		m.noteService,
-		m.binaryService,
-		m.cardService,
-		m.logger,
-	)
+	return nil
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case FetchDataMsg:
+	case state.FetchDataMsg:
 		m = m.processFetchedData(msg)
 		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
-			if m.cursor > 0 {
-				m.cursor--
-			}
+			m.cursor = (m.cursor - 1 + len(m.data)) % len(m.data)
 		case "down":
-			if m.cursor < len(m.rows)-1 {
-				m.cursor++
-			}
+			m.cursor = (m.cursor + 1) % len(m.data)
 		}
 	}
 
@@ -95,10 +69,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	rows := []string{m.renderRow("Type", "Name", "Value", false)}
-	for i, row := range m.rows {
+	for i, row := range m.renderedRows {
 		rows = append(rows, m.renderRow(row.DataType, row.Name, row.RenderedValue, i == m.cursor))
 	}
 	return lipgloss.JoinVertical(lipgloss.Top, rows...)
+}
+
+func (m Model) GetCurrentRow() client.Data {
+	return m.data[m.cursor]
+}
+
+func (m Model) RenderInfoBar() string {
+	return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
 }
 
 func (m Model) renderRow(t DataType, name, value string, selected bool) string {
@@ -117,10 +99,24 @@ func (m Model) renderRow(t DataType, name, value string, selected bool) string {
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m Model) processFetchedData(msg FetchDataMsg) Model {
-	m.rows = make([]Row, 0, len(msg.Logins)+len(msg.Notes)+len(msg.Binaries)+len(msg.Cards))
+func (m Model) processFetchedData(msg state.FetchDataMsg) Model {
+	m.data = []client.Data{}
 	for _, login := range msg.Logins {
-		m.rows = append(m.rows, Row{
+		m.data = append(m.data, login)
+	}
+	for _, note := range msg.Notes {
+		m.data = append(m.data, note)
+	}
+	for _, binary := range msg.Binaries {
+		m.data = append(m.data, binary)
+	}
+	for _, card := range msg.Cards {
+		m.data = append(m.data, card)
+	}
+
+	m.renderedRows = make([]Row, 0, len(msg.Logins)+len(msg.Notes)+len(msg.Binaries)+len(msg.Cards))
+	for _, login := range msg.Logins {
+		m.renderedRows = append(m.renderedRows, Row{
 			DataType:      DataTypeLogin,
 			Name:          login.Name,
 			Value:         login.Login,
@@ -128,7 +124,7 @@ func (m Model) processFetchedData(msg FetchDataMsg) Model {
 		})
 	}
 	for _, note := range msg.Notes {
-		m.rows = append(m.rows, Row{
+		m.renderedRows = append(m.renderedRows, Row{
 			DataType:      DataTypeNote,
 			Name:          note.Name,
 			Value:         note.Text,
@@ -136,7 +132,7 @@ func (m Model) processFetchedData(msg FetchDataMsg) Model {
 		})
 	}
 	for _, binary := range msg.Binaries {
-		m.rows = append(m.rows, Row{
+		m.renderedRows = append(m.renderedRows, Row{
 			DataType:      DataTypeBinary,
 			Name:          binary.Name,
 			Value:         "<binary>",
@@ -144,7 +140,7 @@ func (m Model) processFetchedData(msg FetchDataMsg) Model {
 		})
 	}
 	for _, card := range msg.Cards {
-		m.rows = append(m.rows, Row{
+		m.renderedRows = append(m.renderedRows, Row{
 			DataType:      DataTypeCard,
 			Name:          card.Name,
 			Value:         card.Number,

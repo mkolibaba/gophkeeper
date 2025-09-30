@@ -8,10 +8,10 @@ import (
 
 type (
 	Data interface {
-		LoginData | NoteData | BinaryData | CardData
 	}
 
 	LoginData struct {
+		Data
 		Name     string `validate:"required"`
 		Login    string `validate:"required"`
 		Password string
@@ -19,18 +19,21 @@ type (
 	}
 
 	NoteData struct {
+		Data
 		Name     string `validate:"required"`
 		Text     string
 		Metadata map[string]string
 	}
 
 	BinaryData struct {
+		Data
 		Name     string `validate:"required"`
-		Data     []byte `validate:"required"`
+		Bytes    []byte `validate:"required"`
 		Metadata map[string]string
 	}
 
 	CardData struct {
+		Data
 		Name       string `validate:"required"`
 		Number     string `validate:"required,credit_card"`
 		ExpDate    string `validate:"required,exp_date"`
