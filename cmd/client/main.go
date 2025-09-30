@@ -1,7 +1,6 @@
 package main
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/grpc"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui"
@@ -29,11 +28,8 @@ func createApp() fx.Option {
 				return cfg.Build()
 			},
 			client.NewDataValidator,
-			tui.NewBubble,
 		),
 		grpc.Module,
-		fx.Invoke(func(b tui.Bubble) {
-			go tea.NewProgram(b, tea.WithAltScreen()).Run()
-		}),
+		tui.Module,
 	)
 }

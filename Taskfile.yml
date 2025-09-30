@@ -1,9 +1,10 @@
 version: '3'
 
-vars:
-  CLIENT_OUT_PATH: bin/gophkeeper-client
-  CLIENT_LOG_OUTPUT: bin/client.log
-  SERVER_OUT_PATH: bin/gophkeeper-server
+includes:
+  server:
+    taskfile: ./taskfiles/Server.yml
+  client:
+    taskfile: ./taskfiles/Client.yml
 
 tasks:
   gen:proto:
@@ -13,54 +14,14 @@ tasks:
     cmds:
       - (cd {{.PROTO_PATH}};protoc --go_out=gen --go_opt=paths=source_relative --go-grpc_out=gen --go-grpc_opt=paths=source_relative --go_opt=default_api_level=API_OPAQUE *.proto)
 
-  gen:sqlc:
-    desc: Generate sqlc
-    vars:
-      SQLC_REPOSITORY: github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0
-      SQLC_CONFIG: internal/server/sqlite/sqlc/sqlc.yml
-    cmds:
-      - go run {{.SQLC_REPOSITORY}} generate -f {{.SQLC_CONFIG}}
-
   build:
     desc: Build apps
     run: once
     cmds:
-      - task: build:client
-      - task: build:server
-
-  build:client:
-    desc: Build client
-    cmds:
-      - go build -ldflags "-s -w" -o {{.CLIENT_OUT_PATH}} cmd/client/main.go
-
-  build:server:
-    desc: Build server
-    cmds:
-      - go build -ldflags "-s -w" -o {{.SERVER_OUT_PATH}} cmd/server/main.go
-
-  run:client:
-    desc: Run client
-    env:
-      GRPC_SERVER_ADDRESS: localhost:8080
-      LOG_OUTPUT: bin/client.log
-    cmds:
-      - task: build:client
-      - ./{{.CLIENT_OUT_PATH}}
-
-  run:server:
-    desc: Run server
-    env:
-      SQLITE_DATA_FOLDER: data
-    cmds:
-      - task: build:server
-      - ./{{.SERVER_OUT_PATH}}
+      - task: client:build
+      - task: server:build
 
   test:
     desc: Run tests
     cmds:
       - go test ./...
-
-  log:client:
-    desc: Show client log
-    cmds:
-      - tail -n 1000 {{.CLIENT_LOG_OUTPUT}}

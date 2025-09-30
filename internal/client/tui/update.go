@@ -8,13 +8,14 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
 		case "ctrl+c", "q":
-			go b.shutdowner.Shutdown()
 			return b, tea.Quit
 		case "right", "l", "n", "tab":
 			b.activeTab = min(b.activeTab+1, len(b.tabs)-1)
+			b.tabs[b.activeTab] = b.tabs[b.activeTab].UpdateItems()
 			return b, nil // блокируем дефолтное обновление list
 		case "left", "h", "p", "shift+tab":
 			b.activeTab = max(b.activeTab-1, 0)
+			b.tabs[b.activeTab] = b.tabs[b.activeTab].UpdateItems()
 			return b, nil // блокируем дефолтное обновление list
 		}
 	case tea.WindowSizeMsg:
@@ -25,6 +26,7 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
+	b.tabs[b.activeTab] = b.tabs[b.activeTab].UpdateItems()
 	b.tabs[b.activeTab].List, cmd = b.tabs[b.activeTab].List.Update(msg)
 	return b, cmd
 }

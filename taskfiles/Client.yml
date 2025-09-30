@@ -1,0 +1,25 @@
+version: '3'
+
+vars:
+  OUT_PATH: bin/gophkeeper-client
+  LOG_OUTPUT: bin/client.log
+
+tasks:
+  build:
+    desc: Build client
+    cmds:
+      - go build -ldflags "-s -w" -o {{.OUT_PATH}} cmd/client/main.go
+
+  run:
+    desc: Run client
+    env:
+      GRPC_SERVER_ADDRESS: localhost:8080
+      LOG_OUTPUT: '{{.LOG_OUTPUT}}'
+    cmds:
+      - task: build
+      - ./{{.OUT_PATH}}
+
+  log:
+    desc: Show client log
+    cmds:
+      - tail -n 1000 {{.LOG_OUTPUT}}
