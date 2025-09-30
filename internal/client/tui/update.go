@@ -1,9 +1,14 @@
 package tui
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/davecgh/go-spew/spew"
+)
 
 // Update обновляет UI в зависимости от события.
 func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	spew.Fdump(b.dump, msg)
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
@@ -19,9 +24,10 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return b, nil // блокируем дефолтное обновление list
 		}
 	case tea.WindowSizeMsg:
-		b.height, b.width = docStyle.GetFrameSize()
+		b.height, b.width = msg.Height, msg.Width
+		b.frameHeight, b.frameWidth = docStyle.GetFrameSize()
 		for i := range b.tabs {
-			b.tabs[i].List.SetSize(msg.Width-b.height, msg.Height-b.width-7)
+			b.tabs[i].List.SetSize(msg.Width-b.frameHeight, msg.Height-b.frameWidth-7)
 		}
 	}
 

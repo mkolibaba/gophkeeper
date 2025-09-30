@@ -3,6 +3,7 @@ version: '3'
 vars:
   OUT_PATH: bin/gophkeeper-client
   LOG_OUTPUT: bin/client.log
+  SPEW_DUMP_OUTPUT: bin/spew.log
 
 tasks:
   build:
@@ -15,6 +16,7 @@ tasks:
     env:
       GRPC_SERVER_ADDRESS: localhost:8080
       LOG_OUTPUT: '{{.LOG_OUTPUT}}'
+      SPEW_DUMP_OUTPUT: '{{.SPEW_DUMP_OUTPUT}}'
     cmds:
       - task: build
       - ./{{.OUT_PATH}}
@@ -23,3 +25,8 @@ tasks:
     desc: Show client log
     cmds:
       - tail -n 1000 {{.LOG_OUTPUT}}
+
+  spew:
+    desc: Show spew log
+    cmds:
+      - tail -n 1000 {{.SPEW_DUMP_OUTPUT}}

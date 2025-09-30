@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
 	"strings"
 )
@@ -25,12 +26,16 @@ var (
 			Padding(2, 0).
 			Border(lipgloss.NormalBorder()).
 			UnsetBorderTop()
+
+	bold = lipgloss.NewStyle().Bold(true).
+		Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"})
+	border = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(highlightColor)
 )
 
 // View возвращает строковое представление UI.
 func (b Bubble) View() string {
-	var doc strings.Builder
-
 	var renderedTabs []string
 
 	for i, t := range b.tabs {
@@ -55,11 +60,45 @@ func (b Bubble) View() string {
 		renderedTabs = append(renderedTabs, style.Render(t.Name))
 	}
 
-	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
-	doc.WriteString(row)
+	// Левое окошко
+
+	tabRow := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+
+	var doc strings.Builder
+	doc.WriteString(tabRow)
 	doc.WriteString("\n")
-	doc.WriteString(windowStyle.Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(b.tabs[b.activeTab].List.View()))
-	return docStyle.Render(doc.String())
+	doc.WriteString(windowStyle.Width(lipgloss.Width(tabRow) - windowStyle.GetHorizontalFrameSize()).
+		Render(b.tabs[b.activeTab].List.View()))
+	listView := doc.String()
+
+	// Правое окошко
+
+	var item list.DefaultItem = NewCardItem("1", "2")
+	if b.tabs[b.activeTab].List.SelectedItem() != nil {
+		item = b.tabs[b.activeTab].List.SelectedItem().(list.DefaultItem)
+	}
+	infoViewContent := lipgloss.JoinVertical(lipgloss.Top,
+		bold.Render("Name"),
+		item.Title(),
+		"",
+		bold.Render("Login"),
+		item.Description(),
+		"",
+		bold.Render("Password"),
+		"some password",
+		"",
+		bold.Render("meta 1"),
+		"some meta 1",
+	)
+
+	infoView := border.
+		Width(b.width - lipgloss.Width(listView) - border.GetHorizontalFrameSize() - 2).
+		Height(b.height - 3).
+		Render(infoViewContent)
+
+	ui := lipgloss.JoinHorizontal(lipgloss.Top, listView, infoView)
+
+	return docStyle.Render(ui)
 }
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {

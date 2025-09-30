@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"io"
+	"os"
 	"regexp"
 )
 
@@ -15,10 +17,15 @@ type Bubble struct {
 	width  int // Ширина терминала
 	height int // Высота терминала
 
+	frameHeight int
+	frameWidth  int
+
 	loginService  client.LoginService
 	noteService   client.NoteService
 	binaryService client.BinaryService
 	cardService   client.CardService
+
+	dump io.Writer
 }
 
 // NewBubble создает новый экземпляр UI.
@@ -27,7 +34,16 @@ func NewBubble(
 	noteService client.NoteService,
 	binaryService client.BinaryService,
 	cardService client.CardService,
-) Bubble {
+) (Bubble, error) {
+	var dump *os.File
+	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
+		var err error
+		dump, err = os.OpenFile(dumpPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
+		if err != nil {
+			return Bubble{}, err
+		}
+	}
+
 	loginTab := NewTab("Login", LoginFetcher(loginService))
 	noteTab := NewTab("Note", NoteFetcher(noteService))
 	binaryTab := NewTab("Binary", BinaryFetcher(binaryService))
@@ -42,7 +58,8 @@ func NewBubble(
 		noteService:   noteService,
 		binaryService: binaryService,
 		cardService:   cardService,
-	}
+		dump:          dump,
+	}, nil
 }
 
 type Fetcher func() []list.Item
