@@ -1,6 +1,6 @@
 INSERT INTO login (name, login, password, metadata, user)
-VALUES ('Google', 'iivanov', '123456', null, 'demo'),
-       ('Ozon', '79031002030', 'qwe123', null, 'demo'),
+VALUES ('Google', 'iivanov', '123456', '{"Website": "google.com"}', 'demo'),
+       ('Ozon', '79031002030', 'qwe123', '{"Tag": "shop"}', 'demo'),
        ('Wildberries', '79031002030', 'qwerty', null, 'demo'),
        ('Госуслуги', 'iivanov@gmail.com', 'qweasd', null, 'demo'),
        ('Mail', 'ivanivanov', 'qqwwee', null, 'demo'),

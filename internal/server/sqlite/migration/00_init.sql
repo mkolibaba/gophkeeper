@@ -3,7 +3,7 @@ CREATE TABLE login
     name     TEXT PRIMARY KEY,
     login    TEXT NOT NULL,
     password TEXT,
-    metadata JSONB,
+    metadata JSON,
     user     TEXT NOT NULL
 );
 
@@ -11,7 +11,7 @@ CREATE TABLE note
 (
     name     TEXT PRIMARY KEY,
     text     TEXT,
-    metadata JSONB,
+    metadata JSON,
     user     TEXT NOT NULL
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE binary
 (
     name     TEXT PRIMARY KEY,
     data     BLOB,
-    metadata JSONB,
+    metadata JSON,
     user     TEXT NOT NULL
 );
 
@@ -30,6 +30,6 @@ CREATE TABLE card
     exp_date   TEXT NOT NULL,
     cvv        TEXT NOT NULL,
     cardholder TEXT NOT NULL,
-    metadata   JSONB,
+    metadata   JSON,
     user       TEXT NOT NULL
 );

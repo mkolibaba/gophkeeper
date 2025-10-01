@@ -28,9 +28,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	var lines []string
+
 	switch d := m.Data.(type) {
 	case client.LoginData:
-		return lipgloss.JoinVertical(lipgloss.Top,
+		lines = []string{
 			fieldStyle.Render("Type"),
 			"Login",
 			"",
@@ -42,9 +44,10 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("Password"),
 			d.Password,
-		)
+		}
+		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.NoteData:
-		return lipgloss.JoinVertical(lipgloss.Top,
+		lines = []string{
 			fieldStyle.Render("Type"),
 			"Note",
 			"",
@@ -53,9 +56,10 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("Text"),
 			d.Text,
-		)
+		}
+		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.BinaryData:
-		return lipgloss.JoinVertical(lipgloss.Top,
+		lines = []string{
 			fieldStyle.Render("Type"),
 			"Binary",
 			"",
@@ -64,9 +68,10 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("File"),
 			"<binary>",
-		)
+		}
+		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.CardData:
-		return lipgloss.JoinVertical(lipgloss.Top,
+		lines = []string{
 			fieldStyle.Render("Type"),
 			"Card",
 			"",
@@ -84,13 +89,22 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("Cardholder"),
 			d.Cardholder,
-		)
+		}
+		lines = append(lines, renderMetadata(d.Metadata)...)
 	}
 
-	return ""
+	return lipgloss.JoinVertical(lipgloss.Left, lines...)
 }
 
 func (m Model) SetData(data client.Data) Model {
 	m.Data = data
 	return m
+}
+
+func renderMetadata(metadata map[string]string) []string {
+	var lines []string
+	for k, v := range metadata {
+		lines = append(lines, "", fieldStyle.Render(k), v)
+	}
+	return lines
 }
