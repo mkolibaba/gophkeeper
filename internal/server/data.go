@@ -36,7 +36,7 @@ type (
 		User       string `validate:"required"`
 		Name       string `validate:"required"`
 		FileName   string
-		Data       []byte `validate:"required"`
+		Data       []byte
 		DataReader io.ReadCloser
 		Size       int64
 		Metadata   map[string]string

@@ -6,8 +6,10 @@ var Module = fx.Module(
 	"grpc",
 	fx.Provide(
 		NewConfig,
-		NewDataServiceServer,
+		NewLoginServiceServer,
+		NewNoteServiceServer,
 		NewBinaryServiceServer,
+		NewCardServiceServer,
 		NewServer,
 	),
 	fx.Invoke(

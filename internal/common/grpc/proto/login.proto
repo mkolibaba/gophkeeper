@@ -1,0 +1,25 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+import "data.proto";
+
+package gophkeeper;
+
+option go_package = "gophkeeper/gen;gophkeeper";
+
+message Login {
+  string name = 1;
+  string login = 2;
+  string password = 3;
+  map<string, string> metadata = 4;
+}
+
+message GetAllLoginsResponse {
+  repeated Login result = 1;
+}
+
+service LoginService {
+  rpc Save(Login) returns (google.protobuf.Empty);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllLoginsResponse);
+  rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
+}

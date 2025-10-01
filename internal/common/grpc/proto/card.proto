@@ -1,0 +1,27 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+import "data.proto";
+
+package gophkeeper;
+
+option go_package = "gophkeeper/gen;gophkeeper";
+
+message Card {
+  string name = 1;
+  string number = 2;
+  string exp_date = 3;
+  string cvv = 4;
+  string cardholder = 5;
+  map<string, string> metadata = 6;
+}
+
+message GetAllCardsResponse {
+  repeated Card result = 1;
+}
+
+service CardService {
+  rpc Save(Card) returns (google.protobuf.Empty);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllCardsResponse);
+  rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
+}
