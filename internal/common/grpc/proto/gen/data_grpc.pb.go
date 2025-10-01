@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	DataService_Save_FullMethodName   = "/gophkeeper.DataService/Save"
+	DataService_Get_FullMethodName    = "/gophkeeper.DataService/Get"
 	DataService_GetAll_FullMethodName = "/gophkeeper.DataService/GetAll"
 	DataService_Remove_FullMethodName = "/gophkeeper.DataService/Remove"
 )
@@ -30,6 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DataServiceClient interface {
 	Save(ctx context.Context, in *SaveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	Get(ctx context.Context, in *GetDataRequest, opts ...grpc.CallOption) (*GetDataResponse, error)
 	GetAll(ctx context.Context, in *GetAllDataRequest, opts ...grpc.CallOption) (*GetAllDataResponse, error)
 	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
@@ -46,6 +48,16 @@ func (c *dataServiceClient) Save(ctx context.Context, in *SaveDataRequest, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, DataService_Save_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dataServiceClient) Get(ctx context.Context, in *GetDataRequest, opts ...grpc.CallOption) (*GetDataResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDataResponse)
+	err := c.cc.Invoke(ctx, DataService_Get_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +89,7 @@ func (c *dataServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, o
 // for forward compatibility.
 type DataServiceServer interface {
 	Save(context.Context, *SaveDataRequest) (*empty.Empty, error)
+	Get(context.Context, *GetDataRequest) (*GetDataResponse, error)
 	GetAll(context.Context, *GetAllDataRequest) (*GetAllDataResponse, error)
 	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedDataServiceServer()
@@ -91,6 +104,9 @@ type UnimplementedDataServiceServer struct{}
 
 func (UnimplementedDataServiceServer) Save(context.Context, *SaveDataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Save not implemented")
+}
+func (UnimplementedDataServiceServer) Get(context.Context, *GetDataRequest) (*GetDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedDataServiceServer) GetAll(context.Context, *GetAllDataRequest) (*GetAllDataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
@@ -133,6 +149,24 @@ func _DataService_Save_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DataServiceServer).Save(ctx, req.(*SaveDataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DataService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DataServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DataService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DataServiceServer).Get(ctx, req.(*GetDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -185,6 +219,10 @@ var DataService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DataService_Save_Handler,
 		},
 		{
+			MethodName: "Get",
+			Handler:    _DataService_Get_Handler,
+		},
+		{
 			MethodName: "GetAll",
 			Handler:    _DataService_GetAll_Handler,
 		},
@@ -194,5 +232,110 @@ var DataService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
+	Metadata: "data.proto",
+}
+
+const (
+	BinaryService_Download_FullMethodName = "/gophkeeper.BinaryService/Download"
+)
+
+// BinaryServiceClient is the client API for BinaryService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type BinaryServiceClient interface {
+	Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[FileChunk], error)
+}
+
+type binaryServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewBinaryServiceClient(cc grpc.ClientConnInterface) BinaryServiceClient {
+	return &binaryServiceClient{cc}
+}
+
+func (c *binaryServiceClient) Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[FileChunk], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &BinaryService_ServiceDesc.Streams[0], BinaryService_Download_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[DownloadBinaryRequest, FileChunk]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type BinaryService_DownloadClient = grpc.ServerStreamingClient[FileChunk]
+
+// BinaryServiceServer is the server API for BinaryService service.
+// All implementations must embed UnimplementedBinaryServiceServer
+// for forward compatibility.
+type BinaryServiceServer interface {
+	Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[FileChunk]) error
+	mustEmbedUnimplementedBinaryServiceServer()
+}
+
+// UnimplementedBinaryServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedBinaryServiceServer struct{}
+
+func (UnimplementedBinaryServiceServer) Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[FileChunk]) error {
+	return status.Errorf(codes.Unimplemented, "method Download not implemented")
+}
+func (UnimplementedBinaryServiceServer) mustEmbedUnimplementedBinaryServiceServer() {}
+func (UnimplementedBinaryServiceServer) testEmbeddedByValue()                       {}
+
+// UnsafeBinaryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BinaryServiceServer will
+// result in compilation errors.
+type UnsafeBinaryServiceServer interface {
+	mustEmbedUnimplementedBinaryServiceServer()
+}
+
+func RegisterBinaryServiceServer(s grpc.ServiceRegistrar, srv BinaryServiceServer) {
+	// If the following call pancis, it indicates UnimplementedBinaryServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&BinaryService_ServiceDesc, srv)
+}
+
+func _BinaryService_Download_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DownloadBinaryRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(BinaryServiceServer).Download(m, &grpc.GenericServerStream[DownloadBinaryRequest, FileChunk]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type BinaryService_DownloadServer = grpc.ServerStreamingServer[FileChunk]
+
+// BinaryService_ServiceDesc is the grpc.ServiceDesc for BinaryService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var BinaryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "gophkeeper.BinaryService",
+	HandlerType: (*BinaryServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Download",
+			Handler:       _BinaryService_Download_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "data.proto",
 }

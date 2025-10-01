@@ -102,9 +102,13 @@ func (m Model) SetData(data client.Data) Model {
 }
 
 func renderMetadata(metadata map[string]string) []string {
-	var lines []string
+	if len(metadata) == 0 {
+		return nil
+	}
+
+	lines := []string{"", fieldStyle.Render("Metadata")}
 	for k, v := range metadata {
-		lines = append(lines, "", fieldStyle.Render(k), v)
+		lines = append(lines, k+": "+v)
 	}
 	return lines
 }

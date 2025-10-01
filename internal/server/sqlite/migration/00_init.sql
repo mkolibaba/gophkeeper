@@ -19,8 +19,9 @@ CREATE TABLE binary
 (
     name     TEXT PRIMARY KEY,
     data     BLOB,
+    path     TEXT NOT NULL,
     metadata JSON,
-    user     TEXT NOT NULL
+    user     TEXT   NOT NULL
 );
 
 CREATE TABLE card

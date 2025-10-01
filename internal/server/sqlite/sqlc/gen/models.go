@@ -7,6 +7,7 @@ package sqlc
 type Binary struct {
 	Name     string
 	Data     []byte
+	Path     string
 	Metadata []byte
 	User     string
 }

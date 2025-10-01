@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/go-playground/validator/v10"
+	"io"
 	"regexp"
 )
 
@@ -32,10 +33,13 @@ type (
 	}
 
 	BinaryData struct {
-		User     string `validate:"required"`
-		Name     string `validate:"required"`
-		Data     []byte `validate:"required"`
-		Metadata map[string]string
+		User       string `validate:"required"`
+		Name       string `validate:"required"`
+		FileName   string
+		Data       []byte `validate:"required"`
+		DataReader io.ReadCloser
+		Size       int64
+		Metadata   map[string]string
 	}
 
 	CardData struct {
@@ -59,7 +63,10 @@ type (
 
 	NoteService TypedDataService[NoteData]
 
-	BinaryService TypedDataService[BinaryData]
+	BinaryService interface {
+		TypedDataService[BinaryData]
+		Get(ctx context.Context, name string, user string) (BinaryData, error)
+	}
 
 	CardService TypedDataService[CardData]
 )

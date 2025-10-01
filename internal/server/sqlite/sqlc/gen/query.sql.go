@@ -10,7 +10,7 @@ import (
 )
 
 const getAllBinaries = `-- name: GetAllBinaries :many
-SELECT name, data, metadata, user
+SELECT name, data, path, metadata, user
 FROM binary
 WHERE user = ?
 `
@@ -27,6 +27,7 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 		if err := rows.Scan(
 			&i.Name,
 			&i.Data,
+			&i.Path,
 			&i.Metadata,
 			&i.User,
 		); err != nil {
@@ -149,6 +150,26 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 	return items, nil
 }
 
+const getBinary = `-- name: GetBinary :one
+SELECT name, data, path, metadata, user
+FROM binary
+WHERE name = ?
+  AND user = ?
+`
+
+func (q *Queries) GetBinary(ctx context.Context, name string, user string) (*Binary, error) {
+	row := q.db.QueryRowContext(ctx, getBinary, name, user)
+	var i Binary
+	err := row.Scan(
+		&i.Name,
+		&i.Data,
+		&i.Path,
+		&i.Metadata,
+		&i.User,
+	)
+	return &i, err
+}
+
 const removeBinary = `-- name: RemoveBinary :execrows
 DELETE
 FROM binary
@@ -206,13 +227,14 @@ func (q *Queries) RemoveNote(ctx context.Context, name string) (int64, error) {
 }
 
 const saveBinary = `-- name: SaveBinary :exec
-INSERT INTO binary (name, data, metadata, user)
-VALUES (?, ?, ?, ?)
+INSERT INTO binary (name, data, path, metadata, user)
+VALUES (?, ?, ?, ?, ?)
 `
 
 type SaveBinaryParams struct {
 	Name     string
 	Data     []byte
+	Path     string
 	Metadata []byte
 	User     string
 }
@@ -221,6 +243,7 @@ func (q *Queries) SaveBinary(ctx context.Context, arg SaveBinaryParams) error {
 	_, err := q.db.ExecContext(ctx, saveBinary,
 		arg.Name,
 		arg.Data,
+		arg.Path,
 		arg.Metadata,
 		arg.User,
 	)

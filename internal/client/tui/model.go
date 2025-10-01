@@ -3,7 +3,6 @@ package tui
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/detail"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
@@ -121,22 +120,22 @@ func (b Bubble) View() string {
 		Width(b.width).
 		Render()
 
-	// Окно со списком данных
+	// Строка статуса таблицы
 	contentLeftBottom := contentStyle.
 		Width(b.width/3*2 - contentStyle.GetHorizontalFrameSize()).
 		PaddingRight(1).
 		Align(lipgloss.Right).
 		Render(b.dataTable.RenderInfoBar())
 
+	// Окно со списком данных
 	contentLeft := contentStyle.
 		Width(b.width/3*2 - contentStyle.GetHorizontalFrameSize()).
 		Height(b.height - lipgloss.Height(title) - contentStyle.GetVerticalFrameSize() - lipgloss.Height(contentLeftBottom)).
 		PaddingLeft(1).
 		Render(b.dataTable.View())
 
-	spew.Fdump(b.dump, b.dataDetail.Data)
-
 	// Окно детального просмотра
+
 	contentRight := contentStyle.
 		Width(b.width - lipgloss.Width(contentLeft) - contentStyle.GetHorizontalFrameSize()).
 		Height(b.height - lipgloss.Height(title) - contentStyle.GetVerticalFrameSize()).

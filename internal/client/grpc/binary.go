@@ -52,6 +52,25 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]client.Binar
 	return binaries, nil
 }
 
+func (b *BinaryService) Get(ctx context.Context, name string, user string) (client.BinaryData, error) {
+	var in pb.GetDataRequest
+	in.SetName(name)
+	in.SetUser(user)
+	in.SetDataType(pb.DataType_BINARY)
+
+	out, err := b.client.Get(ctx, &in)
+	if err != nil {
+		return client.BinaryData{}, err
+	}
+
+	binary := out.GetData().GetBinary()
+	return client.BinaryData{
+		Name:     binary.GetName(),
+		Bytes:    binary.GetData(),
+		Metadata: binary.GetMetadata(),
+	}, nil
+}
+
 func (b *BinaryService) Remove(ctx context.Context, name string, user string) error {
 	var in pb.RemoveDataRequest
 	in.SetUser(user)

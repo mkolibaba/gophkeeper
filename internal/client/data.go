@@ -27,8 +27,9 @@ type (
 
 	BinaryData struct {
 		Data
-		Name     string `validate:"required"`
-		Bytes    []byte `validate:"required"`
+		Name  string `validate:"required"`
+		Bytes []byte `validate:"required"`
+		//Size     int
 		Metadata map[string]string
 	}
 
@@ -53,7 +54,10 @@ type (
 
 	NoteService TypedDataService[NoteData]
 
-	BinaryService TypedDataService[BinaryData]
+	BinaryService interface {
+		TypedDataService[BinaryData]
+		Get(ctx context.Context, name string, user string) (BinaryData, error)
+	}
 
 	CardService TypedDataService[CardData]
 )

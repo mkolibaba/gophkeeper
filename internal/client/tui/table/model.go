@@ -86,8 +86,8 @@ func (m Model) RenderInfoBar() string {
 func (m Model) renderRow(t DataType, name, value string, selected bool) string {
 	columns := []string{
 		columnStyle.Width(10).Render(string(t)),
-		columnStyle.Render(name),
-		columnStyle.Render(value),
+		columnStyle.Width(30).Render(name),
+		columnStyle.Width(52).Render(value), // TODO: должна как-то определяться родительская ширина
 	}
 
 	rowStyle := lipgloss.NewStyle().
@@ -151,7 +151,7 @@ func (m Model) processFetchedData(msg state.FetchDataMsg) Model {
 }
 
 func trimNoteText(text string) string {
-	maxLength := 30
+	maxLength := 50
 	asRunes := []rune(text) // TODO: может есть лучше решение?
 	if len(asRunes) > maxLength {
 		return string(asRunes[:maxLength-3]) + "..."

@@ -20,11 +20,13 @@ type Server struct {
 func NewServer(
 	lc fx.Lifecycle,
 	dataServiceServer *DataServiceServer,
+	binaryServiceServer *BinaryServiceServer,
 	cfg *Config,
 	logger *zap.Logger,
 ) *Server {
 	s := grpc.NewServer()
 	pb.RegisterDataServiceServer(s, dataServiceServer)
+	pb.RegisterBinaryServiceServer(s, binaryServiceServer)
 	reflection.Register(s)
 
 	srv := &Server{

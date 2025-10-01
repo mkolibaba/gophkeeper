@@ -40,7 +40,8 @@ message Note {
 message Binary {
   string name = 1;
   bytes data = 2;
-  map<string, string> metadata = 3;
+  string file_name = 3;
+  map<string, string> metadata = 4;
 }
 
 message Card {
@@ -64,6 +65,12 @@ message SaveDataRequest {
   string user = 5;
 }
 
+message GetDataRequest {
+  DataType data_type = 1;
+  string user = 2;
+  string name = 3;
+}
+
 message GetAllDataRequest {
   DataType data_type = 1;
   string user = 2;
@@ -77,12 +84,34 @@ message RemoveDataRequest {
 
 // Response
 
+message GetDataResponse {
+  DataWrapper data = 1;
+}
+
 message GetAllDataResponse {
   repeated DataWrapper data = 1;
 }
 
 service DataService {
   rpc Save(SaveDataRequest) returns (google.protobuf.Empty);
+  rpc Get(GetDataRequest) returns (GetDataResponse);
   rpc GetAll(GetAllDataRequest) returns (GetAllDataResponse);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
+}
+
+// ---
+
+message DownloadBinaryRequest {
+  string name = 1;
+}
+
+message FileChunk {
+  bytes chunk_data = 1;
+  string filename = 2;
+  int64 total_size = 3;
+  int32 chunk_index = 4;
+}
+
+service BinaryService {
+  rpc Download(DownloadBinaryRequest) returns (stream FileChunk);
 }

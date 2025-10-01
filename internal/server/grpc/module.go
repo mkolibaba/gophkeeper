@@ -7,6 +7,7 @@ var Module = fx.Module(
 	fx.Provide(
 		NewConfig,
 		NewDataServiceServer,
+		NewBinaryServiceServer,
 		NewServer,
 	),
 	fx.Invoke(

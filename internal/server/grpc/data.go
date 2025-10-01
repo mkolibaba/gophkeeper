@@ -125,6 +125,43 @@ func (d *DataServiceServer) Save(ctx context.Context, in *pb.SaveDataRequest) (*
 	return &empty.Empty{}, nil
 }
 
+func (d *DataServiceServer) Get(ctx context.Context, in *pb.GetDataRequest) (*pb.GetDataResponse, error) {
+	if in.GetUser() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user is required")
+	}
+	if in.GetName() == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+
+	var data pb.DataWrapper
+	switch in.GetDataType() {
+	case pb.DataType_BINARY:
+		binary, err := d.binaryService.Get(ctx, in.GetName(), in.GetUser())
+		if err != nil {
+			if errors.Is(err, server.ErrDataNotFound) {
+				return nil, status.Error(codes.NotFound, "data not found")
+			}
+			d.logger.Error("failed to retrieve data", zap.Error(err))
+			return nil, status.Error(codes.Internal, "internal server error")
+		}
+
+		var out pb.Binary
+		out.SetName(binary.Name)
+		out.SetFileName(binary.FileName)
+		out.SetData(binary.Data)
+		out.SetMetadata(binary.Metadata)
+
+		data.SetBinary(&out)
+
+		var response pb.GetDataResponse
+		response.SetData(&data)
+
+		return &response, nil
+	}
+
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+
 func (d *DataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest) (*pb.GetAllDataResponse, error) {
 	if in.GetUser() == "" {
 		return nil, status.Error(codes.InvalidArgument, "user is required")
@@ -182,6 +219,7 @@ func (d *DataServiceServer) GetAll(ctx context.Context, in *pb.GetAllDataRequest
 			out.SetName(binary.Name)
 			out.SetData(binary.Data)
 			out.SetMetadata(binary.Metadata)
+			out.SetFileName(binary.FileName)
 
 			var wrapper pb.DataWrapper
 			wrapper.SetBinary(&out)
