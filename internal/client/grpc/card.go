@@ -18,7 +18,7 @@ func NewCardService(conn *grpc.ClientConn) *CardService {
 	}
 }
 
-func (c *CardService) Save(ctx context.Context, user string, data client.CardData) error {
+func (c *CardService) Save(ctx context.Context, data client.CardData) error {
 	var card pb.Card
 	card.SetName(data.Name)
 	card.SetNumber(data.Number)
@@ -31,7 +31,7 @@ func (c *CardService) Save(ctx context.Context, user string, data client.CardDat
 	return err
 }
 
-func (c *CardService) GetAll(ctx context.Context, user string) ([]client.CardData, error) {
+func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
 	result, err := c.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *CardService) GetAll(ctx context.Context, user string) ([]client.CardDat
 	return cards, nil
 }
 
-func (c *CardService) Remove(ctx context.Context, name string, user string) error {
+func (c *CardService) Remove(ctx context.Context, name string) error {
 	var in pb.RemoveDataRequest
 	in.SetName(name)
 

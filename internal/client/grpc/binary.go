@@ -18,7 +18,7 @@ func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
 	}
 }
 
-func (b *BinaryService) Save(ctx context.Context, user string, data client.BinaryData) error {
+func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error {
 	//var in pb.Binary
 	//in.SetName(data.Name)
 	//in.SetFileName(data.FileName)
@@ -32,7 +32,7 @@ func (b *BinaryService) Save(ctx context.Context, user string, data client.Binar
 	return fmt.Errorf("unimplemented")
 }
 
-func (b *BinaryService) GetAll(ctx context.Context, user string) ([]client.BinaryData, error) {
+func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error) {
 	result, err := b.client.GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]client.Binar
 	return binaries, nil
 }
 
-func (b *BinaryService) Get(ctx context.Context, name string, user string) (client.BinaryData, error) {
+func (b *BinaryService) Get(ctx context.Context, name string) (client.BinaryData, error) {
 	//var in pb.GetDataRequest
 	//in.SetName(name)
 	//in.SetUser(user)
@@ -69,7 +69,7 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (clie
 	return client.BinaryData{}, fmt.Errorf("unimplemented")
 }
 
-func (b *BinaryService) Remove(ctx context.Context, name string, user string) error {
+func (b *BinaryService) Remove(ctx context.Context, name string) error {
 	var in pb.RemoveDataRequest
 	in.SetName(name)
 

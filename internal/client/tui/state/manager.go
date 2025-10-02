@@ -47,28 +47,28 @@ func (m *Manager) FetchData() tea.Cmd {
 
 		var wg sync.WaitGroup
 		wg.Go(func() {
-			logins, err := m.loginService.GetAll(ctx, "demo")
+			logins, err := m.loginService.GetAll(ctx)
 			if err != nil {
 				m.logger.Error(err.Error())
 			}
 			msg.Logins = logins
 		})
 		wg.Go(func() {
-			notes, err := m.noteService.GetAll(ctx, "demo")
+			notes, err := m.noteService.GetAll(ctx)
 			if err != nil {
 				m.logger.Error(err.Error())
 			}
 			msg.Notes = notes
 		})
 		wg.Go(func() {
-			binaries, err := m.binaryService.GetAll(ctx, "demo")
+			binaries, err := m.binaryService.GetAll(ctx)
 			if err != nil {
 				m.logger.Error(err.Error())
 			}
 			msg.Binaries = binaries
 		})
 		wg.Go(func() {
-			cards, err := m.cardService.GetAll(ctx, "demo")
+			cards, err := m.cardService.GetAll(ctx)
 			if err != nil {
 				m.logger.Error(err.Error())
 			}

@@ -18,7 +18,7 @@ func NewLoginService(conn *grpc.ClientConn) *LoginService {
 	}
 }
 
-func (l *LoginService) Save(ctx context.Context, user string, data client.LoginData) error {
+func (l *LoginService) Save(ctx context.Context, data client.LoginData) error {
 	var login pb.Login
 	login.SetName(data.Name)
 	login.SetLogin(data.Login)
@@ -29,7 +29,7 @@ func (l *LoginService) Save(ctx context.Context, user string, data client.LoginD
 	return err
 }
 
-func (l *LoginService) GetAll(ctx context.Context, user string) ([]client.LoginData, error) {
+func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
 	result, err := l.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (l *LoginService) GetAll(ctx context.Context, user string) ([]client.LoginD
 	return logins, nil
 }
 
-func (l *LoginService) Remove(ctx context.Context, name string, user string) error {
+func (l *LoginService) Remove(ctx context.Context, name string) error {
 	var in pb.RemoveDataRequest
 	in.SetName(name)
 

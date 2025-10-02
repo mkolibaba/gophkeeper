@@ -45,10 +45,9 @@ type (
 	}
 
 	TypedDataService[T Data] interface {
-		Save(ctx context.Context, user string, data T) error
-		GetAll(ctx context.Context, user string) ([]T, error)
-		// TODO: update method
-		Remove(ctx context.Context, name string, user string) error
+		Save(ctx context.Context, data T) error
+		GetAll(ctx context.Context) ([]T, error)
+		Remove(ctx context.Context, name string) error
 	}
 
 	LoginService TypedDataService[LoginData]
@@ -57,7 +56,7 @@ type (
 
 	BinaryService interface {
 		TypedDataService[BinaryData]
-		Get(ctx context.Context, name string, user string) (BinaryData, error)
+		Get(ctx context.Context, user string) (BinaryData, error)
 	}
 
 	CardService TypedDataService[CardData]

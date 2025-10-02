@@ -18,7 +18,7 @@ func NewNoteService(conn *grpc.ClientConn) *NoteService {
 	}
 }
 
-func (n *NoteService) Save(ctx context.Context, user string, data client.NoteData) error {
+func (n *NoteService) Save(ctx context.Context, data client.NoteData) error {
 	var note pb.Note
 	note.SetName(data.Name)
 	note.SetText(data.Text)
@@ -28,7 +28,7 @@ func (n *NoteService) Save(ctx context.Context, user string, data client.NoteDat
 	return err
 }
 
-func (n *NoteService) GetAll(ctx context.Context, user string) ([]client.NoteData, error) {
+func (n *NoteService) GetAll(ctx context.Context) ([]client.NoteData, error) {
 	result, err := n.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (n *NoteService) GetAll(ctx context.Context, user string) ([]client.NoteDat
 	return notes, nil
 }
 
-func (n *NoteService) Remove(ctx context.Context, name string, user string) error {
+func (n *NoteService) Remove(ctx context.Context, name string) error {
 	var in pb.RemoveDataRequest
 	in.SetName(name)
 
