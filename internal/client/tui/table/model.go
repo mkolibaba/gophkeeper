@@ -68,7 +68,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	rows := []string{m.renderRow("Type", "Name", "Value", false)}
+	rows := []string{m.renderHeader()}
 	for i, row := range m.renderedRows {
 		rows = append(rows, m.renderRow(row.DataType, row.Name, row.RenderedValue, i == m.cursor))
 	}
@@ -83,6 +83,16 @@ func (m Model) RenderInfoBar() string {
 	// TODO: выводить информацию, соответствующую действительности
 	//return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
 	return fmt.Sprintf("1-%d of %d", len(m.renderedRows), len(m.renderedRows))
+}
+
+func (m Model) renderHeader() string {
+	return lipgloss.NewStyle().
+		Inline(true).
+		Render(lipgloss.JoinHorizontal(lipgloss.Left,
+			columnStyle.Width(10).Foreground(lipgloss.Color("171")).Render("Type"),
+			columnStyle.Width(30).Foreground(lipgloss.Color("171")).Render("Name"),
+			columnStyle.Width(52).Foreground(lipgloss.Color("171")).Render("Value"), // TODO: должна как-то определяться родительская ширина
+		))
 }
 
 func (m Model) renderRow(t DataType, name, value string, selected bool) string {

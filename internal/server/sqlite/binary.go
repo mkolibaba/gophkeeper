@@ -53,7 +53,7 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData) error 
 
 	buf := make([]byte, 1024*1024) // 1 MB
 	n, err := io.CopyBuffer(dest, data.DataReader, buf)
-	spew.Dump(n)
+
 	if err != nil {
 		os.Remove(dest.Name())
 		return fmt.Errorf("save: %w", err)
