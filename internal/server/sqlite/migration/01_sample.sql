@@ -14,8 +14,8 @@ VALUES ('Записки о природе',
         'Живешь ты, может быть, сам триста лет, и кто породил тебя, тот в яичке своем пересказал все, что он тоже узнал за свои триста лет жизни.',
         null, 'demo');
 
-INSERT INTO binary (name, data, path, metadata, user)
-VALUES ('Squirtle', null, 'squirtle_pokemon.png', '{"Tag": "pokemon"}', 'demo');
+INSERT INTO binary (name, filename, metadata, user)
+VALUES ('Squirtle',  'squirtle_pokemon.png', '{"Tag": "pokemon"}', 'demo');
 
 INSERT INTO card (name, number, exp_date, cvv, cardholder, metadata, user)
 VALUES ('Сбербанк', '2200123456789019', '03/28', '541', 'IVAN IVANOV', null, 'demo'),

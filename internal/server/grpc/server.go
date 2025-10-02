@@ -28,8 +28,14 @@ func NewServer(
 	logger *zap.Logger,
 ) *Server {
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.UnaryAuth()),
-		grpc.StreamInterceptor(interceptors.StreamAuth()),
+		grpc.ChainUnaryInterceptor(
+			interceptors.UnaryLogger(logger),
+			interceptors.UnaryAuth(),
+		),
+		grpc.ChainStreamInterceptor(
+			interceptors.StreamLogger(logger),
+			interceptors.StreamAuth(),
+		),
 	)
 	pb.RegisterLoginServiceServer(s, loginServiceServer)
 	pb.RegisterNoteServiceServer(s, noteServiceServer)

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
+	"os"
 )
 
 type BinaryServiceServer struct {
@@ -31,10 +32,63 @@ func NewBinaryServiceServer(
 }
 
 func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBinaryRequest, empty.Empty]) error {
-	// TODO: проверка на user
-	//user := utils.from
+	user := utils.UserFromContext(stream.Context())
 
-	return status.Errorf(codes.Unimplemented, "method Upload not implemented")
+	file, err := os.CreateTemp("", "*.tmp")
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	defer os.Remove(file.Name())
+
+	var filename string
+	var size int64
+	var name string
+	var metadata map[string]string
+	var initialized bool
+
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		if !initialized {
+			name = in.GetName()
+			filename = in.GetChunk().GetFilename()
+			size = in.GetChunk().GetTotalSize()
+			metadata = in.GetMetadata()
+			initialized = true
+		}
+
+		_, err = file.Write(in.GetChunk().GetChunkData())
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	if err = file.Sync(); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	err = s.binaryService.Save(stream.Context(), server.BinaryData{
+		User:       user,
+		Name:       name,
+		FileName:   filename,
+		DataReader: file,
+		Size:       size,
+		Metadata:   metadata,
+	})
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	return stream.SendAndClose(&empty.Empty{})
 }
 
 func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.GetAllBinariesResponse, error) {
