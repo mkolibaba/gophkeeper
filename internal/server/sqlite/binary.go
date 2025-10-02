@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -77,7 +76,14 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 		return server.BinaryData{}, fmt.Errorf("get: %w", err)
 	}
 
-	file, err := os.ReadFile(filepath.Join(b.binariesFolder, binary.Name)) // TODO: заменить на open
+	path := filepath.Join(b.binariesFolder, binary.Name)
+
+	file, err := os.Open(path)
+	if err != nil {
+		return server.BinaryData{}, fmt.Errorf("get: %w", err)
+	}
+
+	stat, err := file.Stat()
 	if err != nil {
 		return server.BinaryData{}, fmt.Errorf("get: %w", err)
 	}
@@ -87,8 +93,8 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 		Name:       binary.Name,
 		Metadata:   metadata,
 		FileName:   binary.Filename,
-		DataReader: io.NopCloser(bytes.NewReader(file)),
-		Size:       int64(len(file)),
+		DataReader: file,
+		Size:       stat.Size(),
 	}, nil
 }
 

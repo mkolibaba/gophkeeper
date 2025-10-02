@@ -27,8 +27,8 @@ FROM note
 WHERE name = ?;
 
 -- name: SaveBinary :exec
-INSERT INTO binary (name, data, path, metadata, user)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO binary (name, filename, metadata, user)
+VALUES (?, ?, ?, ?);
 
 -- name: GetBinary :one
 SELECT *
