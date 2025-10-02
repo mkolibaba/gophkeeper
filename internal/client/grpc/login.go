@@ -2,17 +2,19 @@ package grpc
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"google.golang.org/grpc"
 )
 
 type LoginService struct {
-	client pb.DataServiceClient
+	client pb.LoginServiceClient
 }
 
-func NewLoginService(client pb.DataServiceClient) *LoginService {
+func NewLoginService(conn *grpc.ClientConn) *LoginService {
 	return &LoginService{
-		client: client,
+		client: pb.NewLoginServiceClient(conn),
 	}
 }
 
@@ -23,32 +25,23 @@ func (l *LoginService) Save(ctx context.Context, user string, data client.LoginD
 	login.SetPassword(data.Password)
 	login.SetMetadata(data.Metadata)
 
-	var in pb.SaveDataRequest
-	in.SetUser(user)
-	in.SetLogin(&login)
-
-	_, err := l.client.Save(ctx, &in)
+	_, err := l.client.Save(ctx, &login)
 	return err
 }
 
 func (l *LoginService) GetAll(ctx context.Context, user string) ([]client.LoginData, error) {
-	var in pb.GetAllDataRequest
-	in.SetDataType(pb.DataType_LOGIN)
-	in.SetUser(user)
-
-	result, err := l.client.GetAll(ctx, &in)
+	result, err := l.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
 
 	var logins []client.LoginData
-	for _, data := range result.GetData() {
-		login := data.GetLogin()
+	for _, data := range result.GetResult() {
 		logins = append(logins, client.LoginData{
-			Name:     login.GetName(),
-			Login:    login.GetLogin(),
-			Password: login.GetPassword(),
-			Metadata: login.GetMetadata(),
+			Name:     data.GetName(),
+			Login:    data.GetLogin(),
+			Password: data.GetPassword(),
+			Metadata: data.GetMetadata(),
 		})
 	}
 
@@ -57,9 +50,7 @@ func (l *LoginService) GetAll(ctx context.Context, user string) ([]client.LoginD
 
 func (l *LoginService) Remove(ctx context.Context, name string, user string) error {
 	var in pb.RemoveDataRequest
-	in.SetUser(user)
 	in.SetName(name)
-	in.SetDataType(pb.DataType_LOGIN)
 
 	_, err := l.client.Remove(ctx, &in)
 	return err

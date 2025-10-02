@@ -30,6 +30,7 @@ type (
 		Name  string `validate:"required"`
 		Bytes []byte `validate:"required"`
 		//Size     int
+		FileName string `validate:"required"`
 		Metadata map[string]string
 	}
 

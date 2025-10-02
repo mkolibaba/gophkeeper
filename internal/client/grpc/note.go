@@ -2,17 +2,19 @@ package grpc
 
 import (
 	"context"
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"google.golang.org/grpc"
 )
 
 type NoteService struct {
-	client pb.DataServiceClient
+	client pb.NoteServiceClient
 }
 
-func NewNoteService(client pb.DataServiceClient) *NoteService {
+func NewNoteService(conn *grpc.ClientConn) *NoteService {
 	return &NoteService{
-		client: client,
+		client: pb.NewNoteServiceClient(conn),
 	}
 }
 
@@ -22,31 +24,22 @@ func (n *NoteService) Save(ctx context.Context, user string, data client.NoteDat
 	note.SetText(data.Text)
 	note.SetMetadata(data.Metadata)
 
-	var in pb.SaveDataRequest
-	in.SetUser(user)
-	in.SetNote(&note)
-
-	_, err := n.client.Save(ctx, &in)
+	_, err := n.client.Save(ctx, &note)
 	return err
 }
 
 func (n *NoteService) GetAll(ctx context.Context, user string) ([]client.NoteData, error) {
-	var in pb.GetAllDataRequest
-	in.SetDataType(pb.DataType_NOTE)
-	in.SetUser(user)
-
-	result, err := n.client.GetAll(ctx, &in)
+	result, err := n.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
 
 	var notes []client.NoteData
-	for _, data := range result.GetData() {
-		note := data.GetNote()
+	for _, data := range result.GetResult() {
 		notes = append(notes, client.NoteData{
-			Name:     note.GetName(),
-			Text:     note.GetText(),
-			Metadata: note.GetMetadata(),
+			Name:     data.GetName(),
+			Text:     data.GetText(),
+			Metadata: data.GetMetadata(),
 		})
 	}
 	return notes, nil
@@ -54,9 +47,7 @@ func (n *NoteService) GetAll(ctx context.Context, user string) ([]client.NoteDat
 
 func (n *NoteService) Remove(ctx context.Context, name string, user string) error {
 	var in pb.RemoveDataRequest
-	in.SetUser(user)
 	in.SetName(name)
-	in.SetDataType(pb.DataType_NOTE)
 
 	_, err := n.client.Remove(ctx, &in)
 	return err

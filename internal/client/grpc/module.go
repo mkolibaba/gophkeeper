@@ -9,7 +9,7 @@ var Module = fx.Module(
 	"grpc",
 	fx.Provide(
 		NewConfig,
-		NewDataServiceClient,
+		NewConnection,
 		fx.Annotate(NewLoginService, fx.As(new(client.LoginService))),
 		fx.Annotate(NewNoteService, fx.As(new(client.NoteService))),
 		fx.Annotate(NewBinaryService, fx.As(new(client.BinaryService))),

@@ -2,80 +2,76 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"google.golang.org/grpc"
 )
 
 type BinaryService struct {
-	client pb.DataServiceClient
+	client pb.BinaryServiceClient
 }
 
-func NewBinaryService(client pb.DataServiceClient) *BinaryService {
+func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
 	return &BinaryService{
-		client: client,
+		client: pb.NewBinaryServiceClient(conn),
 	}
 }
 
 func (b *BinaryService) Save(ctx context.Context, user string, data client.BinaryData) error {
-	var binary pb.Binary
-	binary.SetName(data.Name)
-	binary.SetData(data.Bytes)
-	binary.SetMetadata(data.Metadata)
+	//var in pb.Binary
+	//in.SetName(data.Name)
+	//in.SetFileName(data.FileName)
+	//in.SetMetadata(data.Metadata)
+	//
+	//// TODO
+	//
+	//_, err := b.client.Upload(ctx, &in)
+	//return err
 
-	var in pb.SaveDataRequest
-	in.SetUser(user)
-	in.SetBinary(&binary)
-
-	_, err := b.client.Save(ctx, &in)
-	return err
+	return fmt.Errorf("unimplemented")
 }
 
 func (b *BinaryService) GetAll(ctx context.Context, user string) ([]client.BinaryData, error) {
-	var in pb.GetAllDataRequest
-	in.SetDataType(pb.DataType_BINARY)
-	in.SetUser(user)
-
-	result, err := b.client.GetAll(ctx, &in)
+	result, err := b.client.GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var binaries []client.BinaryData
-	for _, data := range result.GetData() {
-		binary := data.GetBinary()
+	for _, b := range result.GetResult() {
 		binaries = append(binaries, client.BinaryData{
-			Name:     binary.GetName(),
-			Bytes:    binary.GetData(),
-			Metadata: binary.GetMetadata(),
+			Name:     b.GetName(),
+			FileName: b.GetFileName(),
+			Metadata: b.GetMetadata(),
 		})
 	}
 	return binaries, nil
 }
 
 func (b *BinaryService) Get(ctx context.Context, name string, user string) (client.BinaryData, error) {
-	var in pb.GetDataRequest
-	in.SetName(name)
-	in.SetUser(user)
-	in.SetDataType(pb.DataType_BINARY)
-
-	out, err := b.client.Get(ctx, &in)
-	if err != nil {
-		return client.BinaryData{}, err
-	}
-
-	binary := out.GetData().GetBinary()
-	return client.BinaryData{
-		Name:     binary.GetName(),
-		Bytes:    binary.GetData(),
-		Metadata: binary.GetMetadata(),
-	}, nil
+	//var in pb.GetDataRequest
+	//in.SetName(name)
+	//in.SetUser(user)
+	//in.SetDataType(pb.DataType_BINARY)
+	//
+	//out, err := b.client.Get(ctx, &in)
+	//if err != nil {
+	//	return client.BinaryData{}, err
+	//}
+	//
+	//binary := out.GetData().GetBinary()
+	//return client.BinaryData{
+	//	Name:     binary.GetName(),
+	//	Bytes:    binary.GetData(),
+	//	Metadata: binary.GetMetadata(),
+	//}, nil
+	return client.BinaryData{}, fmt.Errorf("unimplemented")
 }
 
 func (b *BinaryService) Remove(ctx context.Context, name string, user string) error {
 	var in pb.RemoveDataRequest
-	in.SetUser(user)
 	in.SetName(name)
-	in.SetDataType(pb.DataType_BINARY)
 
 	_, err := b.client.Remove(ctx, &in)
 	return err
