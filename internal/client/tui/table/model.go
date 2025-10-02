@@ -80,7 +80,9 @@ func (m Model) GetCurrentRow() client.Data {
 }
 
 func (m Model) RenderInfoBar() string {
-	return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
+	// TODO: выводить информацию, соответствующую действительности
+	//return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
+	return fmt.Sprintf("1-%d of %d", len(m.renderedRows), len(m.renderedRows))
 }
 
 func (m Model) renderRow(t DataType, name, value string, selected bool) string {

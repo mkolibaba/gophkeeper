@@ -10,6 +10,8 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"os"
+	"strings"
+	"unicode/utf8"
 )
 
 // Bubble представляет состояние UI.
@@ -31,6 +33,8 @@ type Bubble struct {
 }
 
 var (
+	borderColor = lipgloss.Color("141")
+
 	titleStyle = lipgloss.NewStyle().
 			PaddingLeft(1).
 			Background(lipgloss.Color("105")).
@@ -38,7 +42,10 @@ var (
 
 	contentStyle = lipgloss.NewStyle().
 			Border(lipgloss.DoubleBorder()).
-			BorderForeground(lipgloss.Color("141"))
+			BorderForeground(borderColor)
+
+	customBorderStyle = lipgloss.NewStyle().
+				Foreground(borderColor)
 )
 
 // NewBubble создает новый экземпляр UI.
@@ -88,8 +95,6 @@ func (b Bubble) Init() tea.Cmd {
 
 // Update обновляет UI в зависимости от события.
 func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	//spew.Fdump(b.dump, msg)
-
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -115,37 +120,110 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View возвращает строковое представление UI.
 func (b Bubble) View() string {
+	// Вид приложения:
+	// +------------------------+
+	// | Title                  |
+	// +--------------+---------+
+	// | Table        | Detail  |
+	// | View         | View    |
+	// +--------------+---------+
+
 	// Заголовок приложения
 	title := titleStyle.
 		Width(b.width).
 		Render()
 
-	// Строка статуса таблицы
-	contentLeftBottom := contentStyle.
-		Width(b.width/3*2 - contentStyle.GetHorizontalFrameSize()).
-		PaddingRight(1).
-		Align(lipgloss.Right).
-		Render(b.dataTable.RenderInfoBar())
+	viewsHeight := b.height - lipgloss.Height(title)
 
 	// Окно со списком данных
-	contentLeft := contentStyle.
-		Width(b.width/3*2 - contentStyle.GetHorizontalFrameSize()).
-		Height(b.height - lipgloss.Height(title) - contentStyle.GetVerticalFrameSize() - lipgloss.Height(contentLeftBottom)).
+	tableView := b.renderTableView(viewsHeight)
+
+	// Окно детального просмотра
+	detailViewWidth := b.width - lipgloss.Width(tableView)
+	detailView := b.renderDetailView(detailViewWidth, viewsHeight)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Top, tableView, detailView)
+
+	return lipgloss.JoinVertical(lipgloss.Top, title, content)
+}
+
+func (b Bubble) renderTableView(height int) string {
+	w := b.width/3*2 - contentStyle.GetHorizontalFrameSize()
+
+	tableTopBorder := b.renderBorderTop(contentStyle, "Data", w)
+
+	tableBottomBorder := b.renderBorderBottom(contentStyle, b.dataTable.RenderInfoBar(), w)
+
+	tableView := contentStyle.
+		BorderTop(false).
+		BorderBottom(false).
+		Width(w).
+		Height(height - lipgloss.Height(tableTopBorder) - lipgloss.Height(tableBottomBorder)).
 		PaddingLeft(1).
 		Render(b.dataTable.View())
 
-	// Окно детального просмотра
+	return lipgloss.JoinVertical(lipgloss.Top, tableTopBorder, tableView, tableBottomBorder)
+}
 
-	contentRight := contentStyle.
-		Width(b.width - lipgloss.Width(contentLeft) - contentStyle.GetHorizontalFrameSize()).
-		Height(b.height - lipgloss.Height(title) - contentStyle.GetVerticalFrameSize()).
+func (b Bubble) renderDetailView(width int, height int) string {
+	w := width - contentStyle.GetHorizontalFrameSize()
+
+	detailTop := b.renderBorderTop(contentStyle, "Detail", w)
+
+	detailView := contentStyle.
+		BorderTop(false).
+		Width(w).
+		Height(height - contentStyle.GetVerticalFrameSize()).
 		PaddingLeft(1).
 		Render(b.dataDetail.View())
 
-	content := lipgloss.JoinHorizontal(lipgloss.Top,
-		lipgloss.JoinVertical(lipgloss.Top, contentLeft, contentLeftBottom),
-		contentRight,
-	)
+	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
+}
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, content)
+func (b Bubble) renderBorderTop(style lipgloss.Style, text string, width int) string {
+	border, _, _, _, _ := style.GetBorder()
+	borderLeft := border.TopLeft
+	borderMiddle := border.Top
+	borderRight := border.TopRight
+
+	leftText := borderLeft + borderRight
+
+	rightRepeat := width -
+		utf8.RuneCountInString(leftText) -
+		utf8.RuneCountInString(text)
+	// TODO: fix workaround
+	if rightRepeat <= 0 {
+		rightRepeat = 1
+	}
+
+	rightText := borderLeft + strings.Repeat(borderMiddle, rightRepeat) + borderRight
+
+	left := customBorderStyle.Render(leftText)
+	right := customBorderStyle.Render(rightText)
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, left, text, right)
+}
+
+func (b Bubble) renderBorderBottom(style lipgloss.Style, text string, width int) string {
+	border, _, _, _, _ := style.GetBorder()
+	borderLeft := border.BottomLeft
+	borderMiddle := border.Bottom
+	borderRight := border.BottomRight
+
+	rightText := borderLeft + borderRight
+
+	leftRepeat := width -
+		utf8.RuneCountInString(rightText) -
+		utf8.RuneCountInString(text)
+	// TODO: fix workaround
+	if leftRepeat <= 0 {
+		leftRepeat = 1
+	}
+
+	leftText := borderLeft + strings.Repeat(borderMiddle, leftRepeat) + borderRight
+
+	left := customBorderStyle.Render(leftText)
+	right := customBorderStyle.Render(rightText)
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, left, text, right)
 }
