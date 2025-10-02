@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	sqlc "github.com/mkolibaba/gophkeeper/internal/server/sqlite/sqlc/gen"
 	"io"
@@ -52,7 +51,7 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData) error 
 	defer dest.Close()
 
 	buf := make([]byte, 1024*1024) // 1 MB
-	n, err := io.CopyBuffer(dest, data.DataReader, buf)
+	_, err = io.CopyBuffer(dest, data.DataReader, buf)
 
 	if err != nil {
 		os.Remove(dest.Name())

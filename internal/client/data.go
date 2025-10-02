@@ -56,7 +56,7 @@ type (
 
 	BinaryService interface {
 		TypedDataService[BinaryData]
-		Get(ctx context.Context, user string) (BinaryData, error)
+		Download(ctx context.Context, name string) error
 	}
 
 	CardService TypedDataService[CardData]

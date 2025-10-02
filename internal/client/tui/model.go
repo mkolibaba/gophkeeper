@@ -110,6 +110,11 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			b.dataDetail = b.dataDetail.SetData(current)
 		case "ctrl+c", "q":
 			return b, tea.Quit
+		case "d":
+			current := b.dataTable.GetCurrentRow()
+			if d, ok := current.(client.BinaryData); ok {
+				b.manager.StartDownloadBinary(d)
+			}
 		}
 	case tea.WindowSizeMsg:
 		b.height, b.width = msg.Height, msg.Width

@@ -6,6 +6,8 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"google.golang.org/grpc"
+	"io"
+	"os"
 )
 
 type BinaryService struct {
@@ -49,24 +51,51 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	return binaries, nil
 }
 
-func (b *BinaryService) Get(ctx context.Context, name string) (client.BinaryData, error) {
-	//var in pb.GetDataRequest
-	//in.SetName(name)
-	//in.SetUser(user)
-	//in.SetDataType(pb.DataType_BINARY)
-	//
-	//out, err := b.client.Get(ctx, &in)
-	//if err != nil {
-	//	return client.BinaryData{}, err
-	//}
-	//
-	//binary := out.GetData().GetBinary()
-	//return client.BinaryData{
-	//	Name:     binary.GetName(),
-	//	Bytes:    binary.GetData(),
-	//	Metadata: binary.GetMetadata(),
-	//}, nil
-	return client.BinaryData{}, fmt.Errorf("unimplemented")
+func (b *BinaryService) Download(ctx context.Context, name string) error {
+	var in pb.DownloadBinaryRequest
+	in.SetName(name)
+
+	stream, err := b.client.Download(ctx, &in)
+	if err != nil {
+		return err
+	}
+
+	var file *os.File
+	//var totalSize int64
+	var receivedBytes int64
+
+	for {
+		chunk, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+
+		if file == nil {
+			file, err = os.Create(chunk.GetFilename())
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+
+			//totalSize = chunk.GetTotalSize()
+		}
+
+		n, err := file.Write(chunk.GetChunkData())
+		if err != nil {
+			panic(err)
+		}
+
+		receivedBytes += int64(n)
+
+		//if totalSize > 0 {
+		//	progress := float64(receivedBytes) / float64(totalSize) * 100
+		//}
+	}
+
+	return nil
 }
 
 func (b *BinaryService) Remove(ctx context.Context, name string) error {

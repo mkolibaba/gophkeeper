@@ -79,3 +79,9 @@ func (m *Manager) FetchData() tea.Cmd {
 		return msg
 	}
 }
+
+func (m *Manager) StartDownloadBinary(data client.BinaryData) {
+	go func() {
+		m.binaryService.Download(context.Background(), data.Name)
+	}()
+}
