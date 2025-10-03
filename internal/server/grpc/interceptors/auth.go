@@ -3,16 +3,26 @@ package interceptors
 import (
 	"context"
 	"encoding/base64"
+	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"slices"
 	"strings"
 )
 
+var skip = []string{
+	pb.AuthorizationService_Authorize_FullMethodName,
+}
+
 func UnaryAuth() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+		if slices.Contains(skip, info.FullMethod) {
+			return handler(ctx, req)
+		}
+
 		authorization := metadata.ValueFromIncomingContext(ctx, "authorization")
 		if len(authorization) == 0 {
 			return nil, status.Errorf(codes.Unauthenticated, "credentials are not provided")
@@ -52,6 +62,10 @@ func (w *wrappedServerStream) Context() context.Context {
 
 func StreamAuth() grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		if slices.Contains(skip, info.FullMethod) {
+			return handler(srv, ss)
+		}
+
 		authorization := metadata.ValueFromIncomingContext(ss.Context(), "authorization")
 		if len(authorization) == 0 {
 			return status.Errorf(codes.Unauthenticated, "credentials are not provided")

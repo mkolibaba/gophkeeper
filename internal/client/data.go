@@ -55,11 +55,17 @@ type (
 	NoteService TypedDataService[NoteData]
 
 	BinaryService interface {
-		TypedDataService[BinaryData]
+		Save(ctx context.Context, data BinaryData) error
+		GetAll(ctx context.Context) ([]BinaryData, error)
+		Remove(ctx context.Context, name string) error
 		Download(ctx context.Context, name string) error
 	}
 
 	CardService TypedDataService[CardData]
+
+	AuthorizationService interface {
+		Authorize(ctx context.Context, login string, password string) (string, error)
+	}
 )
 
 func NewDataValidator() (*validator.Validate, error) {

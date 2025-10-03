@@ -9,14 +9,16 @@ import (
 )
 
 type Manager struct {
-	loginService  client.LoginService
-	noteService   client.NoteService
-	binaryService client.BinaryService
-	cardService   client.CardService
-	logger        *zap.Logger
+	authorizationService client.AuthorizationService
+	loginService         client.LoginService
+	noteService          client.NoteService
+	binaryService        client.BinaryService
+	cardService          client.CardService
+	logger               *zap.Logger
 }
 
 func NewManager(
+	authorizationService client.AuthorizationService,
 	loginService client.LoginService,
 	noteService client.NoteService,
 	binaryService client.BinaryService,
@@ -24,11 +26,12 @@ func NewManager(
 	logger *zap.Logger,
 ) *Manager {
 	return &Manager{
-		loginService:  loginService,
-		noteService:   noteService,
-		binaryService: binaryService,
-		cardService:   cardService,
-		logger:        logger,
+		authorizationService: authorizationService,
+		loginService:         loginService,
+		noteService:          noteService,
+		binaryService:        binaryService,
+		cardService:          cardService,
+		logger:               logger,
 	}
 }
 
@@ -84,4 +87,19 @@ func (m *Manager) StartDownloadBinary(data client.BinaryData) {
 	go func() {
 		m.binaryService.Download(context.Background(), data.Name)
 	}()
+}
+
+type AuthorizationResultMsg struct {
+	Token string
+	Err   error
+}
+
+func (m *Manager) Authorize(login, password string) tea.Cmd {
+	return func() tea.Msg {
+		token, err := m.authorizationService.Authorize(context.Background(), login, password)
+		return AuthorizationResultMsg{
+			Token: token,
+			Err:   err,
+		}
+	}
 }

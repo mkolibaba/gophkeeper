@@ -1,0 +1,18 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophkeeper/gen;gophkeeper";
+
+message AuthorizationRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message AuthorizationResponse {
+  string token = 1;
+}
+
+service AuthorizationService {
+  rpc Authorize(AuthorizationRequest) returns (AuthorizationResponse);
+}

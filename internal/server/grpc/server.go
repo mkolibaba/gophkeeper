@@ -20,6 +20,7 @@ type Server struct {
 
 func NewServer(
 	lc fx.Lifecycle,
+	authorizationService *AuthorizationService,
 	loginServiceServer *LoginServiceServer,
 	noteServiceServer *NoteServiceServer,
 	binaryServiceServer *BinaryServiceServer,
@@ -37,6 +38,7 @@ func NewServer(
 			interceptors.StreamAuth(),
 		),
 	)
+	pb.RegisterAuthorizationServiceServer(s, authorizationService)
 	pb.RegisterLoginServiceServer(s, loginServiceServer)
 	pb.RegisterNoteServiceServer(s, noteServiceServer)
 	pb.RegisterBinaryServiceServer(s, binaryServiceServer)
