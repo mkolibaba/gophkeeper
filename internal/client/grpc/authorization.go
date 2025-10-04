@@ -27,7 +27,7 @@ func (s *AuthorizationService) Authorize(ctx context.Context, login string, pass
 
 	if err != nil {
 		if statusErr, ok := status.FromError(err); ok {
-			return "", fmt.Errorf(statusErr.Message())
+			return "", fmt.Errorf("%s", statusErr.Message())
 		}
 		return "", err
 	}

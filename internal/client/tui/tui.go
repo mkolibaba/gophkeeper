@@ -7,12 +7,12 @@ import (
 )
 
 func Start(
-	initial Bubble,
+	bubble Bubble,
 	shutdowner fx.Shutdowner,
 	logger *zap.Logger,
 ) {
 	go func() {
-		_, err := tea.NewProgram(initial, tea.WithAltScreen()).Run()
+		_, err := tea.NewProgram(bubble, tea.WithAltScreen()).Run()
 		logger.Info("shutting down")
 		if err != nil {
 			logger.Error("error shutting down tui", zap.Error(err))

@@ -20,16 +20,18 @@ func createApp() fx.Option {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 		fx.Provide(
-			func() (*zap.Logger, error) {
-				cfg := zap.NewDevelopmentConfig()
-				if logOutput := os.Getenv("LOG_OUTPUT"); logOutput != "" {
-					cfg.OutputPaths = []string{logOutput}
-				}
-				return cfg.Build()
-			},
+			newLogger,
 			client.NewDataValidator,
 		),
 		grpc.Module,
 		tui.Module,
 	)
+}
+
+func newLogger() (*zap.Logger, error) {
+	cfg := zap.NewDevelopmentConfig()
+	if logOutput := os.Getenv("LOG_OUTPUT"); logOutput != "" {
+		cfg.OutputPaths = []string{logOutput}
+	}
+	return cfg.Build()
 }
