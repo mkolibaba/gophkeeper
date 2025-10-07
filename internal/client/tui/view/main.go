@@ -15,7 +15,12 @@ import (
 type mainViewKeyMap struct {
 	UpDown         key.Binding
 	AddData        key.Binding
+	AddLogin       key.Binding
+	AddNote        key.Binding
+	AddBinary      key.Binding
+	AddCard        key.Binding
 	DownloadBinary key.Binding
+	Help           key.Binding
 	Quit           key.Binding
 }
 
@@ -27,6 +32,7 @@ func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.UpDown},
 		{k.AddData},
+		{k.AddLogin, k.AddNote, k.AddBinary, k.AddCard},
 		{k.DownloadBinary},
 		{k.Quit},
 	}
@@ -38,6 +44,7 @@ type MainViewModel struct {
 	dataDetail detail.Model
 	keyMap     mainViewKeyMap
 	manager    *state.Manager
+	showHelp   bool
 }
 
 func InitialMainViewModel(manager *state.Manager) *MainViewModel {
@@ -50,9 +57,28 @@ func InitialMainViewModel(manager *state.Manager) *MainViewModel {
 			key.WithKeys("a"),
 			key.WithHelp("a", "add data"),
 		),
+		AddLogin: key.NewBinding(
+			key.WithKeys("alt+1"),
+			key.WithHelp("alt+1", "add login"),
+		),
+		AddNote: key.NewBinding(
+			key.WithKeys("alt+2"),
+			key.WithHelp("alt+2", "add note"),
+		),
+		AddBinary: key.NewBinding(
+			key.WithKeys("alt+3"),
+			key.WithHelp("alt+3", "add binary"),
+		),
+		AddCard: key.NewBinding(
+			key.WithKeys("alt+4"),
+			key.WithHelp("alt+4", "add card"),
+		),
 		DownloadBinary: key.NewBinding(
 			key.WithKeys("d"),
 			key.WithHelp("d", "download binary"),
+		),
+		Help: key.NewBinding(
+			key.WithKeys("h"),
 		),
 		Quit: key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
@@ -108,6 +134,9 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(msg, m.keyMap.AddData):
 			return AddDataCall
+
+		case key.Matches(msg, m.keyMap.Help):
+			m.showHelp = !m.showHelp
 		}
 	}
 
@@ -115,12 +144,17 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *MainViewModel) View() string {
-	// Строка помощи
-	hm := help.New()
-	hm.ShowAll = true
-	helpView := lipgloss.NewStyle().PaddingLeft(1).Render(hm.View(m.keyMap))
+	var helpView string
+	h := m.Height
 
-	h := m.Height - lipgloss.Height(helpView)
+	if m.showHelp {
+		// Строка помощи
+		hm := help.New()
+		hm.ShowAll = true
+		helpView = lipgloss.NewStyle().PaddingLeft(1).Render(hm.View(m.keyMap))
+
+		h = h - lipgloss.Height(helpView)
+	}
 
 	// Окно со списком данных
 	tableView := m.renderTableView(m.Width, h)
@@ -130,8 +164,10 @@ func (m *MainViewModel) View() string {
 	detailView := m.renderDetailView(detailViewWidth, h)
 
 	return lipgloss.JoinVertical(lipgloss.Top,
-		lipgloss.JoinHorizontal(lipgloss.Top, tableView, detailView),
-		helpView,
+		removeEmptyStrings(
+			lipgloss.JoinHorizontal(lipgloss.Top, tableView, detailView),
+			helpView,
+		)...,
 	)
 }
 
@@ -166,4 +202,15 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 		Render(m.dataDetail.View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
+}
+
+func removeEmptyStrings(strs ...string) []string {
+	n := 0
+	for _, s := range strs {
+		if s != "" {
+			strs[n] = s
+			n++
+		}
+	}
+	return strs[:n]
 }

@@ -117,7 +117,7 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		b.height = msg.Height
 		// TODO(trivial): можно ли как-то вычислить высоту компонента заголовка?
 		for i := range b.views {
-			b.views[i].SetSize(b.width, b.height-1) // -1 для заголовка приложения
+			b.views[i].SetSize(b.width, b.height-2) // -1 для заголовка приложения, -1 для футера
 		}
 		return b, nil
 	}
@@ -130,9 +130,25 @@ func (b Bubble) View() string {
 	title := helper.TitleStyle.
 		Width(b.width).
 		Render()
+	// TODO(trivial): попробовать другие стили
+	footerHelp := lipgloss.NewStyle().
+		Width(8).
+		PaddingLeft(1).
+		Background(lipgloss.Color("243")).
+		Render("h Help")
+	footerUser := lipgloss.NewStyle().
+		Width(6).
+		PaddingLeft(1).
+		Background(lipgloss.Color("243")).
+		Render("demo") // TODO(critical): тут получить никнейм юзера
+	footerRest := lipgloss.NewStyle().
+		Width(b.width - lipgloss.Width(footerHelp) - lipgloss.Width(footerUser)).
+		Background(lipgloss.Color("105")).
+		Render()
+	footer := lipgloss.JoinHorizontal(lipgloss.Top, footerHelp, footerRest, footerUser)
 	content := b.views[b.view].View()
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, content)
+	return lipgloss.JoinVertical(lipgloss.Top, title, content, footer)
 }
 
 // spew выводит в dump состояния объектов для дебага.
