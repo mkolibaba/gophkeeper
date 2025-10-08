@@ -1,37 +1,26 @@
 package grpc
 
 import (
-	"context"
-	"encoding/base64"
+	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/grpc/interceptors"
+	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type basicAccess struct {
+type ConnectionParams struct {
+	fx.In
+
+	Config  *Config
+	Session *client.Session
 }
 
-func (b basicAccess) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
-	login := "demo"
-	password := "demo"
-
-	authorization := "Basic " + base64.StdEncoding.EncodeToString([]byte(login+":"+password))
-
-	return map[string]string{
-		"authorization": authorization,
-	}, nil
-}
-
-func (b basicAccess) RequireTransportSecurity() bool {
-	return false // TODO
-}
-
-func NewConnection(cfg *Config) (*grpc.ClientConn, error) {
+func NewConnection(p ConnectionParams) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(
-		cfg.ServerAddress,
+		p.Config.ServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		// TODO: https://github.com/grpc/grpc-go/blob/master/examples/features/authz/client/main.go
-		//  можно устанавливать токен прямо во время запроса
-		grpc.WithPerRPCCredentials(basicAccess{}),
+		grpc.WithUnaryInterceptor(interceptors.UnaryAuth(p.Session)),
+		grpc.WithStreamInterceptor(interceptors.StreamAuth(p.Session)),
 	)
 	return conn, err
 }

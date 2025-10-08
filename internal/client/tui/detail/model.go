@@ -91,6 +91,8 @@ func (m Model) View() string {
 			d.Cardholder,
 		}
 		lines = append(lines, renderMetadata(d.Metadata)...)
+	case nil:
+		lines = []string{"No data"}
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, lines...)

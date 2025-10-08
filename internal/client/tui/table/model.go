@@ -68,6 +68,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	if len(m.renderedRows) == 0 {
+		return "No data"
+	}
+
 	rows := []string{m.renderHeader()}
 	for i, row := range m.renderedRows {
 		rows = append(rows, m.renderRow(row.DataType, row.Name, row.RenderedValue, i == m.cursor))
@@ -76,6 +80,10 @@ func (m Model) View() string {
 }
 
 func (m Model) GetCurrentRow() client.Data {
+	if len(m.data) == 0 {
+		return nil
+	}
+
 	return m.data[m.cursor]
 }
 

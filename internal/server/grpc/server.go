@@ -19,41 +19,45 @@ type Server struct {
 	logger *zap.Logger
 }
 
-func NewServer(
-	lc fx.Lifecycle,
-	authService *server.AuthService,
-	authorizationServiceServer *AuthorizationServiceServer,
-	loginServiceServer *LoginServiceServer,
-	noteServiceServer *NoteServiceServer,
-	binaryServiceServer *BinaryServiceServer,
-	cardServiceServer *CardServiceServer,
-	cfg *Config,
-	logger *zap.Logger,
-) *Server {
+type ServerParams struct {
+	fx.In
+
+	Lifecycle                  fx.Lifecycle
+	AuthService                *server.AuthService
+	AuthorizationServiceServer *AuthorizationServiceServer
+	LoginServiceServer         *LoginServiceServer
+	NoteServiceServer          *NoteServiceServer
+	BinaryServiceServer        *BinaryServiceServer
+	CardServiceServer          *CardServiceServer
+	Config                     *Config
+	Logger                     *zap.Logger
+}
+
+func NewServer(p ServerParams) *Server {
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			interceptors.UnaryLogger(logger),
-			interceptors.UnaryAuth(authService),
+			interceptors.UnaryLogger(p.Logger),
+			interceptors.UnaryAuth(p.AuthService),
 		),
 		grpc.ChainStreamInterceptor(
-			interceptors.StreamLogger(logger),
-			interceptors.StreamAuth(authService),
+			interceptors.StreamLogger(p.Logger),
+			interceptors.StreamAuth(p.AuthService),
 		),
 	)
-	pb.RegisterAuthorizationServiceServer(s, authorizationServiceServer)
-	pb.RegisterLoginServiceServer(s, loginServiceServer)
-	pb.RegisterNoteServiceServer(s, noteServiceServer)
-	pb.RegisterBinaryServiceServer(s, binaryServiceServer)
-	pb.RegisterCardServiceServer(s, cardServiceServer)
+	pb.RegisterAuthorizationServiceServer(s, p.AuthorizationServiceServer)
+	pb.RegisterLoginServiceServer(s, p.LoginServiceServer)
+	pb.RegisterNoteServiceServer(s, p.NoteServiceServer)
+	pb.RegisterBinaryServiceServer(s, p.BinaryServiceServer)
+	pb.RegisterCardServiceServer(s, p.CardServiceServer)
 	reflection.Register(s)
 
 	srv := &Server{
 		s:      s,
-		port:   cfg.Port,
-		logger: logger,
+		port:   p.Config.Port,
+		logger: p.Logger,
 	}
 
-	lc.Append(fx.Hook{
+	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(context.Context) error {
 			go srv.start()
 			return nil

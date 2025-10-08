@@ -4,34 +4,43 @@ import (
 	"context"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"sync"
 )
 
+// TODO: нужен ли этот компонент?
 type Manager struct {
 	authorizationService client.AuthorizationService
 	loginService         client.LoginService
 	noteService          client.NoteService
 	binaryService        client.BinaryService
 	cardService          client.CardService
+	session              *client.Session
 	logger               *zap.Logger
 }
 
-func NewManager(
-	authorizationService client.AuthorizationService,
-	loginService client.LoginService,
-	noteService client.NoteService,
-	binaryService client.BinaryService,
-	cardService client.CardService,
-	logger *zap.Logger,
-) *Manager {
+type ManagerParams struct {
+	fx.In
+
+	AuthorizationService client.AuthorizationService
+	LoginService         client.LoginService
+	NoteService          client.NoteService
+	BinaryService        client.BinaryService
+	CardService          client.CardService
+	Session              *client.Session
+	Logger               *zap.Logger
+}
+
+func NewManager(p ManagerParams) *Manager {
 	return &Manager{
-		authorizationService: authorizationService,
-		loginService:         loginService,
-		noteService:          noteService,
-		binaryService:        binaryService,
-		cardService:          cardService,
-		logger:               logger,
+		authorizationService: p.AuthorizationService,
+		loginService:         p.LoginService,
+		noteService:          p.NoteService,
+		binaryService:        p.BinaryService,
+		cardService:          p.CardService,
+		session:              p.Session,
+		logger:               p.Logger,
 	}
 }
 
@@ -90,16 +99,33 @@ func (m *Manager) StartDownloadBinary(data client.BinaryData) {
 }
 
 type AuthorizationResultMsg struct {
-	Token string
-	Err   error
+	Login    string
+	Password string
+	Err      error
 }
 
 func (m *Manager) Authorize(login, password string) tea.Cmd {
 	return func() tea.Msg {
-		token, err := m.authorizationService.Authorize(context.Background(), login, password)
+		_, err := m.authorizationService.Authorize(context.Background(), login, password)
 		return AuthorizationResultMsg{
-			Token: token,
-			Err:   err,
+			Login:    login,
+			Password: password,
+			Err:      err,
 		}
 	}
+}
+
+func (m *Manager) SetInSession(login, password string) {
+	m.session.SetCurrentUser(client.User{
+		Login:    login,
+		Password: password,
+	})
+}
+
+func (m *Manager) GetCurrentUserLogin() string {
+	user := m.session.GetCurrentUser()
+	if user == nil {
+		return ""
+	}
+	return user.Login
 }

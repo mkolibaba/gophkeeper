@@ -8,7 +8,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
-	"go.uber.org/zap"
 	"io"
 	"os"
 )
@@ -38,20 +37,14 @@ type Bubble struct {
 	dump io.Writer
 
 	manager *state.Manager
+	session *client.Session
 
 	view View
 
 	views map[View]view.Model
 }
 
-func NewBubble(
-	authorizationService client.AuthorizationService,
-	loginService client.LoginService,
-	noteService client.NoteService,
-	binaryService client.BinaryService,
-	cardService client.CardService,
-	logger *zap.Logger,
-) (Bubble, error) {
+func NewBubble(manager *state.Manager, session *client.Session) (Bubble, error) {
 	var dump *os.File
 	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
 		var err error
@@ -61,18 +54,10 @@ func NewBubble(
 		}
 	}
 
-	manager := state.NewManager(
-		authorizationService,
-		loginService,
-		noteService,
-		binaryService,
-		cardService,
-		logger,
-	)
-
 	return Bubble{
 		dump:    dump,
 		manager: manager,
+		session: session,
 		views: map[View]view.Model{
 			ViewAuthorization: view.InitialAuthorizationViewModel(manager),
 			ViewMain:          view.InitialMainViewModel(manager),
@@ -97,6 +82,7 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Авторизация
 	case state.AuthorizationResultMsg:
 		if msg.Err == nil {
+			b.manager.SetInSession(msg.Login, msg.Password)
 			b.view = ViewMain
 			return b, b.manager.FetchData()
 		}
@@ -130,25 +116,38 @@ func (b Bubble) View() string {
 	title := helper.TitleStyle.
 		Width(b.width).
 		Render()
+	footer := b.buildFooter()
+	content := b.views[b.view].View()
+
+	return lipgloss.JoinVertical(lipgloss.Top, title, content, footer)
+}
+
+func (b Bubble) buildFooter() string {
 	// TODO(trivial): попробовать другие стили
-	footerHelp := lipgloss.NewStyle().
+
+	w := lipgloss.Width
+
+	help := lipgloss.NewStyle().
 		Width(8).
 		PaddingLeft(1).
 		Background(lipgloss.Color("243")).
 		Render("h Help")
-	footerUser := lipgloss.NewStyle().
-		Width(6).
-		PaddingLeft(1).
-		Background(lipgloss.Color("243")).
-		Render("demo") // TODO(critical): тут получить никнейм юзера
-	footerRest := lipgloss.NewStyle().
-		Width(b.width - lipgloss.Width(footerHelp) - lipgloss.Width(footerUser)).
+
+	var user string
+	if usr := b.session.GetCurrentUser(); usr != nil {
+		user = lipgloss.NewStyle().
+			Width(w(usr.Login) + 2).
+			PaddingLeft(1).
+			Background(lipgloss.Color("243")).
+			Render(usr.Login)
+	}
+
+	rest := lipgloss.NewStyle().
+		Width(b.width - w(help) - w(user)).
 		Background(lipgloss.Color("105")).
 		Render()
-	footer := lipgloss.JoinHorizontal(lipgloss.Top, footerHelp, footerRest, footerUser)
-	content := b.views[b.view].View()
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, content, footer)
+	return lipgloss.JoinHorizontal(lipgloss.Top, help, rest, user)
 }
 
 // spew выводит в dump состояния объектов для дебага.

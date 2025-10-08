@@ -5,7 +5,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/grpc"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"os"
 )
@@ -16,13 +15,14 @@ func main() {
 
 func createApp() fx.Option {
 	return fx.Options(
-		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
-			return &fxevent.ZapLogger{Logger: logger}
-		}),
+		// TODO: нужно ли?
+		//fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
+		//	return &fxevent.ZapLogger{Logger: logger}
+		//}),
 		fx.Provide(
 			newLogger,
-			client.NewDataValidator,
 		),
+		client.Module,
 		grpc.Module,
 		tui.Module,
 	)
