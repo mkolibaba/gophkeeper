@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/interceptors"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -20,7 +21,8 @@ type Server struct {
 
 func NewServer(
 	lc fx.Lifecycle,
-	authorizationService *AuthorizationService,
+	authService *server.AuthService,
+	authorizationServiceServer *AuthorizationServiceServer,
 	loginServiceServer *LoginServiceServer,
 	noteServiceServer *NoteServiceServer,
 	binaryServiceServer *BinaryServiceServer,
@@ -31,14 +33,14 @@ func NewServer(
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptors.UnaryLogger(logger),
-			interceptors.UnaryAuth(),
+			interceptors.UnaryAuth(authService),
 		),
 		grpc.ChainStreamInterceptor(
 			interceptors.StreamLogger(logger),
-			interceptors.StreamAuth(),
+			interceptors.StreamAuth(authService),
 		),
 	)
-	pb.RegisterAuthorizationServiceServer(s, authorizationService)
+	pb.RegisterAuthorizationServiceServer(s, authorizationServiceServer)
 	pb.RegisterLoginServiceServer(s, loginServiceServer)
 	pb.RegisterNoteServiceServer(s, noteServiceServer)
 	pb.RegisterBinaryServiceServer(s, binaryServiceServer)

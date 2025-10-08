@@ -44,27 +44,32 @@ type (
 		Metadata   map[string]string
 	}
 
-	TypedDataService[T Data] interface {
+	BaseDataService[T Data] interface {
 		Save(ctx context.Context, data T) error
 		GetAll(ctx context.Context) ([]T, error)
 		Remove(ctx context.Context, name string) error
 	}
 
-	LoginService TypedDataService[LoginData]
+	LoginService interface {
+		BaseDataService[LoginData]
+	}
 
-	NoteService TypedDataService[NoteData]
+	NoteService interface {
+		BaseDataService[NoteData]
+	}
 
 	BinaryService interface {
-		Save(ctx context.Context, data BinaryData) error
-		GetAll(ctx context.Context) ([]BinaryData, error)
-		Remove(ctx context.Context, name string) error
+		BaseDataService[BinaryData]
 		Download(ctx context.Context, name string) error
 	}
 
-	CardService TypedDataService[CardData]
+	CardService interface {
+		BaseDataService[CardData]
+	}
 
 	AuthorizationService interface {
 		Authorize(ctx context.Context, login string, password string) (string, error)
+		Register(ctx context.Context, login string, password string) (string, error)
 	}
 )
 

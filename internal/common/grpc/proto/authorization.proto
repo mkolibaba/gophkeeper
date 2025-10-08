@@ -4,6 +4,7 @@ package gophkeeper;
 
 option go_package = "gophkeeper/gen;gophkeeper";
 
+// TODO: переименовать
 message AuthorizationRequest {
   string login = 1;
   string password = 2;
@@ -15,4 +16,5 @@ message AuthorizationResponse {
 
 service AuthorizationService {
   rpc Authorize(AuthorizationRequest) returns (AuthorizationResponse);
+  rpc Register(AuthorizationRequest) returns (AuthorizationResponse);
 }

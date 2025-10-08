@@ -1,3 +1,7 @@
+INSERT INTO user (login, password)
+VALUES ('demo', 'demo');
+-- TODO: не хранить пароли в открытом доступе
+
 INSERT INTO login (name, login, password, metadata, user)
 VALUES ('Google', 'iivanov', '123456', '{"Website": "google.com"}', 'demo'),
        ('Ozon', '79031002030', 'qwe123', '{"Tag": "shop"}', 'demo'),

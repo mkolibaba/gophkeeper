@@ -35,3 +35,8 @@ type Note struct {
 	Metadata []byte
 	User     string
 }
+
+type User struct {
+	Login    string
+	Password string
+}

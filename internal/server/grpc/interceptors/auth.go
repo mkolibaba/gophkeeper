@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -15,9 +16,10 @@ import (
 
 var skip = []string{
 	pb.AuthorizationService_Authorize_FullMethodName,
+	pb.AuthorizationService_Register_FullMethodName,
 }
 
-func UnaryAuth() grpc.UnaryServerInterceptor {
+func UnaryAuth(authService *server.AuthService) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		if slices.Contains(skip, info.FullMethod) {
 			return handler(ctx, req)
@@ -42,8 +44,8 @@ func UnaryAuth() grpc.UnaryServerInterceptor {
 		login := split[0]
 		password := split[1]
 
-		if login != "demo" || password != "demo" {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid login/password")
+		if err := authService.Authorize(ctx, login, password); err != nil {
+			return nil, status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
 		userCtx := utils.NewContextWithUser(ctx, login)
@@ -60,7 +62,7 @@ func (w *wrappedServerStream) Context() context.Context {
 	return w.ctx
 }
 
-func StreamAuth() grpc.StreamServerInterceptor {
+func StreamAuth(authService *server.AuthService) grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		if slices.Contains(skip, info.FullMethod) {
 			return handler(srv, ss)
@@ -85,8 +87,8 @@ func StreamAuth() grpc.StreamServerInterceptor {
 		login := split[0]
 		password := split[1]
 
-		if login != "demo" || password != "demo" {
-			return status.Errorf(codes.Unauthenticated, "invalid login/password")
+		if err := authService.Authorize(ss.Context(), login, password); err != nil {
+			return status.Errorf(codes.Unauthenticated, err.Error())
 		}
 
 		userCtx := utils.NewContextWithUser(ss.Context(), login)

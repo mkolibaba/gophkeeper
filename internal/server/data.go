@@ -3,14 +3,18 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/go-playground/validator/v10"
+	"go.uber.org/zap"
 	"io"
 	"regexp"
 )
 
 var ErrDataAlreadyExists = errors.New("data already exists")
 var ErrDataNotFound = errors.New("data not found")
+var ErrUserAlreadyExists = errors.New("user already exists")
 var ErrUserNotFound = errors.New("user not found")
+var ErrInvalidCredentials = errors.New("invalid login or password")
 
 type (
 	Data interface {
@@ -51,6 +55,11 @@ type (
 		Metadata   map[string]string
 	}
 
+	User struct {
+		Login    string
+		Password string // TODO: hash
+	}
+
 	TypedDataService[T Data] interface {
 		Save(ctx context.Context, data T) error
 		GetAll(ctx context.Context, user string) ([]T, error)
@@ -68,8 +77,14 @@ type (
 	}
 
 	CardService TypedDataService[CardData]
+
+	UserService interface {
+		Get(ctx context.Context, login string) (User, error)
+		Save(ctx context.Context, user User) error
+	}
 )
 
+// TODO: нужно ли разделить data validator и user validator? либо нормально их объединить?
 func NewDataValidator() (*validator.Validate, error) {
 	expDateRegexp, err := regexp.Compile(`^\d{2}/\d{2}$`)
 	if err != nil {
@@ -82,4 +97,34 @@ func NewDataValidator() (*validator.Validate, error) {
 	})
 
 	return v, err
+}
+
+// TODO: тут ли ему место? нужен ли интерфейс?
+type AuthService struct {
+	userService UserService
+	logger      *zap.Logger
+}
+
+func NewAuthService(userService UserService, logger *zap.Logger) *AuthService {
+	return &AuthService{
+		userService: userService,
+		logger:      logger,
+	}
+}
+
+// TODO: по факту сервис не авторизует, а просто проверяет креды, поэтому название некорректное
+func (s *AuthService) Authorize(ctx context.Context, login string, password string) error {
+	u, err := s.userService.Get(ctx, login)
+	if errors.Is(err, ErrUserNotFound) {
+		return ErrInvalidCredentials
+	}
+	if err != nil {
+		s.logger.Error("user get error", zap.Error(err))
+		return fmt.Errorf("internal error")
+	}
+	if password != u.Password {
+		return ErrInvalidCredentials
+	}
+
+	return nil
 }

@@ -6,7 +6,7 @@ var Module = fx.Module(
 	"grpc",
 	fx.Provide(
 		NewConfig,
-		NewAuthorizationService,
+		NewAuthorizationServiceServer,
 		NewLoginServiceServer,
 		NewNoteServiceServer,
 		NewBinaryServiceServer,

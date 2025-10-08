@@ -12,6 +12,7 @@ var Module = fx.Module(
 		NewConfig,
 		NewDB,
 		NewQueries,
+		fx.Annotate(NewUserService, fx.As(new(server.UserService))),
 		fx.Annotate(NewLoginService, fx.As(new(server.LoginService))),
 		fx.Annotate(NewNoteService, fx.As(new(server.NoteService))),
 		fx.Annotate(NewBinaryService, fx.As(new(server.BinaryService))),

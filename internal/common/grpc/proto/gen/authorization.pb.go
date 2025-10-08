@@ -20,6 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// TODO: переименовать
 type AuthorizationRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Login       *string                `protobuf:"bytes,1,opt,name=login"`
@@ -219,9 +220,10 @@ const file_authorization_proto_rawDesc = "" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
 	"\x15AuthorizationResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2h\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token2\xb9\x01\n" +
 	"\x14AuthorizationService\x12P\n" +
-	"\tAuthorize\x12 .gophkeeper.AuthorizationRequest\x1a!.gophkeeper.AuthorizationResponseB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
+	"\tAuthorize\x12 .gophkeeper.AuthorizationRequest\x1a!.gophkeeper.AuthorizationResponse\x12O\n" +
+	"\bRegister\x12 .gophkeeper.AuthorizationRequest\x1a!.gophkeeper.AuthorizationResponseB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
 var file_authorization_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_authorization_proto_goTypes = []any{
@@ -230,9 +232,11 @@ var file_authorization_proto_goTypes = []any{
 }
 var file_authorization_proto_depIdxs = []int32{
 	0, // 0: gophkeeper.AuthorizationService.Authorize:input_type -> gophkeeper.AuthorizationRequest
-	1, // 1: gophkeeper.AuthorizationService.Authorize:output_type -> gophkeeper.AuthorizationResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 1: gophkeeper.AuthorizationService.Register:input_type -> gophkeeper.AuthorizationRequest
+	1, // 2: gophkeeper.AuthorizationService.Authorize:output_type -> gophkeeper.AuthorizationResponse
+	1, // 3: gophkeeper.AuthorizationService.Register:output_type -> gophkeeper.AuthorizationResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

@@ -2,30 +2,78 @@ package grpc
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/go-playground/validator/v10"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
+	"github.com/mkolibaba/gophkeeper/internal/server"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type AuthorizationService struct {
+type AuthorizationServiceServer struct {
 	pb.UnimplementedAuthorizationServiceServer
-	logger *zap.Logger
+	userService   server.UserService
+	authService   *server.AuthService
+	dataValidator *validator.Validate
+	logger        *zap.Logger
 }
 
-func NewAuthorizationService(logger *zap.Logger) *AuthorizationService {
-	return &AuthorizationService{
-		logger: logger,
+func NewAuthorizationServiceServer(
+	userService server.UserService,
+	authService *server.AuthService,
+	dataValidator *validator.Validate,
+	logger *zap.Logger,
+) *AuthorizationServiceServer {
+	// TODO: стоит разделить
+	rules := map[string]string{
+		"login":    "required",
+		"password": "required",
+	}
+
+	dataValidator.RegisterStructValidationMapRules(rules, pb.AuthorizationRequest{})
+
+	return &AuthorizationServiceServer{
+		userService:   userService,
+		authService:   authService,
+		dataValidator: dataValidator,
+		logger:        logger,
 	}
 }
 
-func (s *AuthorizationService) Authorize(ctx context.Context, in *pb.AuthorizationRequest) (*pb.AuthorizationResponse, error) {
-	// TODO: сделать нормальную реализацию
-	if in.GetLogin() == "demo" && in.GetPassword() == "demo" {
-		var out pb.AuthorizationResponse
-		out.SetToken("cool token")
-		return &out, nil
+// TODO: можно убрать токен и просто отправлять статус ок/не ок
+func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *pb.AuthorizationRequest) (*pb.AuthorizationResponse, error) {
+	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
+		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
 	}
 
-	return nil, status.Error(codes.Unauthenticated, "invalid login or password")
+	if err := s.authService.Authorize(ctx, in.GetLogin(), in.GetPassword()); err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	var out pb.AuthorizationResponse
+	out.SetToken("cool token")
+	return &out, nil
+}
+
+func (s *AuthorizationServiceServer) Register(ctx context.Context, in *pb.AuthorizationRequest) (*pb.AuthorizationResponse, error) {
+	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
+		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
+	}
+
+	err := s.userService.Save(ctx, server.User{
+		Login:    in.GetLogin(),
+		Password: in.GetPassword(),
+	})
+	if errors.Is(err, server.ErrUserAlreadyExists) {
+		return nil, status.Error(codes.Unauthenticated, "invalid login or password")
+	}
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error()) // TODO: человеческая ошибка
+	}
+
+	var out pb.AuthorizationResponse
+	out.SetToken("cool token")
+	return &out, nil
 }

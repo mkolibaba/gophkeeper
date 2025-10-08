@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"os"
+	"strings"
 )
 
 type BinaryService struct {
@@ -21,17 +22,56 @@ func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
 }
 
 func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error {
-	//var in pb.Binary
-	//in.SetName(data.Name)
-	//in.SetFileName(data.FileName)
-	//in.SetMetadata(data.Metadata)
-	//
-	//// TODO
-	//
-	//_, err := b.client.Upload(ctx, &in)
-	//return err
+	file, err := os.Open(data.FileName)
+	if err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
 
-	return fmt.Errorf("unimplemented")
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
+
+	stream, err := b.client.Upload(ctx)
+	if err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
+
+	buffer := make([]byte, 64*1024)
+	var idx int32
+
+	for {
+		n, err := file.Read(buffer)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("save: %w", err)
+		}
+
+		var chunk pb.FileChunk
+		chunk.SetChunkData(buffer[:n])
+		chunk.SetFilename(data.FileName[strings.LastIndex(data.FileName, "/")+1:])
+		chunk.SetTotalSize(fileInfo.Size())
+		chunk.SetChunkIndex(idx)
+
+		var in pb.SaveBinaryRequest
+		in.SetChunk(&chunk)
+		in.SetName(data.Name)
+
+		if err := stream.Send(&in); err != nil {
+			return fmt.Errorf("save: %w", err)
+		}
+
+		idx++
+	}
+
+	_, err = stream.CloseAndRecv()
+	if err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
+
+	return nil
 }
 
 func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error) {

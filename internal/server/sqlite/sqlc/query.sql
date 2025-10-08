@@ -1,3 +1,12 @@
+-- name: GetUserForLogin :one
+SELECT *
+FROM user
+WHERE login = ?;
+
+-- name: SaveUser :exec
+INSERT INTO user (login, password)
+VALUES (?, ?);
+
 -- name: SaveLogin :exec
 INSERT INTO login (name, login, password, metadata, user)
 VALUES (?, ?, ?, ?, ?);

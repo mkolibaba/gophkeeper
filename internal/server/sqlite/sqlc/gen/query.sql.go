@@ -168,6 +168,19 @@ func (q *Queries) GetBinary(ctx context.Context, name string, user string) (*Bin
 	return &i, err
 }
 
+const getUserForLogin = `-- name: GetUserForLogin :one
+SELECT login, password
+FROM user
+WHERE login = ?
+`
+
+func (q *Queries) GetUserForLogin(ctx context.Context, login string) (*User, error) {
+	row := q.db.QueryRowContext(ctx, getUserForLogin, login)
+	var i User
+	err := row.Scan(&i.Login, &i.Password)
+	return &i, err
+}
+
 const removeBinary = `-- name: RemoveBinary :execrows
 DELETE
 FROM binary
@@ -317,5 +330,15 @@ func (q *Queries) SaveNote(ctx context.Context, arg SaveNoteParams) error {
 		arg.Metadata,
 		arg.User,
 	)
+	return err
+}
+
+const saveUser = `-- name: SaveUser :exec
+INSERT INTO user (login, password)
+VALUES (?, ?)
+`
+
+func (q *Queries) SaveUser(ctx context.Context, login string, password string) error {
+	_, err := q.db.ExecContext(ctx, saveUser, login, password)
 	return err
 }
