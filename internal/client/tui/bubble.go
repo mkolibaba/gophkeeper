@@ -44,7 +44,7 @@ type Bubble struct {
 	views map[View]view.Model
 }
 
-func NewBubble(manager *state.Manager, session *client.Session) (Bubble, error) {
+func NewBubble(manager *state.Manager, session *client.Session, binaryService client.BinaryService) (Bubble, error) {
 	var dump *os.File
 	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
 		var err error
@@ -60,7 +60,7 @@ func NewBubble(manager *state.Manager, session *client.Session) (Bubble, error) 
 		session: session,
 		views: map[View]view.Model{
 			ViewAuthorization: view.InitialAuthorizationViewModel(manager),
-			ViewMain:          view.InitialMainViewModel(manager),
+			ViewMain:          view.InitialMainViewModel(session, binaryService),
 			ViewAddData:       view.InitialAddDataViewModel(),
 		},
 	}, nil
@@ -82,9 +82,9 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Авторизация
 	case state.AuthorizationResultMsg:
 		if msg.Err == nil {
-			b.manager.SetInSession(msg.Login, msg.Password)
+			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password})
 			b.view = ViewMain
-			return b, b.manager.FetchData()
+			return b, b.manager.FetchData
 		}
 
 	// Вызов окна добавления данных
@@ -116,38 +116,9 @@ func (b Bubble) View() string {
 	title := helper.TitleStyle.
 		Width(b.width).
 		Render()
-	footer := b.buildFooter()
 	content := b.views[b.view].View()
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, content, footer)
-}
-
-func (b Bubble) buildFooter() string {
-	// TODO(trivial): попробовать другие стили
-
-	w := lipgloss.Width
-
-	help := lipgloss.NewStyle().
-		Width(8).
-		PaddingLeft(1).
-		Background(lipgloss.Color("243")).
-		Render("h Help")
-
-	var user string
-	if usr := b.session.GetCurrentUser(); usr != nil {
-		user = lipgloss.NewStyle().
-			Width(w(usr.Login) + 2).
-			PaddingLeft(1).
-			Background(lipgloss.Color("243")).
-			Render(usr.Login)
-	}
-
-	rest := lipgloss.NewStyle().
-		Width(b.width - w(help) - w(user)).
-		Background(lipgloss.Color("105")).
-		Render()
-
-	return lipgloss.JoinHorizontal(lipgloss.Top, help, rest, user)
+	return lipgloss.JoinVertical(lipgloss.Top, title, content)
 }
 
 // spew выводит в dump состояния объектов для дебага.

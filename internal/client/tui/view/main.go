@@ -1,6 +1,8 @@
 package view
 
 import (
+	"context"
+	"fmt"
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,6 +12,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
+	"time"
 )
 
 type mainViewKeyMap struct {
@@ -40,14 +43,16 @@ func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 
 type MainViewModel struct {
 	baseViewModel
-	dataTable  table.Model
-	dataDetail detail.Model
-	keyMap     mainViewKeyMap
-	manager    *state.Manager
-	showHelp   bool
+	dataTable     table.Model
+	dataDetail    detail.Model
+	keyMap        mainViewKeyMap
+	session       *client.Session
+	showHelp      bool
+	binaryService client.BinaryService
+	statusBar     *StatusBarModel
 }
 
-func InitialMainViewModel(manager *state.Manager) *MainViewModel {
+func InitialMainViewModel(session *client.Session, binaryService client.BinaryService) *MainViewModel {
 	keys := mainViewKeyMap{
 		UpDown: key.NewBinding(
 			key.WithKeys("up", "down"),
@@ -88,12 +93,15 @@ func InitialMainViewModel(manager *state.Manager) *MainViewModel {
 
 	dataTable := table.NewModel()
 	dataDetail := detail.NewModel()
+	statusBar := InitialStatusBarModel()
 
 	return &MainViewModel{
-		dataTable:  dataTable,
-		dataDetail: dataDetail,
-		keyMap:     keys,
-		manager:    manager,
+		dataTable:     dataTable,
+		dataDetail:    dataDetail,
+		statusBar:     statusBar,
+		keyMap:        keys,
+		session:       session,
+		binaryService: binaryService,
 	}
 }
 
@@ -112,9 +120,13 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case state.FetchDataMsg:
+		m.statusBar.currentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
 		m.dataTable, cmd = m.dataTable.Update(msg)
 		current := m.dataTable.GetCurrentRow()
 		m.dataDetail = m.dataDetail.SetData(current)
+
+	case notificationMsg:
+		return m.statusBar.Update(msg)
 
 	case tea.KeyMsg:
 		switch {
@@ -129,7 +141,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, m.keyMap.DownloadBinary):
 			current := m.dataTable.GetCurrentRow()
 			if d, ok := current.(client.BinaryData); ok {
-				m.manager.StartDownloadBinary(d)
+				return m.startDownloadBinary(d)
 			}
 
 		case key.Matches(msg, m.keyMap.AddData):
@@ -151,7 +163,10 @@ func (m *MainViewModel) View() string {
 		// Строка помощи
 		hm := help.New()
 		hm.ShowAll = true
-		helpView = lipgloss.NewStyle().PaddingLeft(1).Render(hm.View(m.keyMap))
+		helpView = lipgloss.NewStyle().
+			PaddingLeft(1).
+			PaddingTop(1).
+			Render(hm.View(m.keyMap))
 
 		h = h - lipgloss.Height(helpView)
 	}
@@ -163,12 +178,20 @@ func (m *MainViewModel) View() string {
 	detailViewWidth := m.Width - lipgloss.Width(tableView)
 	detailView := m.renderDetailView(detailViewWidth, h)
 
+	footer := m.statusBar.View()
+
 	return lipgloss.JoinVertical(lipgloss.Top,
 		removeEmptyStrings(
 			lipgloss.JoinHorizontal(lipgloss.Top, tableView, detailView),
+			footer,
 			helpView,
 		)...,
 	)
+}
+
+func (m *MainViewModel) SetSize(width int, height int) {
+	m.baseViewModel.SetSize(width, height)
+	m.statusBar.width = width
 }
 
 func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
@@ -204,6 +227,23 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
 }
 
+func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
+	return func() tea.Msg {
+		err := m.binaryService.Download(context.Background(), data.Name)
+		if err != nil {
+			return notificationMsg{
+				text: fmt.Sprintf("Download %s failed: %v", data.Name, err),
+				t:    notificationError,
+			}
+		}
+
+		return notificationMsg{
+			text: fmt.Sprintf("Downloaded %s successfully", data.Name),
+			t:    notificationOk,
+		}
+	}
+}
+
 func removeEmptyStrings(strs ...string) []string {
 	n := 0
 	for _, s := range strs {
@@ -213,4 +253,89 @@ func removeEmptyStrings(strs ...string) []string {
 		}
 	}
 	return strs[:n]
+}
+
+type notificationType int
+
+const (
+	notificationNone notificationType = iota
+	notificationOk
+	notificationError
+)
+
+type notificationMsg struct {
+	text string
+	t    notificationType
+}
+
+type StatusBarModel struct {
+	width            int
+	notificationText string
+	notificationType notificationType
+	currentUser      string
+	ttl              time.Duration
+}
+
+func InitialStatusBarModel() *StatusBarModel {
+	return &StatusBarModel{
+		ttl: 3 * time.Second,
+	}
+}
+
+func (m *StatusBarModel) Update(msg tea.Msg) tea.Cmd {
+	switch msg := msg.(type) {
+	case notificationMsg:
+		m.notificationText = msg.text
+		m.notificationType = msg.t
+		return m.ResetNotification()
+	}
+
+	return nil
+}
+
+func (m *StatusBarModel) View() string {
+	// TODO(trivial): попробовать другие стили
+
+	w := lipgloss.Width
+
+	helpInfo := lipgloss.NewStyle().
+		Width(8).
+		PaddingLeft(1).
+		Background(lipgloss.Color("243")).
+		Render("h Help")
+
+	user := lipgloss.NewStyle().
+		Width(w(m.currentUser) + 2).
+		PaddingLeft(1).
+		Background(lipgloss.Color("243")).
+		Render(m.currentUser)
+
+	// TODO: вынести в компонент
+	var restColor lipgloss.Color
+
+	switch m.notificationType {
+	case notificationOk:
+		restColor = lipgloss.Color("115")
+	case notificationError:
+		restColor = lipgloss.Color("169")
+	case notificationNone:
+		restColor = lipgloss.Color("105")
+	}
+
+	rest := lipgloss.NewStyle().
+		Width(m.width - w(helpInfo) - w(user)).
+		PaddingLeft(1).
+		Background(restColor).
+		Render(m.notificationText)
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, helpInfo, rest, user)
+}
+
+func (m *StatusBarModel) ResetNotification() tea.Cmd {
+	return tea.Tick(m.ttl, func(t time.Time) tea.Msg {
+		return notificationMsg{
+			text: "",
+			t:    notificationNone,
+		}
+	})
 }

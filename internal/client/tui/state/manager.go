@@ -51,51 +51,43 @@ type FetchDataMsg struct {
 	Cards    []client.CardData
 }
 
-func (m *Manager) FetchData() tea.Cmd {
-	return func() tea.Msg {
-		var msg FetchDataMsg
+func (m *Manager) FetchData() tea.Msg {
+	var msg FetchDataMsg
 
-		ctx := context.Background()
+	ctx := context.Background()
 
-		var wg sync.WaitGroup
-		wg.Go(func() {
-			logins, err := m.loginService.GetAll(ctx)
-			if err != nil {
-				m.logger.Error(err.Error())
-			}
-			msg.Logins = logins
-		})
-		wg.Go(func() {
-			notes, err := m.noteService.GetAll(ctx)
-			if err != nil {
-				m.logger.Error(err.Error())
-			}
-			msg.Notes = notes
-		})
-		wg.Go(func() {
-			binaries, err := m.binaryService.GetAll(ctx)
-			if err != nil {
-				m.logger.Error(err.Error())
-			}
-			msg.Binaries = binaries
-		})
-		wg.Go(func() {
-			cards, err := m.cardService.GetAll(ctx)
-			if err != nil {
-				m.logger.Error(err.Error())
-			}
-			msg.Cards = cards
-		})
+	var wg sync.WaitGroup
+	wg.Go(func() {
+		logins, err := m.loginService.GetAll(ctx)
+		if err != nil {
+			m.logger.Error(err.Error())
+		}
+		msg.Logins = logins
+	})
+	wg.Go(func() {
+		notes, err := m.noteService.GetAll(ctx)
+		if err != nil {
+			m.logger.Error(err.Error())
+		}
+		msg.Notes = notes
+	})
+	wg.Go(func() {
+		binaries, err := m.binaryService.GetAll(ctx)
+		if err != nil {
+			m.logger.Error(err.Error())
+		}
+		msg.Binaries = binaries
+	})
+	wg.Go(func() {
+		cards, err := m.cardService.GetAll(ctx)
+		if err != nil {
+			m.logger.Error(err.Error())
+		}
+		msg.Cards = cards
+	})
 
-		wg.Wait()
-		return msg
-	}
-}
-
-func (m *Manager) StartDownloadBinary(data client.BinaryData) {
-	go func() {
-		m.binaryService.Download(context.Background(), data.Name)
-	}()
+	wg.Wait()
+	return msg
 }
 
 type AuthorizationResultMsg struct {
@@ -113,19 +105,4 @@ func (m *Manager) Authorize(login, password string) tea.Cmd {
 			Err:      err,
 		}
 	}
-}
-
-func (m *Manager) SetInSession(login, password string) {
-	m.session.SetCurrentUser(client.User{
-		Login:    login,
-		Password: password,
-	})
-}
-
-func (m *Manager) GetCurrentUserLogin() string {
-	user := m.session.GetCurrentUser()
-	if user == nil {
-		return ""
-	}
-	return user.Login
 }
