@@ -8,6 +8,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
+	"go.uber.org/fx"
 	"io"
 	"os"
 )
@@ -39,12 +40,24 @@ type Bubble struct {
 	manager *state.Manager
 	session *client.Session
 
+	// Текущий view интерфейса.
 	view View
 
 	views map[View]view.Model
 }
 
-func NewBubble(manager *state.Manager, session *client.Session, binaryService client.BinaryService) (Bubble, error) {
+type BubbleParams struct {
+	fx.In
+
+	Manager       *state.Manager
+	Session       *client.Session
+	BinaryService client.BinaryService
+	LoginService  client.LoginService
+	NoteService   client.NoteService
+	CardService   client.CardService
+}
+
+func NewBubble(p BubbleParams) (Bubble, error) {
 	var dump *os.File
 	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
 		var err error
@@ -56,12 +69,12 @@ func NewBubble(manager *state.Manager, session *client.Session, binaryService cl
 
 	return Bubble{
 		dump:    dump,
-		manager: manager,
-		session: session,
+		manager: p.Manager,
+		session: p.Session,
 		views: map[View]view.Model{
-			ViewAuthorization: view.InitialAuthorizationViewModel(manager),
-			ViewMain:          view.InitialMainViewModel(session, binaryService),
-			ViewAddData:       view.InitialAddDataViewModel(),
+			ViewAuthorization: view.InitialAuthorizationViewModel(p.Manager),
+			ViewMain:          view.InitialMainViewModel(p.Session, p.BinaryService),
+			ViewAddData:       view.InitialAddDataViewModel(p.LoginService, p.NoteService),
 		},
 	}, nil
 }
@@ -69,6 +82,7 @@ func NewBubble(manager *state.Manager, session *client.Session, binaryService cl
 // Init инициализирует UI.
 func (b Bubble) Init() tea.Cmd {
 	return tea.Batch(
+		tea.SetWindowTitle("Gophkeeper"),
 		b.views[ViewAuthorization].Init(),
 	)
 }
@@ -90,12 +104,12 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Вызов окна добавления данных
 	case view.AddDataCallMsg:
 		b.view = ViewAddData
-		return b, nil
+		return b, b.views[ViewAddData].Update(msg)
 
 	// Выход из окна добавления данных
 	case view.ExitAddDataViewMsg:
 		b.view = ViewMain
-		return b, nil
+		return b, b.manager.FetchData // TODO: как будто немного неправильно
 
 	// Изменение размеров окна терминала
 	case tea.WindowSizeMsg:
@@ -103,7 +117,7 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		b.height = msg.Height
 		// TODO(trivial): можно ли как-то вычислить высоту компонента заголовка?
 		for i := range b.views {
-			b.views[i].SetSize(b.width, b.height-2) // -1 для заголовка приложения, -1 для футера
+			b.views[i].SetSize(b.width, b.height-1) // -1 для заголовка приложения
 		}
 		return b, nil
 	}

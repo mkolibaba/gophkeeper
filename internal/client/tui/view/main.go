@@ -17,7 +17,6 @@ import (
 
 type mainViewKeyMap struct {
 	UpDown         key.Binding
-	AddData        key.Binding
 	AddLogin       key.Binding
 	AddNote        key.Binding
 	AddBinary      key.Binding
@@ -34,7 +33,6 @@ func (k mainViewKeyMap) ShortHelp() []key.Binding {
 func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.UpDown},
-		{k.AddData},
 		{k.AddLogin, k.AddNote, k.AddBinary, k.AddCard},
 		{k.DownloadBinary},
 		{k.Quit},
@@ -57,10 +55,6 @@ func InitialMainViewModel(session *client.Session, binaryService client.BinarySe
 		UpDown: key.NewBinding(
 			key.WithKeys("up", "down"),
 			key.WithHelp("↑/↓", "move up/down"),
-		),
-		AddData: key.NewBinding(
-			key.WithKeys("a"),
-			key.WithHelp("a", "add data"),
 		),
 		AddLogin: key.NewBinding(
 			key.WithKeys("alt+1"),
@@ -105,10 +99,16 @@ func InitialMainViewModel(session *client.Session, binaryService client.BinarySe
 	}
 }
 
-type AddDataCallMsg struct{}
+type AddDataCallMsg struct {
+	t DataType
+}
 
-func AddDataCall() tea.Msg {
-	return AddDataCallMsg{}
+func AddDataCall(t DataType) tea.Cmd {
+	return func() tea.Msg {
+		return AddDataCallMsg{
+			t: t,
+		}
+	}
 }
 
 func (m *MainViewModel) Init() tea.Cmd {
@@ -144,8 +144,17 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 				return m.startDownloadBinary(d)
 			}
 
-		case key.Matches(msg, m.keyMap.AddData):
-			return AddDataCall
+		case key.Matches(msg, m.keyMap.AddLogin):
+			return AddDataCall(DataTypeLogin)
+
+		case key.Matches(msg, m.keyMap.AddNote):
+			return AddDataCall(DataTypeNote)
+
+		case key.Matches(msg, m.keyMap.AddBinary):
+			return AddDataCall(DataTypeBinary)
+
+		case key.Matches(msg, m.keyMap.AddCard):
+			return AddDataCall(DataTypeCard)
 
 		case key.Matches(msg, m.keyMap.Help):
 			m.showHelp = !m.showHelp
@@ -156,8 +165,10 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *MainViewModel) View() string {
+	statusBar := m.statusBar.View()
+
 	var helpView string
-	h := m.Height
+	h := m.Height - lipgloss.Height(statusBar)
 
 	if m.showHelp {
 		// Строка помощи
@@ -178,12 +189,10 @@ func (m *MainViewModel) View() string {
 	detailViewWidth := m.Width - lipgloss.Width(tableView)
 	detailView := m.renderDetailView(detailViewWidth, h)
 
-	footer := m.statusBar.View()
-
 	return lipgloss.JoinVertical(lipgloss.Top,
 		removeEmptyStrings(
 			lipgloss.JoinHorizontal(lipgloss.Top, tableView, detailView),
-			footer,
+			statusBar,
 			helpView,
 		)...,
 	)
@@ -222,6 +231,7 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 		Width(w).
 		Height(height - helper.ContentStyle.GetBorderBottomSize() - lipgloss.Height(detailTop)).
 		PaddingLeft(1).
+		PaddingRight(1).
 		Render(m.dataDetail.View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
