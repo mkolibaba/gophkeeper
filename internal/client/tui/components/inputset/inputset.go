@@ -98,14 +98,15 @@ func (m *Model) Values() map[string]string {
 	return values
 }
 
-func (m *Model) Reset(focusAt int) {
+func (m *Model) Reset() {
 	for i := range m.inputs {
 		m.inputs[i].Reset()
 	}
+	m.setFocus(0)
+}
 
-	if focusAt >= 0 {
-		m.setFocus(focusAt)
-	}
+func (m *Model) Current() Input {
+	return m.inputs[m.focused]
 }
 
 func (m *Model) updateInputs(msg tea.Msg) tea.Cmd {

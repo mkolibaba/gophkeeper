@@ -103,6 +103,8 @@ func NewFilePicker(placeholder string) Input {
 	picker := filepicker.New()
 	picker.CurrentDirectory, _ = os.Getwd()
 	picker.SetHeight(15)
+	picker.Styles.Selected = lipgloss.NewStyle().Background(lipgloss.Color("171"))
+	picker.Cursor = " "
 
 	return &FilePicker{
 		Model:       picker,
@@ -136,17 +138,20 @@ func (i FilePicker) Update(msg tea.Msg) (Input, tea.Cmd) {
 }
 
 func (i FilePicker) View() string {
-	if i.pickingMode {
-		return fmt.Sprintf("  %s\n", i.Model.CurrentDirectory) + i.Model.View()
-	}
-
 	content := i.selectedFile
 	if content == "" {
 		placeholderStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-		content = placeholderStyle.Render("File path (Ctrl+P to select)")
+		content = placeholderStyle.Render("File path")
 	}
 
-	return promptStyle.Render("> ") + content
+	view := promptStyle.Render("> ") + content
+
+	if i.pickingMode {
+		view += fmt.Sprintf("\n  %s %s\n", lipgloss.NewStyle().
+			Foreground(lipgloss.Color("171")).Render("Directory:"), i.Model.CurrentDirectory) + i.Model.View()
+	}
+
+	return view
 }
 
 func (i FilePicker) Placeholder() string {

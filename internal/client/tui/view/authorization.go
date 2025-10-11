@@ -32,7 +32,7 @@ func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case state.AuthorizationResultMsg:
 		m.inputSet.Err = msg.Err
-		m.inputSet.Reset(0)
+		m.inputSet.Reset()
 
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {

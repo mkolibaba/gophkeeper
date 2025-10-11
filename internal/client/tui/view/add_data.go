@@ -23,8 +23,10 @@ const (
 )
 
 type addViewKeyMap struct {
-	Send key.Binding
-	Exit key.Binding
+	ToggleFilepicker key.Binding
+	SelectFile       key.Binding
+	Send             key.Binding
+	Exit             key.Binding
 }
 
 func (k addViewKeyMap) ShortHelp() []key.Binding {
@@ -34,6 +36,8 @@ func (k addViewKeyMap) ShortHelp() []key.Binding {
 func (k addViewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		// TODO: добавить помощь по навигации по инпутам
+		{k.ToggleFilepicker},
+		{k.SelectFile},
 		{k.Send},
 		{k.Exit},
 	}
@@ -57,6 +61,14 @@ func InitialAddDataViewModel(
 	cardService client.CardService,
 ) *AddDataViewModel {
 	keyMap := addViewKeyMap{
+		ToggleFilepicker: key.NewBinding(
+			key.WithKeys("ctrl+p"),
+			key.WithHelp("ctrl+p", "toggle file picker"),
+		),
+		SelectFile: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "select file"),
+		),
 		Send: key.NewBinding(
 			key.WithKeys("ctrl+s"),
 			key.WithHelp("ctrl+s", "save"),
@@ -87,7 +99,7 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 
 	case addDataErrMsg:
 		m.inputSet.Err = msg.err
-		m.inputSet.Reset(0)
+		m.inputSet.Reset()
 
 	case tea.KeyMsg:
 		switch {
@@ -100,7 +112,13 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 
 	}
 
-	return m.inputSet.Update(msg)
+	cmd := m.inputSet.Update(msg)
+
+	filepickerSelected := m.inputSet.Current().Placeholder() == "File path"
+	m.keyMap.ToggleFilepicker.SetEnabled(filepickerSelected)
+	m.keyMap.SelectFile.SetEnabled(filepickerSelected)
+
+	return cmd
 }
 
 func (m *AddDataViewModel) View() string {
