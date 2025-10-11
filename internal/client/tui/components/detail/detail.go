@@ -2,14 +2,13 @@ package detail
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
 var (
-	fieldStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("171"))
+	fieldStyle = helper.HeaderStyle
 )
 
 type Model struct {
@@ -18,14 +17,6 @@ type Model struct {
 
 func NewModel() Model {
 	return Model{}
-}
-
-func (m Model) Init() tea.Cmd {
-	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m, nil
 }
 
 func (m Model) View() string {
@@ -108,21 +99,4 @@ func (m Model) View() string {
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, lines...)
-}
-
-func (m Model) SetData(data client.Data) Model {
-	m.Data = data
-	return m
-}
-
-func renderMetadata(metadata map[string]string) []string {
-	if len(metadata) == 0 {
-		return nil
-	}
-
-	lines := []string{"", fieldStyle.Render("Metadata")}
-	for k, v := range metadata {
-		lines = append(lines, k+": "+v)
-	}
-	return lines
 }

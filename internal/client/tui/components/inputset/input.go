@@ -15,10 +15,10 @@ type Input interface {
 	Init() tea.Cmd
 	View() string
 	Update(tea.Msg) (Input, tea.Cmd)
-	Placeholder() string // TODO: можно переименовать на name
+	Placeholder() string
 	Value() string
 	Focus() tea.Cmd
-	Blur() // TODO: ожно убрать и сделать focus(bool)
+	Blur()
 	Reset()
 }
 

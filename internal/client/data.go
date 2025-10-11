@@ -8,10 +8,10 @@ import (
 
 type (
 	Data interface {
+		GetName() string
 	}
 
 	LoginData struct {
-		Data
 		Name     string `validate:"required"`
 		Login    string `validate:"required"`
 		Password string
@@ -20,13 +20,11 @@ type (
 	}
 
 	NoteData struct {
-		Data
 		Name string `validate:"required"`
 		Text string
 	}
 
 	BinaryData struct {
-		Data
 		Name     string `validate:"required"`
 		Filename string `validate:"required"`
 		Size     int64
@@ -34,7 +32,6 @@ type (
 	}
 
 	CardData struct {
-		Data
 		Name       string `validate:"required"`
 		Number     string `validate:"required,credit_card"`
 		ExpDate    string `validate:"required,exp_date"`
@@ -77,6 +74,22 @@ type (
 		Register(ctx context.Context, login string, password string) (string, error)
 	}
 )
+
+func (d LoginData) GetName() string {
+	return d.Name
+}
+
+func (d NoteData) GetName() string {
+	return d.Name
+}
+
+func (d BinaryData) GetName() string {
+	return d.Name
+}
+
+func (d CardData) GetName() string {
+	return d.Name
+}
 
 func NewDataValidator() (*validator.Validate, error) {
 	expDateRegexp, err := regexp.Compile(`^\d{2}/\d{2}$`)

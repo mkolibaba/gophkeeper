@@ -8,7 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/detail"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/detail"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
@@ -133,8 +133,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	case orchestrator.LoadDataMsg:
 		m.statusBar.currentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
 		m.dataTable, cmd = m.dataTable.Update(msg)
-		current := m.dataTable.GetCurrentRow()
-		m.dataDetail = m.dataDetail.SetData(current)
+		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
 	case notificationMsg:
 		return m.statusBar.Update(msg)
@@ -143,8 +142,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 		switch {
 		case key.Matches(msg, m.keyMap.UpDown):
 			m.dataTable, cmd = m.dataTable.Update(msg)
-			current := m.dataTable.GetCurrentRow()
-			m.dataDetail = m.dataDetail.SetData(current)
+			m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
 		case key.Matches(msg, m.keyMap.Quit):
 			return tea.Quit
