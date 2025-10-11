@@ -5,6 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"regexp"
 )
@@ -52,8 +53,9 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case state.FetchDataMsg:
+	case orchestrator.LoadDataMsg:
 		m = m.processFetchedData(msg)
+		m.cursor = min(max(0, m.cursor), len(m.data)-1) // TODO: написать зачем это нужно (удаление последнего эелемента)
 		return m, nil
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -119,54 +121,43 @@ func (m Model) renderRow(t DataType, name, value string, selected bool) string {
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m Model) processFetchedData(msg state.FetchDataMsg) Model {
-	m.data = []client.Data{}
-	for _, login := range msg.Logins {
-		m.data = append(m.data, login)
-	}
-	for _, note := range msg.Notes {
-		m.data = append(m.data, note)
-	}
-	for _, binary := range msg.Binaries {
-		m.data = append(m.data, binary)
-	}
-	for _, card := range msg.Cards {
-		m.data = append(m.data, card)
+func (m Model) processFetchedData(msg orchestrator.LoadDataMsg) Model {
+	m.data = msg
+
+	m.renderedRows = make([]Row, 0, len(m.data))
+	for _, el := range m.data {
+		switch el := el.(type) {
+		case client.LoginData:
+			m.renderedRows = append(m.renderedRows, Row{
+				DataType:      DataTypeLogin,
+				Name:          el.Name,
+				Value:         el.Login,
+				RenderedValue: el.Login,
+			})
+		case client.NoteData:
+			m.renderedRows = append(m.renderedRows, Row{
+				DataType:      DataTypeNote,
+				Name:          el.Name,
+				Value:         el.Text,
+				RenderedValue: trimNoteText(el.Text),
+			})
+		case client.BinaryData:
+			m.renderedRows = append(m.renderedRows, Row{
+				DataType:      DataTypeBinary,
+				Name:          el.Name,
+				Value:         "<binary>",
+				RenderedValue: "<binary>",
+			})
+		case client.CardData:
+			m.renderedRows = append(m.renderedRows, Row{
+				DataType:      DataTypeCard,
+				Name:          el.Name,
+				Value:         el.Number,
+				RenderedValue: maskCardNumber(el.Number),
+			})
+		}
 	}
 
-	m.renderedRows = make([]Row, 0, len(msg.Logins)+len(msg.Notes)+len(msg.Binaries)+len(msg.Cards))
-	for _, login := range msg.Logins {
-		m.renderedRows = append(m.renderedRows, Row{
-			DataType:      DataTypeLogin,
-			Name:          login.Name,
-			Value:         login.Login,
-			RenderedValue: login.Login,
-		})
-	}
-	for _, note := range msg.Notes {
-		m.renderedRows = append(m.renderedRows, Row{
-			DataType:      DataTypeNote,
-			Name:          note.Name,
-			Value:         note.Text,
-			RenderedValue: trimNoteText(note.Text),
-		})
-	}
-	for _, binary := range msg.Binaries {
-		m.renderedRows = append(m.renderedRows, Row{
-			DataType:      DataTypeBinary,
-			Name:          binary.Name,
-			Value:         "<binary>",
-			RenderedValue: "<binary>",
-		})
-	}
-	for _, card := range msg.Cards {
-		m.renderedRows = append(m.renderedRows, Row{
-			DataType:      DataTypeCard,
-			Name:          card.Name,
-			Value:         card.Number,
-			RenderedValue: maskCardNumber(card.Number),
-		})
-	}
 	return m
 }
 

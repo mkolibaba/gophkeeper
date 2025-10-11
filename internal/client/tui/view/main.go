@@ -10,7 +10,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/detail"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
 	"time"
 )
@@ -22,6 +22,7 @@ type mainViewKeyMap struct {
 	AddBinary      key.Binding
 	AddCard        key.Binding
 	DownloadBinary key.Binding
+	Remove         key.Binding
 	Help           key.Binding
 	Quit           key.Binding
 }
@@ -34,7 +35,7 @@ func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.UpDown},
 		{k.AddLogin, k.AddNote, k.AddBinary, k.AddCard},
-		{k.DownloadBinary},
+		{k.DownloadBinary, k.Remove},
 		{k.Quit},
 	}
 }
@@ -46,11 +47,16 @@ type MainViewModel struct {
 	keyMap        mainViewKeyMap
 	session       *client.Session
 	showHelp      bool
-	binaryService client.BinaryService
 	statusBar     *StatusBarModel
+	orchestrator  *orchestrator.Orchestrator
+	binaryService client.BinaryService
 }
 
-func InitialMainViewModel(session *client.Session, binaryService client.BinaryService) *MainViewModel {
+func InitialMainViewModel(
+	session *client.Session,
+	binaryService client.BinaryService,
+	orchestrator *orchestrator.Orchestrator,
+) *MainViewModel {
 	keys := mainViewKeyMap{
 		UpDown: key.NewBinding(
 			key.WithKeys("up", "down"),
@@ -71,6 +77,10 @@ func InitialMainViewModel(session *client.Session, binaryService client.BinarySe
 		AddCard: key.NewBinding(
 			key.WithKeys("alt+4"),
 			key.WithHelp("alt+4", "add card"),
+		),
+		Remove: key.NewBinding(
+			key.WithKeys("ctrl+r"),
+			key.WithHelp("ctrl+r", "remove"),
 		),
 		DownloadBinary: key.NewBinding(
 			key.WithKeys("d"),
@@ -95,6 +105,7 @@ func InitialMainViewModel(session *client.Session, binaryService client.BinarySe
 		statusBar:     statusBar,
 		keyMap:        keys,
 		session:       session,
+		orchestrator:  orchestrator,
 		binaryService: binaryService,
 	}
 }
@@ -119,7 +130,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case state.FetchDataMsg:
+	case orchestrator.LoadDataMsg:
 		m.statusBar.currentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
 		m.dataTable, cmd = m.dataTable.Update(msg)
 		current := m.dataTable.GetCurrentRow()
@@ -143,6 +154,10 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 			if d, ok := current.(client.BinaryData); ok {
 				return m.startDownloadBinary(d)
 			}
+
+		case key.Matches(msg, m.keyMap.Remove):
+			current := m.dataTable.GetCurrentRow()
+			return m.removeData(current)
 
 		case key.Matches(msg, m.keyMap.AddLogin):
 			return AddDataCall(DataTypeLogin)
@@ -229,9 +244,8 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 	detailView := helper.ContentStyle.
 		BorderTop(false).
 		Width(w).
-		Height(height - helper.ContentStyle.GetBorderBottomSize() - lipgloss.Height(detailTop)).
-		PaddingLeft(1).
-		PaddingRight(1).
+		Height(height-helper.ContentStyle.GetBorderBottomSize()-lipgloss.Height(detailTop)).
+		Padding(0, 1).
 		Render(m.dataDetail.View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
@@ -251,6 +265,31 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 			text: fmt.Sprintf("Downloaded %s successfully", data.Name),
 			t:    notificationOk,
 		}
+	}
+}
+
+// TODO: при удалении последнего элемента вылетает паника. нужно сдвигать курсор
+func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
+	return func() tea.Msg {
+		name, err := m.orchestrator.Remove(context.Background(), data)
+		if err != nil {
+			return notificationMsg{
+				text: fmt.Sprintf("Removing %s failed: %v", name, err),
+				t:    notificationError,
+			}
+		}
+
+		return tea.Sequence(
+			func() tea.Msg {
+				return notificationMsg{
+					text: fmt.Sprintf("Removed %s successfully", name),
+					t:    notificationOk,
+				}
+			},
+			func() tea.Msg {
+				return orchestrator.LoadDataMsg(m.orchestrator.GetAll(context.Background()))
+			},
+		)()
 	}
 }
 
@@ -341,6 +380,7 @@ func (m *StatusBarModel) View() string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, helpInfo, rest, user)
 }
 
+// TODO: если быстро 2 уведомления прокинуть, то обнуление от первого сработает быстрее, и второе покажется малое время
 func (m *StatusBarModel) ResetNotification() tea.Cmd {
 	return tea.Tick(m.ttl, func(t time.Time) tea.Msg {
 		return notificationMsg{

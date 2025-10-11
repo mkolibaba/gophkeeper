@@ -6,7 +6,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"sync"
 )
 
 // TODO: нужен ли этот компонент?
@@ -42,52 +41,6 @@ func NewManager(p ManagerParams) *Manager {
 		session:              p.Session,
 		logger:               p.Logger,
 	}
-}
-
-type FetchDataMsg struct {
-	Logins   []client.LoginData
-	Notes    []client.NoteData
-	Binaries []client.BinaryData
-	Cards    []client.CardData
-}
-
-func (m *Manager) FetchData() tea.Msg {
-	var msg FetchDataMsg
-
-	ctx := context.Background()
-
-	var wg sync.WaitGroup
-	wg.Go(func() {
-		logins, err := m.loginService.GetAll(ctx)
-		if err != nil {
-			m.logger.Error(err.Error())
-		}
-		msg.Logins = logins
-	})
-	wg.Go(func() {
-		notes, err := m.noteService.GetAll(ctx)
-		if err != nil {
-			m.logger.Error(err.Error())
-		}
-		msg.Notes = notes
-	})
-	wg.Go(func() {
-		binaries, err := m.binaryService.GetAll(ctx)
-		if err != nil {
-			m.logger.Error(err.Error())
-		}
-		msg.Binaries = binaries
-	})
-	wg.Go(func() {
-		cards, err := m.cardService.GetAll(ctx)
-		if err != nil {
-			m.logger.Error(err.Error())
-		}
-		msg.Cards = cards
-	})
-
-	wg.Wait()
-	return msg
 }
 
 type AuthorizationResultMsg struct {

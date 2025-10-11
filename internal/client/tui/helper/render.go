@@ -63,6 +63,7 @@ func RenderBorderBottom(style lipgloss.Style, text string, width int) string {
 	//	UnsetBorderTop().
 	//	UnsetBorderLeft().
 	//	UnsetBorderRight()
+	// TODO: нужно брать style из агрументов
 	s := CustomBorderStyle
 	left := s.Render(leftText)
 	right := s.Render(rightText)

@@ -1,11 +1,13 @@
 package tui
 
 import (
+	"context"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
 	"go.uber.org/fx"
@@ -37,8 +39,9 @@ type Bubble struct {
 	// Writer для дебага.
 	dump io.Writer
 
-	manager *state.Manager
-	session *client.Session
+	manager      *state.Manager
+	session      *client.Session
+	orchestrator *orchestrator.Orchestrator
 
 	// Текущий view интерфейса.
 	view View
@@ -55,6 +58,7 @@ type BubbleParams struct {
 	LoginService  client.LoginService
 	NoteService   client.NoteService
 	CardService   client.CardService
+	Orchestrator  *orchestrator.Orchestrator
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -73,9 +77,10 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 		session: p.Session,
 		views: map[View]view.Model{
 			ViewAuthorization: view.InitialAuthorizationViewModel(p.Manager),
-			ViewMain:          view.InitialMainViewModel(p.Session, p.BinaryService),
-			ViewAddData:       view.InitialAddDataViewModel(p.LoginService, p.NoteService),
+			ViewMain:          view.InitialMainViewModel(p.Session, p.BinaryService, p.Orchestrator),
+			ViewAddData:       view.InitialAddDataViewModel(p.LoginService, p.NoteService, p.BinaryService, p.CardService),
 		},
+		orchestrator: p.Orchestrator,
 	}, nil
 }
 
@@ -98,7 +103,9 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err == nil {
 			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password})
 			b.view = ViewMain
-			return b, b.manager.FetchData
+			return b, func() tea.Msg {
+				return orchestrator.LoadDataMsg(b.orchestrator.GetAll(context.Background()))
+			}
 		}
 
 	// Вызов окна добавления данных
@@ -109,7 +116,9 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Выход из окна добавления данных
 	case view.ExitAddDataViewMsg:
 		b.view = ViewMain
-		return b, b.manager.FetchData // TODO: как будто немного неправильно
+		return b, func() tea.Msg {
+			return orchestrator.LoadDataMsg(b.orchestrator.GetAll(context.Background()))
+		} // TODO: как будто немного неправильно
 
 	// Изменение размеров окна терминала
 	case tea.WindowSizeMsg:

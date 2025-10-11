@@ -5,12 +5,16 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
 const (
 	defaultWidth     = 50
 	defaultCharLimit = defaultWidth
+)
+
+var (
+	errorStyle = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("169"))
 )
 
 type Option func(*textinput.Model)
@@ -34,13 +38,19 @@ func WithCharLimit(charLimit int) Option {
 	}
 }
 
+// TODO: как-нибудь вынести в глобальные стили, потому что это везде
+func WithPromptStyle(style lipgloss.Style) Option {
+	return func(input *textinput.Model) {
+		input.PromptStyle = style
+	}
+}
+
 func NewInput(placeholder string, opts ...Option) textinput.Model {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = defaultCharLimit
 	input.Width = defaultWidth
 	input.Cursor.SetMode(cursor.CursorStatic)
-	input.PromptStyle = helper.HeaderStyle
 
 	for _, o := range opts {
 		o(&input)
@@ -50,6 +60,8 @@ func NewInput(placeholder string, opts ...Option) textinput.Model {
 }
 
 type Model struct {
+	Err error
+
 	inputs  []textinput.Model
 	focused int
 }
@@ -82,6 +94,10 @@ func (m *Model) View() string {
 	var lines []string
 	for _, input := range m.inputs {
 		lines = append(lines, input.View())
+	}
+
+	if m.Err != nil {
+		lines = append(lines, "", errorStyle.Render(m.Err.Error()))
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, lines...)

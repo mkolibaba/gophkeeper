@@ -8,8 +8,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/inputset"
 )
 
 // TODO: вынести в одно место
@@ -41,15 +41,21 @@ func (k addViewKeyMap) FullHelp() [][]key.Binding {
 
 type AddDataViewModel struct {
 	baseViewModel
-	keyMap       addViewKeyMap
-	dataType     DataType
-	inputSet     *inputset.Model
-	loginService client.LoginService
-	noteService  client.NoteService
-	err          error
+	keyMap        addViewKeyMap
+	dataType      DataType
+	inputSet      *inputset.Model
+	loginService  client.LoginService
+	noteService   client.NoteService
+	binaryService client.BinaryService
+	cardService   client.CardService
 }
 
-func InitialAddDataViewModel(loginService client.LoginService, noteService client.NoteService) *AddDataViewModel {
+func InitialAddDataViewModel(
+	loginService client.LoginService,
+	noteService client.NoteService,
+	binaryService client.BinaryService,
+	cardService client.CardService,
+) *AddDataViewModel {
 	keyMap := addViewKeyMap{
 		Send: key.NewBinding(
 			key.WithKeys("ctrl+s"),
@@ -62,9 +68,11 @@ func InitialAddDataViewModel(loginService client.LoginService, noteService clien
 	}
 
 	return &AddDataViewModel{
-		keyMap:       keyMap,
-		loginService: loginService,
-		noteService:  noteService,
+		keyMap:        keyMap,
+		loginService:  loginService,
+		noteService:   noteService,
+		binaryService: binaryService,
+		cardService:   cardService,
 	}
 }
 
@@ -78,7 +86,7 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 		m.ResetFor(msg.t)
 
 	case addDataErrMsg:
-		m.err = msg.err
+		m.inputSet.Err = msg.err
 		m.inputSet.Reset(0)
 
 	case tea.KeyMsg:
@@ -108,9 +116,6 @@ func (m *AddDataViewModel) View() string {
 	h := m.Height - lipgloss.Height(borderTop) - helper.ContentStyle.GetBorderBottomSize() - lipgloss.Height(helpView)
 
 	content := m.inputSet.View()
-	if m.err != nil {
-		content = lipgloss.JoinVertical(lipgloss.Left, content, "", authErrorRenderer(m.err.Error()))
-	}
 
 	addDataView := helper.ContentStyle.
 		BorderTop(false).
@@ -124,28 +129,39 @@ func (m *AddDataViewModel) View() string {
 }
 
 func (m *AddDataViewModel) ResetFor(t DataType) {
-	// TODO: тут логика по сбросу формы
 	// TODO: добавить metadata
 	m.dataType = t
 
 	switch m.dataType {
 	case DataTypeLogin:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus()),
-			inputset.NewInput("Login"),
-			inputset.NewInput("Password", inputset.WithEchoModePassword()),
+			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Login", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Password", inputset.WithEchoModePassword(), inputset.WithPromptStyle(helper.HeaderStyle)),
 		)
 	case DataTypeNote:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus()),
-			inputset.NewInput("Text", inputset.WithCharLimit(2000)), // TODO: тут нужен textarea
+			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Text", inputset.WithCharLimit(2000), inputset.WithPromptStyle(helper.HeaderStyle)), // TODO: тут нужен textarea
 		)
 	case DataTypeBinary:
+		m.inputSet = inputset.NewInputSet(
+			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("File path", inputset.WithPromptStyle(helper.HeaderStyle)),
+		)
 	case DataTypeCard:
+		m.inputSet = inputset.NewInputSet(
+			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Number", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Expiration date", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("CVV", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Cardholder", inputset.WithPromptStyle(helper.HeaderStyle)),
+		)
 	}
 }
 
 func (m *AddDataViewModel) send() tea.Cmd {
+	// TODO: после вебинара понять что должно быть в metadata
 	values := m.inputSet.Values()
 
 	switch m.dataType {
@@ -194,8 +210,53 @@ func (m *AddDataViewModel) send() tea.Cmd {
 				},
 			)()
 		}
-	default:
-		// TODO: добавить новые типы
+	case DataTypeBinary:
+		data := client.BinaryData{
+			Name:     values["Name"],
+			FileName: values["File path"],
+			Metadata: nil,
+		}
+		return func() tea.Msg {
+			err := m.binaryService.Save(context.Background(), data)
+			if err != nil {
+				return addDataErrMsg{err: err}
+			}
+
+			return tea.Sequence(
+				ExitAddDataView,
+				func() tea.Msg {
+					return notificationMsg{
+						text: fmt.Sprintf("Add %s successfully", data.Name),
+						t:    notificationOk,
+					}
+				},
+			)()
+		}
+	case DataTypeCard:
+		data := client.CardData{
+			Name:       values["Name"],
+			Number:     values["Number"],
+			ExpDate:    values["Expiration date"],
+			CVV:        values["CVV"],
+			Cardholder: values["Cardholder"],
+			Metadata:   nil,
+		}
+		return func() tea.Msg {
+			err := m.cardService.Save(context.Background(), data)
+			if err != nil {
+				return addDataErrMsg{err: err}
+			}
+
+			return tea.Sequence(
+				ExitAddDataView,
+				func() tea.Msg {
+					return notificationMsg{
+						text: fmt.Sprintf("Add %s successfully", data.Name),
+						t:    notificationOk,
+					}
+				},
+			)()
+		}
 	}
 
 	return nil
