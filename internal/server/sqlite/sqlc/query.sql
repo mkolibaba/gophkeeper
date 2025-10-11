@@ -36,8 +36,8 @@ FROM note
 WHERE name = ?;
 
 -- name: SaveBinary :exec
-INSERT INTO binary (name, filename, notes, user)
-VALUES (?, ?, ?, ?);
+INSERT INTO binary (name, filename, size, notes, user)
+VALUES (?, ?, ?, ?, ?);
 
 -- name: GetBinary :one
 SELECT *

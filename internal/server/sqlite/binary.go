@@ -29,7 +29,8 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user s
 
 	err := b.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
 		Name:     data.Name,
-		Filename: data.FileName,
+		Filename: data.Filename,
+		Size:     data.Size,
 		Notes:    stringOrNull(data.Notes),
 		User:     user,
 	})
@@ -71,17 +72,12 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 		return server.BinaryData{}, fmt.Errorf("get: %w", err)
 	}
 
-	stat, err := file.Stat()
-	if err != nil {
-		return server.BinaryData{}, fmt.Errorf("get: %w", err)
-	}
-
 	return server.BinaryData{
 		Name:       binary.Name,
 		Notes:      stringOrEmpty(binary.Notes),
-		FileName:   binary.Filename,
+		Filename:   binary.Filename,
+		Size:       binary.Size,
 		DataReader: file,
-		Size:       stat.Size(),
 	}, nil
 }
 
@@ -95,9 +91,9 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]server.Binar
 	for _, binary := range binaries {
 		result = append(result, server.BinaryData{
 			Name:     binary.Name,
-			FileName: binary.Filename,
+			Filename: binary.Filename,
+			Size:     binary.Size,
 			Notes:    stringOrEmpty(binary.Notes),
-			// TODO: тут нужно возвращать Size
 		})
 	}
 

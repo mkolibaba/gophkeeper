@@ -28,7 +28,7 @@ type (
 	BinaryData struct {
 		Data
 		Name     string `validate:"required"`
-		FileName string `validate:"required"`
+		Filename string `validate:"required"`
 		Size     int64
 		Notes    string
 	}

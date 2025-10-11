@@ -10,7 +10,7 @@ import (
 )
 
 const getAllBinaries = `-- name: GetAllBinaries :many
-SELECT name, filename, notes, user
+SELECT name, filename, size, notes, user
 FROM binary
 WHERE user = ?
 `
@@ -27,6 +27,7 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 		if err := rows.Scan(
 			&i.Name,
 			&i.Filename,
+			&i.Size,
 			&i.Notes,
 			&i.User,
 		); err != nil {
@@ -146,7 +147,7 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 }
 
 const getBinary = `-- name: GetBinary :one
-SELECT name, filename, notes, user
+SELECT name, filename, size, notes, user
 FROM binary
 WHERE name = ?
   AND user = ?
@@ -158,6 +159,7 @@ func (q *Queries) GetBinary(ctx context.Context, name string, user string) (*Bin
 	err := row.Scan(
 		&i.Name,
 		&i.Filename,
+		&i.Size,
 		&i.Notes,
 		&i.User,
 	)
@@ -234,13 +236,14 @@ func (q *Queries) RemoveNote(ctx context.Context, name string) (int64, error) {
 }
 
 const saveBinary = `-- name: SaveBinary :exec
-INSERT INTO binary (name, filename, notes, user)
-VALUES (?, ?, ?, ?)
+INSERT INTO binary (name, filename, size, notes, user)
+VALUES (?, ?, ?, ?, ?)
 `
 
 type SaveBinaryParams struct {
 	Name     string
 	Filename string
+	Size     int64
 	Notes    *string
 	User     string
 }
@@ -249,6 +252,7 @@ func (q *Queries) SaveBinary(ctx context.Context, arg SaveBinaryParams) error {
 	_, err := q.db.ExecContext(ctx, saveBinary,
 		arg.Name,
 		arg.Filename,
+		arg.Size,
 		arg.Notes,
 		arg.User,
 	)

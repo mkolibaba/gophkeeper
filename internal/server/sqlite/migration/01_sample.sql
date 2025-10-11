@@ -3,12 +3,12 @@ VALUES ('demo', 'demo');
 -- TODO: не хранить пароли в открытом доступе
 
 INSERT INTO login (name, login, password, website, notes, user)
-VALUES ('Google', 'iivanov', '123456', 'google.com','Мой основной аккаунт', 'demo'),
-       ('Ozon', '79031002030', 'qwe123', 'ozon.ru',null, 'demo'),
-       ('Wildberries', '79031002030', 'qwerty', null,null, 'demo'),
-       ('Госуслуги', 'iivanov@gmail.com', 'qweasd', null,null, 'demo'),
-       ('Mail', 'ivanivanov', 'qqwwee', null,null, 'demo'),
-       ('VK', 'ivanivanov@mail.ru', 'qweqwe', null,null, 'demo');
+VALUES ('Google', 'iivanov', '123456', 'google.com', 'Мой основной аккаунт', 'demo'),
+       ('Ozon', '79031002030', 'qwe123', 'ozon.ru', null, 'demo'),
+       ('Wildberries', '79031002030', 'qwerty', null, null, 'demo'),
+       ('Госуслуги', 'iivanov@gmail.com', 'qweasd', null, null, 'demo'),
+       ('Mail', 'ivanivanov', 'qqwwee', null, null, 'demo'),
+       ('VK', 'ivanivanov@mail.ru', 'qweqwe', null, null, 'demo');
 
 INSERT INTO note (name, text, user)
 VALUES ('Записки о природе',
@@ -18,8 +18,8 @@ VALUES ('Записки о природе',
         'Живешь ты, может быть, сам триста лет, и кто породил тебя, тот в яичке своем пересказал все, что он тоже узнал за свои триста лет жизни.',
         'demo');
 
-INSERT INTO binary (name, filename, notes, user)
-VALUES ('Squirtle',  'squirtle_pokemon.png', 'Картинка с покемоном Сквиртл', 'demo');
+INSERT INTO binary (name, filename, size, notes, user)
+VALUES ('Squirtle', 'squirtle_pokemon.png', 155045, 'Картинка с покемоном Сквиртл', 'demo');
 
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES ('Сбербанк', '2200123456789019', '03/28', '541', 'IVAN IVANOV', null, 'demo'),

@@ -22,7 +22,7 @@ func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
 }
 
 func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error {
-	file, err := os.Open(data.FileName)
+	file, err := os.Open(data.Filename)
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
 	}
@@ -50,14 +50,15 @@ func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error 
 		}
 
 		var chunk pb.FileChunk
-		chunk.SetChunkData(buffer[:n])
-		chunk.SetFilename(data.FileName[strings.LastIndex(data.FileName, "/")+1:])
-		chunk.SetTotalSize(fileInfo.Size())
-		chunk.SetChunkIndex(idx)
+		chunk.SetData(buffer[:n])
+		chunk.SetIndex(idx)
 
 		var in pb.SaveBinaryRequest
 		in.SetChunk(&chunk)
 		in.SetName(data.Name)
+		in.SetFilename(data.Filename[strings.LastIndex(data.Filename, "/")+1:])
+		in.SetSize(fileInfo.Size())
+		in.SetNotes(data.Notes)
 
 		if err := stream.Send(&in); err != nil {
 			return fmt.Errorf("save: %w", err)
@@ -83,9 +84,9 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	var binaries []client.BinaryData
 	for _, b := range result.GetResult() {
 		binaries = append(binaries, client.BinaryData{
-			Name: b.GetName(),
-			// TODO: добавить size. для этого нужно подчистить chunk и работу с ним в proto
-			FileName: b.GetFileName(),
+			Name:     b.GetName(),
+			Filename: b.GetFilename(),
+			Size:     b.GetSize(),
 			Notes:    b.GetNotes(),
 		})
 	}
@@ -124,7 +125,7 @@ func (b *BinaryService) Download(ctx context.Context, name string) error {
 			//totalSize = chunk.GetTotalSize()
 		}
 
-		n, err := file.Write(chunk.GetChunkData())
+		n, err := file.Write(chunk.GetChunk().GetData())
 		if err != nil {
 			panic(err)
 		}

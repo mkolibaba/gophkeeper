@@ -33,7 +33,7 @@ type BinaryServiceClient interface {
 	Upload(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[SaveBinaryRequest, empty.Empty], error)
 	GetAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllBinariesResponse, error)
 	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[FileChunk], error)
+	Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DownloadBinaryResponse], error)
 }
 
 type binaryServiceClient struct {
@@ -77,13 +77,13 @@ func (c *binaryServiceClient) Remove(ctx context.Context, in *RemoveDataRequest,
 	return out, nil
 }
 
-func (c *binaryServiceClient) Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[FileChunk], error) {
+func (c *binaryServiceClient) Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DownloadBinaryResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &BinaryService_ServiceDesc.Streams[1], BinaryService_Download_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[DownloadBinaryRequest, FileChunk]{ClientStream: stream}
+	x := &grpc.GenericClientStream[DownloadBinaryRequest, DownloadBinaryResponse]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (c *binaryServiceClient) Download(ctx context.Context, in *DownloadBinaryRe
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BinaryService_DownloadClient = grpc.ServerStreamingClient[FileChunk]
+type BinaryService_DownloadClient = grpc.ServerStreamingClient[DownloadBinaryResponse]
 
 // BinaryServiceServer is the server API for BinaryService service.
 // All implementations must embed UnimplementedBinaryServiceServer
@@ -103,7 +103,7 @@ type BinaryServiceServer interface {
 	Upload(grpc.ClientStreamingServer[SaveBinaryRequest, empty.Empty]) error
 	GetAll(context.Context, *empty.Empty) (*GetAllBinariesResponse, error)
 	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
-	Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[FileChunk]) error
+	Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[DownloadBinaryResponse]) error
 	mustEmbedUnimplementedBinaryServiceServer()
 }
 
@@ -123,7 +123,7 @@ func (UnimplementedBinaryServiceServer) GetAll(context.Context, *empty.Empty) (*
 func (UnimplementedBinaryServiceServer) Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }
-func (UnimplementedBinaryServiceServer) Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[FileChunk]) error {
+func (UnimplementedBinaryServiceServer) Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[DownloadBinaryResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method Download not implemented")
 }
 func (UnimplementedBinaryServiceServer) mustEmbedUnimplementedBinaryServiceServer() {}
@@ -195,11 +195,11 @@ func _BinaryService_Download_Handler(srv interface{}, stream grpc.ServerStream) 
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(BinaryServiceServer).Download(m, &grpc.GenericServerStream[DownloadBinaryRequest, FileChunk]{ServerStream: stream})
+	return srv.(BinaryServiceServer).Download(m, &grpc.GenericServerStream[DownloadBinaryRequest, DownloadBinaryResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BinaryService_DownloadServer = grpc.ServerStreamingServer[FileChunk]
+type BinaryService_DownloadServer = grpc.ServerStreamingServer[DownloadBinaryResponse]
 
 // BinaryService_ServiceDesc is the grpc.ServiceDesc for BinaryService service.
 // It's only intended for direct use with grpc.RegisterService,

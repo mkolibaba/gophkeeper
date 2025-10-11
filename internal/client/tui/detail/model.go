@@ -72,7 +72,7 @@ func (m Model) View() string {
 			d.Name,
 			"",
 			fieldStyle.Render("File name"),
-			d.FileName,
+			d.Filename,
 			"",
 			fieldStyle.Render("Size"),
 			fmt.Sprintf("%d", d.Size),

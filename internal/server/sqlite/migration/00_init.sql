@@ -26,9 +26,10 @@ CREATE TABLE note
 CREATE TABLE binary
 (
     name     TEXT PRIMARY KEY,
-    filename TEXT NOT NULL,
+    filename TEXT    NOT NULL,
+    size     INTEGER NOT NULL,
     notes    TEXT,
-    user     TEXT NOT NULL,
+    user     TEXT    NOT NULL,
     FOREIGN KEY (user) REFERENCES user (login)
 );
 

@@ -9,25 +9,33 @@ option go_package = "gophkeeper/gen;gophkeeper";
 
 message Binary {
   string name = 1;
-  string file_name = 2;
-  string notes = 3;
+  string filename = 2;
+  int64 size = 3;
+  string notes = 4;
+}
+
+message FileChunk {
+  bytes data = 1;
+  int32 index = 2;
 }
 
 message SaveBinaryRequest {
   FileChunk chunk = 1;
   string name = 2;
-  string notes = 3;
+  string filename = 3;
+  int64 size = 4;
+  string notes = 5;
 }
 
 message DownloadBinaryRequest {
   string name = 1;
 }
 
-message FileChunk {
-  bytes chunk_data = 1;
-  string filename = 2;
-  int64 total_size = 3;
-  int32 chunk_index = 4;
+message DownloadBinaryResponse {
+  FileChunk chunk = 1;
+  string name = 2;
+  string filename = 3;
+  int64 size = 4;
 }
 
 message GetAllBinariesResponse {
@@ -38,5 +46,5 @@ service BinaryService {
   rpc Upload(stream SaveBinaryRequest) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllBinariesResponse);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
-  rpc Download(DownloadBinaryRequest) returns (stream FileChunk);
+  rpc Download(DownloadBinaryRequest) returns (stream DownloadBinaryResponse);
 }

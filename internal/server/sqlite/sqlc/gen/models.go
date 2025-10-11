@@ -7,6 +7,7 @@ package sqlc
 type Binary struct {
 	Name     string
 	Filename string
+	Size     int64
 	Notes    *string
 	User     string
 }

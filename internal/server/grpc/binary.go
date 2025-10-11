@@ -59,13 +59,13 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBi
 
 		if !initialized {
 			name = in.GetName()
-			filename = in.GetChunk().GetFilename()
-			size = in.GetChunk().GetTotalSize()
+			filename = in.GetFilename()
+			size = in.GetSize()
 			notes = in.GetNotes()
 			initialized = true
 		}
 
-		_, err = file.Write(in.GetChunk().GetChunkData())
+		_, err = file.Write(in.GetChunk().GetData())
 		if err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}
@@ -80,7 +80,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBi
 
 	err = s.binaryService.Save(stream.Context(), server.BinaryData{
 		Name:       name,
-		FileName:   filename,
+		Filename:   filename,
 		DataReader: file,
 		Size:       size,
 		Notes:      notes,
@@ -105,7 +105,8 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.G
 	for _, binary := range binaries {
 		var out pb.Binary
 		out.SetName(binary.Name)
-		out.SetFileName(binary.FileName)
+		out.SetFilename(binary.Filename)
+		out.SetSize(binary.Size)
 		out.SetNotes(binary.Notes)
 		result = append(result, &out)
 	}
@@ -136,7 +137,7 @@ func (s *BinaryServiceServer) Remove(ctx context.Context, in *pb.RemoveDataReque
 	return &empty.Empty{}, nil
 }
 
-func (s *BinaryServiceServer) Download(in *pb.DownloadBinaryRequest, stream grpc.ServerStreamingServer[pb.FileChunk]) error {
+func (s *BinaryServiceServer) Download(in *pb.DownloadBinaryRequest, stream grpc.ServerStreamingServer[pb.DownloadBinaryResponse]) error {
 	user := utils.UserFromContext(stream.Context())
 
 	binary, err := s.binaryService.Get(stream.Context(), in.GetName(), user)
@@ -162,12 +163,15 @@ func (s *BinaryServiceServer) Download(in *pb.DownloadBinaryRequest, stream grpc
 		}
 
 		var chunk pb.FileChunk
-		chunk.SetChunkData(buf[:n])
-		chunk.SetFilename(binary.FileName)
-		chunk.SetTotalSize(binary.Size)
-		chunk.SetChunkIndex(int32(idx))
+		chunk.SetData(buf[:n])
 
-		if err := stream.Send(&chunk); err != nil {
+		var out pb.DownloadBinaryResponse
+		out.SetChunk(&chunk)
+		out.SetName(binary.Name)
+		out.SetFilename(binary.Filename)
+		out.SetSize(binary.Size)
+
+		if err := stream.Send(&out); err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}
 

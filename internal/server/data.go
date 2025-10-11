@@ -38,9 +38,9 @@ type (
 
 	BinaryData struct {
 		Name       string `validate:"required"`
-		FileName   string
-		DataReader io.ReadCloser
+		Filename   string
 		Size       int64
+		DataReader io.ReadCloser // TODO: этот reader должен быть только у реквеста
 		Notes      string
 	}
 

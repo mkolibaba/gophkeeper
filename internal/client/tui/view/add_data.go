@@ -217,7 +217,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 	case DataTypeBinary:
 		data := client.BinaryData{
 			Name:     values["Name"],
-			FileName: values["File path"],
+			Filename: values["File path"],
 			Notes:    values["Notes"],
 		}
 		return func() tea.Msg {

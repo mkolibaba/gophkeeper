@@ -24,8 +24,9 @@ const (
 type Binary struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_FileName    *string                `protobuf:"bytes,2,opt,name=file_name,json=fileName"`
-	xxx_hidden_Notes       *string                `protobuf:"bytes,3,opt,name=notes"`
+	xxx_hidden_Filename    *string                `protobuf:"bytes,2,opt,name=filename"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,3,opt,name=size"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,4,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -67,14 +68,21 @@ func (x *Binary) GetName() string {
 	return ""
 }
 
-func (x *Binary) GetFileName() string {
+func (x *Binary) GetFilename() string {
 	if x != nil {
-		if x.xxx_hidden_FileName != nil {
-			return *x.xxx_hidden_FileName
+		if x.xxx_hidden_Filename != nil {
+			return *x.xxx_hidden_Filename
 		}
 		return ""
 	}
 	return ""
+}
+
+func (x *Binary) GetSize() int64 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
 }
 
 func (x *Binary) GetNotes() string {
@@ -89,17 +97,22 @@ func (x *Binary) GetNotes() string {
 
 func (x *Binary) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
 }
 
-func (x *Binary) SetFileName(v string) {
-	x.xxx_hidden_FileName = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+func (x *Binary) SetFilename(v string) {
+	x.xxx_hidden_Filename = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+}
+
+func (x *Binary) SetSize(v int64) {
+	x.xxx_hidden_Size = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
 }
 
 func (x *Binary) SetNotes(v string) {
 	x.xxx_hidden_Notes = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
 }
 
 func (x *Binary) HasName() bool {
@@ -109,18 +122,25 @@ func (x *Binary) HasName() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *Binary) HasFileName() bool {
+func (x *Binary) HasFilename() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *Binary) HasNotes() bool {
+func (x *Binary) HasSize() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *Binary) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *Binary) ClearName() {
@@ -128,13 +148,18 @@ func (x *Binary) ClearName() {
 	x.xxx_hidden_Name = nil
 }
 
-func (x *Binary) ClearFileName() {
+func (x *Binary) ClearFilename() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_FileName = nil
+	x.xxx_hidden_Filename = nil
+}
+
+func (x *Binary) ClearSize() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Size = 0
 }
 
 func (x *Binary) ClearNotes() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Notes = nil
 }
 
@@ -142,7 +167,8 @@ type Binary_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Name     *string
-	FileName *string
+	Filename *string
+	Size     *int64
 	Notes    *string
 }
 
@@ -151,16 +177,128 @@ func (b0 Binary_builder) Build() *Binary {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
 		x.xxx_hidden_Name = b.Name
 	}
-	if b.FileName != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
-		x.xxx_hidden_FileName = b.FileName
+	if b.Filename != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_Filename = b.Filename
+	}
+	if b.Size != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_Size = *b.Size
 	}
 	if b.Notes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
 		x.xxx_hidden_Notes = b.Notes
+	}
+	return m0
+}
+
+type FileChunk struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data        []byte                 `protobuf:"bytes,1,opt,name=data"`
+	xxx_hidden_Index       int32                  `protobuf:"varint,2,opt,name=index"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *FileChunk) Reset() {
+	*x = FileChunk{}
+	mi := &file_binary_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileChunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileChunk) ProtoMessage() {}
+
+func (x *FileChunk) ProtoReflect() protoreflect.Message {
+	mi := &file_binary_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FileChunk) GetData() []byte {
+	if x != nil {
+		return x.xxx_hidden_Data
+	}
+	return nil
+}
+
+func (x *FileChunk) GetIndex() int32 {
+	if x != nil {
+		return x.xxx_hidden_Index
+	}
+	return 0
+}
+
+func (x *FileChunk) SetData(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Data = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *FileChunk) SetIndex(v int32) {
+	x.xxx_hidden_Index = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+}
+
+func (x *FileChunk) HasData() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *FileChunk) HasIndex() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *FileChunk) ClearData() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Data = nil
+}
+
+func (x *FileChunk) ClearIndex() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Index = 0
+}
+
+type FileChunk_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Data  []byte
+	Index *int32
+}
+
+func (b0 FileChunk_builder) Build() *FileChunk {
+	m0 := &FileChunk{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Data != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_Data = b.Data
+	}
+	if b.Index != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_Index = *b.Index
 	}
 	return m0
 }
@@ -169,7 +307,9 @@ type SaveBinaryRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Chunk       *FileChunk             `protobuf:"bytes,1,opt,name=chunk"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Notes       *string                `protobuf:"bytes,3,opt,name=notes"`
+	xxx_hidden_Filename    *string                `protobuf:"bytes,3,opt,name=filename"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,4,opt,name=size"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,5,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -178,7 +318,7 @@ type SaveBinaryRequest struct {
 
 func (x *SaveBinaryRequest) Reset() {
 	*x = SaveBinaryRequest{}
-	mi := &file_binary_proto_msgTypes[1]
+	mi := &file_binary_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -190,7 +330,7 @@ func (x *SaveBinaryRequest) String() string {
 func (*SaveBinaryRequest) ProtoMessage() {}
 
 func (x *SaveBinaryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_binary_proto_msgTypes[1]
+	mi := &file_binary_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -218,6 +358,23 @@ func (x *SaveBinaryRequest) GetName() string {
 	return ""
 }
 
+func (x *SaveBinaryRequest) GetFilename() string {
+	if x != nil {
+		if x.xxx_hidden_Filename != nil {
+			return *x.xxx_hidden_Filename
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *SaveBinaryRequest) GetSize() int64 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
+}
+
 func (x *SaveBinaryRequest) GetNotes() string {
 	if x != nil {
 		if x.xxx_hidden_Notes != nil {
@@ -234,12 +391,22 @@ func (x *SaveBinaryRequest) SetChunk(v *FileChunk) {
 
 func (x *SaveBinaryRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+}
+
+func (x *SaveBinaryRequest) SetFilename(v string) {
+	x.xxx_hidden_Filename = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+}
+
+func (x *SaveBinaryRequest) SetSize(v int64) {
+	x.xxx_hidden_Size = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
 }
 
 func (x *SaveBinaryRequest) SetNotes(v string) {
 	x.xxx_hidden_Notes = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
 func (x *SaveBinaryRequest) HasChunk() bool {
@@ -256,11 +423,25 @@ func (x *SaveBinaryRequest) HasName() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *SaveBinaryRequest) HasNotes() bool {
+func (x *SaveBinaryRequest) HasFilename() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *SaveBinaryRequest) HasSize() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *SaveBinaryRequest) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
 func (x *SaveBinaryRequest) ClearChunk() {
@@ -272,17 +453,29 @@ func (x *SaveBinaryRequest) ClearName() {
 	x.xxx_hidden_Name = nil
 }
 
-func (x *SaveBinaryRequest) ClearNotes() {
+func (x *SaveBinaryRequest) ClearFilename() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Filename = nil
+}
+
+func (x *SaveBinaryRequest) ClearSize() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Size = 0
+}
+
+func (x *SaveBinaryRequest) ClearNotes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_Notes = nil
 }
 
 type SaveBinaryRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Chunk *FileChunk
-	Name  *string
-	Notes *string
+	Chunk    *FileChunk
+	Name     *string
+	Filename *string
+	Size     *int64
+	Notes    *string
 }
 
 func (b0 SaveBinaryRequest_builder) Build() *SaveBinaryRequest {
@@ -291,11 +484,19 @@ func (b0 SaveBinaryRequest_builder) Build() *SaveBinaryRequest {
 	_, _ = b, x
 	x.xxx_hidden_Chunk = b.Chunk
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Name = b.Name
 	}
+	if b.Filename != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		x.xxx_hidden_Filename = b.Filename
+	}
+	if b.Size != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		x.xxx_hidden_Size = *b.Size
+	}
 	if b.Notes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
 		x.xxx_hidden_Notes = b.Notes
 	}
 	return m0
@@ -312,7 +513,7 @@ type DownloadBinaryRequest struct {
 
 func (x *DownloadBinaryRequest) Reset() {
 	*x = DownloadBinaryRequest{}
-	mi := &file_binary_proto_msgTypes[2]
+	mi := &file_binary_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -324,7 +525,7 @@ func (x *DownloadBinaryRequest) String() string {
 func (*DownloadBinaryRequest) ProtoMessage() {}
 
 func (x *DownloadBinaryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_binary_proto_msgTypes[2]
+	mi := &file_binary_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -379,33 +580,33 @@ func (b0 DownloadBinaryRequest_builder) Build() *DownloadBinaryRequest {
 	return m0
 }
 
-type FileChunk struct {
+type DownloadBinaryResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_ChunkData   []byte                 `protobuf:"bytes,1,opt,name=chunk_data,json=chunkData"`
-	xxx_hidden_Filename    *string                `protobuf:"bytes,2,opt,name=filename"`
-	xxx_hidden_TotalSize   int64                  `protobuf:"varint,3,opt,name=total_size,json=totalSize"`
-	xxx_hidden_ChunkIndex  int32                  `protobuf:"varint,4,opt,name=chunk_index,json=chunkIndex"`
+	xxx_hidden_Chunk       *FileChunk             `protobuf:"bytes,1,opt,name=chunk"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Filename    *string                `protobuf:"bytes,3,opt,name=filename"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,4,opt,name=size"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *FileChunk) Reset() {
-	*x = FileChunk{}
-	mi := &file_binary_proto_msgTypes[3]
+func (x *DownloadBinaryResponse) Reset() {
+	*x = DownloadBinaryResponse{}
+	mi := &file_binary_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *FileChunk) String() string {
+func (x *DownloadBinaryResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*FileChunk) ProtoMessage() {}
+func (*DownloadBinaryResponse) ProtoMessage() {}
 
-func (x *FileChunk) ProtoReflect() protoreflect.Message {
-	mi := &file_binary_proto_msgTypes[3]
+func (x *DownloadBinaryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_binary_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -416,14 +617,24 @@ func (x *FileChunk) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *FileChunk) GetChunkData() []byte {
+func (x *DownloadBinaryResponse) GetChunk() *FileChunk {
 	if x != nil {
-		return x.xxx_hidden_ChunkData
+		return x.xxx_hidden_Chunk
 	}
 	return nil
 }
 
-func (x *FileChunk) GetFilename() string {
+func (x *DownloadBinaryResponse) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *DownloadBinaryResponse) GetFilename() string {
 	if x != nil {
 		if x.xxx_hidden_Filename != nil {
 			return *x.xxx_hidden_Filename
@@ -433,119 +644,104 @@ func (x *FileChunk) GetFilename() string {
 	return ""
 }
 
-func (x *FileChunk) GetTotalSize() int64 {
+func (x *DownloadBinaryResponse) GetSize() int64 {
 	if x != nil {
-		return x.xxx_hidden_TotalSize
+		return x.xxx_hidden_Size
 	}
 	return 0
 }
 
-func (x *FileChunk) GetChunkIndex() int32 {
-	if x != nil {
-		return x.xxx_hidden_ChunkIndex
-	}
-	return 0
+func (x *DownloadBinaryResponse) SetChunk(v *FileChunk) {
+	x.xxx_hidden_Chunk = v
 }
 
-func (x *FileChunk) SetChunkData(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_ChunkData = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
-}
-
-func (x *FileChunk) SetFilename(v string) {
-	x.xxx_hidden_Filename = &v
+func (x *DownloadBinaryResponse) SetName(v string) {
+	x.xxx_hidden_Name = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
-func (x *FileChunk) SetTotalSize(v int64) {
-	x.xxx_hidden_TotalSize = v
+func (x *DownloadBinaryResponse) SetFilename(v string) {
+	x.xxx_hidden_Filename = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
 }
 
-func (x *FileChunk) SetChunkIndex(v int32) {
-	x.xxx_hidden_ChunkIndex = v
+func (x *DownloadBinaryResponse) SetSize(v int64) {
+	x.xxx_hidden_Size = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
 }
 
-func (x *FileChunk) HasChunkData() bool {
+func (x *DownloadBinaryResponse) HasChunk() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+	return x.xxx_hidden_Chunk != nil
 }
 
-func (x *FileChunk) HasFilename() bool {
+func (x *DownloadBinaryResponse) HasName() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *FileChunk) HasTotalSize() bool {
+func (x *DownloadBinaryResponse) HasFilename() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *FileChunk) HasChunkIndex() bool {
+func (x *DownloadBinaryResponse) HasSize() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *FileChunk) ClearChunkData() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_ChunkData = nil
+func (x *DownloadBinaryResponse) ClearChunk() {
+	x.xxx_hidden_Chunk = nil
 }
 
-func (x *FileChunk) ClearFilename() {
+func (x *DownloadBinaryResponse) ClearName() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Name = nil
+}
+
+func (x *DownloadBinaryResponse) ClearFilename() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Filename = nil
 }
 
-func (x *FileChunk) ClearTotalSize() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
-	x.xxx_hidden_TotalSize = 0
-}
-
-func (x *FileChunk) ClearChunkIndex() {
+func (x *DownloadBinaryResponse) ClearSize() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
-	x.xxx_hidden_ChunkIndex = 0
+	x.xxx_hidden_Size = 0
 }
 
-type FileChunk_builder struct {
+type DownloadBinaryResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	ChunkData  []byte
-	Filename   *string
-	TotalSize  *int64
-	ChunkIndex *int32
+	Chunk    *FileChunk
+	Name     *string
+	Filename *string
+	Size     *int64
 }
 
-func (b0 FileChunk_builder) Build() *FileChunk {
-	m0 := &FileChunk{}
+func (b0 DownloadBinaryResponse_builder) Build() *DownloadBinaryResponse {
+	m0 := &DownloadBinaryResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	if b.ChunkData != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
-		x.xxx_hidden_ChunkData = b.ChunkData
+	x.xxx_hidden_Chunk = b.Chunk
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_Name = b.Name
 	}
 	if b.Filename != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
 		x.xxx_hidden_Filename = b.Filename
 	}
-	if b.TotalSize != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
-		x.xxx_hidden_TotalSize = *b.TotalSize
-	}
-	if b.ChunkIndex != nil {
+	if b.Size != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
-		x.xxx_hidden_ChunkIndex = *b.ChunkIndex
+		x.xxx_hidden_Size = *b.Size
 	}
 	return m0
 }
@@ -559,7 +755,7 @@ type GetAllBinariesResponse struct {
 
 func (x *GetAllBinariesResponse) Reset() {
 	*x = GetAllBinariesResponse{}
-	mi := &file_binary_proto_msgTypes[4]
+	mi := &file_binary_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -571,7 +767,7 @@ func (x *GetAllBinariesResponse) String() string {
 func (*GetAllBinariesResponse) ProtoMessage() {}
 
 func (x *GetAllBinariesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_binary_proto_msgTypes[4]
+	mi := &file_binary_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -615,59 +811,64 @@ const file_binary_proto_rawDesc = "" +
 	"\n" +
 	"\fbinary.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"O\n" +
+	"data.proto\"b\n" +
 	"\x06Binary\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
-	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x14\n" +
-	"\x05notes\x18\x03 \x01(\tR\x05notes\"j\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\bfilename\x18\x02 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x03R\x04size\x12\x14\n" +
+	"\x05notes\x18\x04 \x01(\tR\x05notes\"5\n" +
+	"\tFileChunk\x12\x12\n" +
+	"\x04data\x18\x01 \x01(\fR\x04data\x12\x14\n" +
+	"\x05index\x18\x02 \x01(\x05R\x05index\"\x9a\x01\n" +
 	"\x11SaveBinaryRequest\x12+\n" +
 	"\x05chunk\x18\x01 \x01(\v2\x15.gophkeeper.FileChunkR\x05chunk\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05notes\x18\x03 \x01(\tR\x05notes\"+\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bfilename\x18\x03 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x03R\x04size\x12\x14\n" +
+	"\x05notes\x18\x05 \x01(\tR\x05notes\"+\n" +
 	"\x15DownloadBinaryRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x86\x01\n" +
-	"\tFileChunk\x12\x1d\n" +
-	"\n" +
-	"chunk_data\x18\x01 \x01(\fR\tchunkData\x12\x1a\n" +
-	"\bfilename\x18\x02 \x01(\tR\bfilename\x12\x1d\n" +
-	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\x12\x1f\n" +
-	"\vchunk_index\x18\x04 \x01(\x05R\n" +
-	"chunkIndex\"D\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x89\x01\n" +
+	"\x16DownloadBinaryResponse\x12+\n" +
+	"\x05chunk\x18\x01 \x01(\v2\x15.gophkeeper.FileChunkR\x05chunk\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bfilename\x18\x03 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x03R\x04size\"D\n" +
 	"\x16GetAllBinariesResponse\x12*\n" +
-	"\x06result\x18\x01 \x03(\v2\x12.gophkeeper.BinaryR\x06result2\xa1\x02\n" +
+	"\x06result\x18\x01 \x03(\v2\x12.gophkeeper.BinaryR\x06result2\xae\x02\n" +
 	"\rBinaryService\x12A\n" +
 	"\x06Upload\x12\x1d.gophkeeper.SaveBinaryRequest\x1a\x16.google.protobuf.Empty(\x01\x12D\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\".gophkeeper.GetAllBinariesResponse\x12?\n" +
-	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x12F\n" +
-	"\bDownload\x12!.gophkeeper.DownloadBinaryRequest\x1a\x15.gophkeeper.FileChunk0\x01B\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x12S\n" +
+	"\bDownload\x12!.gophkeeper.DownloadBinaryRequest\x1a\".gophkeeper.DownloadBinaryResponse0\x01B\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
-var file_binary_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_binary_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_binary_proto_goTypes = []any{
 	(*Binary)(nil),                 // 0: gophkeeper.Binary
-	(*SaveBinaryRequest)(nil),      // 1: gophkeeper.SaveBinaryRequest
-	(*DownloadBinaryRequest)(nil),  // 2: gophkeeper.DownloadBinaryRequest
-	(*FileChunk)(nil),              // 3: gophkeeper.FileChunk
-	(*GetAllBinariesResponse)(nil), // 4: gophkeeper.GetAllBinariesResponse
-	(*empty.Empty)(nil),            // 5: google.protobuf.Empty
-	(*RemoveDataRequest)(nil),      // 6: gophkeeper.RemoveDataRequest
+	(*FileChunk)(nil),              // 1: gophkeeper.FileChunk
+	(*SaveBinaryRequest)(nil),      // 2: gophkeeper.SaveBinaryRequest
+	(*DownloadBinaryRequest)(nil),  // 3: gophkeeper.DownloadBinaryRequest
+	(*DownloadBinaryResponse)(nil), // 4: gophkeeper.DownloadBinaryResponse
+	(*GetAllBinariesResponse)(nil), // 5: gophkeeper.GetAllBinariesResponse
+	(*empty.Empty)(nil),            // 6: google.protobuf.Empty
+	(*RemoveDataRequest)(nil),      // 7: gophkeeper.RemoveDataRequest
 }
 var file_binary_proto_depIdxs = []int32{
-	3, // 0: gophkeeper.SaveBinaryRequest.chunk:type_name -> gophkeeper.FileChunk
-	0, // 1: gophkeeper.GetAllBinariesResponse.result:type_name -> gophkeeper.Binary
-	1, // 2: gophkeeper.BinaryService.Upload:input_type -> gophkeeper.SaveBinaryRequest
-	5, // 3: gophkeeper.BinaryService.GetAll:input_type -> google.protobuf.Empty
-	6, // 4: gophkeeper.BinaryService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	2, // 5: gophkeeper.BinaryService.Download:input_type -> gophkeeper.DownloadBinaryRequest
-	5, // 6: gophkeeper.BinaryService.Upload:output_type -> google.protobuf.Empty
-	4, // 7: gophkeeper.BinaryService.GetAll:output_type -> gophkeeper.GetAllBinariesResponse
-	5, // 8: gophkeeper.BinaryService.Remove:output_type -> google.protobuf.Empty
-	3, // 9: gophkeeper.BinaryService.Download:output_type -> gophkeeper.FileChunk
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: gophkeeper.SaveBinaryRequest.chunk:type_name -> gophkeeper.FileChunk
+	1, // 1: gophkeeper.DownloadBinaryResponse.chunk:type_name -> gophkeeper.FileChunk
+	0, // 2: gophkeeper.GetAllBinariesResponse.result:type_name -> gophkeeper.Binary
+	2, // 3: gophkeeper.BinaryService.Upload:input_type -> gophkeeper.SaveBinaryRequest
+	6, // 4: gophkeeper.BinaryService.GetAll:input_type -> google.protobuf.Empty
+	7, // 5: gophkeeper.BinaryService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	3, // 6: gophkeeper.BinaryService.Download:input_type -> gophkeeper.DownloadBinaryRequest
+	6, // 7: gophkeeper.BinaryService.Upload:output_type -> google.protobuf.Empty
+	5, // 8: gophkeeper.BinaryService.GetAll:output_type -> gophkeeper.GetAllBinariesResponse
+	6, // 9: gophkeeper.BinaryService.Remove:output_type -> google.protobuf.Empty
+	4, // 10: gophkeeper.BinaryService.Download:output_type -> gophkeeper.DownloadBinaryResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_binary_proto_init() }
@@ -682,7 +883,7 @@ func file_binary_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_binary_proto_rawDesc), len(file_binary_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
