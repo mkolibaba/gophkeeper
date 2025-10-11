@@ -77,7 +77,7 @@ func InitialAddDataViewModel(
 }
 
 func (m *AddDataViewModel) Init() tea.Cmd {
-	return nil
+	return m.inputSet.Init()
 }
 
 func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
@@ -148,7 +148,7 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 	case DataTypeBinary:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name"),
-			inputset.NewTextInput("File path"), // TODO: file explorer
+			inputset.NewFilePicker("File path"),
 			inputset.NewTextInput("Notes"),
 		)
 	case DataTypeCard:

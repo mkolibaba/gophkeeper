@@ -39,7 +39,7 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user s
 		return tryUnwrapSaveError(err)
 	}
 
-	dest, err := os.Create(filepath.Join(b.binariesFolder, data.Name))
+	dest, err := os.Create(filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, data.Name)))
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
 	}
@@ -65,7 +65,7 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 		return server.BinaryData{}, fmt.Errorf("get: %w", err)
 	}
 
-	path := filepath.Join(b.binariesFolder, binary.Name)
+	path := filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, binary.Name))
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -107,6 +107,10 @@ func (b *BinaryService) Remove(ctx context.Context, name string, user string) er
 	}
 	if n == 0 {
 		return server.ErrDataNotFound
+	}
+	path := filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, name))
+	if err = os.Remove(path); err != nil {
+		return fmt.Errorf("remove: %w", err)
 	}
 	return nil
 }

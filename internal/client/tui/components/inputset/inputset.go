@@ -1,8 +1,6 @@
 package inputset
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -36,39 +34,6 @@ func WithCharLimit(charLimit int) Option {
 	}
 }
 
-func NewTextInput(placeholder string, opts ...Option) Input {
-	input := textinput.New()
-	input.Placeholder = placeholder
-	input.CharLimit = defaultCharLimit
-	input.Width = defaultWidth
-	input.Cursor.SetMode(cursor.CursorStatic)
-	input.PromptStyle = promptStyle
-
-	for _, o := range opts {
-		o(&input)
-	}
-
-	return &TextInput{input}
-}
-
-func NewTextArea(placeholder string) Input {
-	area := textarea.New()
-	area.Placeholder = placeholder
-	area.CharLimit = 2000 // TODO: в константы
-	area.SetWidth(defaultWidth)
-	area.SetHeight(5)
-	area.SetPromptFunc(2, func(lineIdx int) string {
-		if lineIdx == 0 {
-			return promptStyle.Render("> ")
-		}
-		return "  "
-	})
-	area.Cursor.SetMode(cursor.CursorStatic)
-	area.ShowLineNumbers = false
-
-	return &TextArea{area}
-}
-
 type Model struct {
 	Err error
 
@@ -86,13 +51,21 @@ func NewInputSet(inputs ...Input) *Model {
 	return m
 }
 
+func (m *Model) Init() tea.Cmd {
+	cmds := make([]tea.Cmd, len(m.inputs))
+	for i := range m.inputs {
+		cmds[i] = m.inputs[i].Init()
+	}
+	return tea.Batch(cmds...)
+}
+
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
-		case "up", "down", "tab":
+		case "shift+tab", "tab":
 			var at int
-			if keypress == "up" {
+			if keypress == "shift+tab" {
 				at = (m.focused - 1 + len(m.inputs)) % len(m.inputs)
 			} else {
 				at = (m.focused + 1) % len(m.inputs)

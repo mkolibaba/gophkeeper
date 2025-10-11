@@ -25,7 +25,7 @@ func InitialAuthorizationViewModel(manager *state.Manager) *AuthorizationViewMod
 }
 
 func (m *AuthorizationViewModel) Init() tea.Cmd {
-	return nil
+	return m.inputSet.Init()
 }
 
 func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
