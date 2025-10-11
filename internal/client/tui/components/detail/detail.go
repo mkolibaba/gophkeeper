@@ -15,7 +15,7 @@ type Model struct {
 	Data client.Data
 }
 
-func NewModel() Model {
+func New() Model {
 	return Model{}
 }
 

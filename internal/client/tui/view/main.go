@@ -9,10 +9,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/detail"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
-	"time"
 )
 
 type mainViewKeyMap struct {
@@ -47,7 +47,7 @@ type MainViewModel struct {
 	keyMap        mainViewKeyMap
 	session       *client.Session
 	showHelp      bool
-	statusBar     *StatusBarModel
+	statusBar     *statusbar.Model
 	orchestrator  *orchestrator.Orchestrator
 	binaryService client.BinaryService
 }
@@ -95,9 +95,9 @@ func InitialMainViewModel(
 		),
 	}
 
-	dataTable := table.NewModel()
-	dataDetail := detail.NewModel()
-	statusBar := InitialStatusBarModel()
+	dataTable := table.New()
+	dataDetail := detail.New()
+	statusBar := statusbar.New()
 
 	return &MainViewModel{
 		dataTable:     dataTable,
@@ -131,11 +131,11 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case helper.LoadDataMsg:
-		m.statusBar.currentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
+		m.statusBar.CurrentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
 		m.dataTable, cmd = m.dataTable.Update(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
-	case notificationMsg:
+	case statusbar.NotificationMsg:
 		return m.statusBar.Update(msg)
 
 	case tea.KeyMsg:
@@ -213,7 +213,7 @@ func (m *MainViewModel) View() string {
 
 func (m *MainViewModel) SetSize(width int, height int) {
 	m.baseViewModel.SetSize(width, height)
-	m.statusBar.width = width
+	m.statusBar.Width = width
 }
 
 func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
@@ -244,10 +244,10 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.Name)
 		if err != nil {
-			return notify(fmt.Sprintf("Download %s failed: %v", data.Name, err), notificationError)
+			return statusbar.NotifyError(fmt.Sprintf("Download %s failed: %v", data.Name, err))
 		}
 
-		return notify(fmt.Sprintf("Downloaded %s successfully", data.Name), notificationOk)
+		return statusbar.NotifyOk(fmt.Sprintf("Downloaded %s successfully", data.Name))
 	}
 }
 
@@ -255,22 +255,13 @@ func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 	return func() tea.Msg {
 		err := m.orchestrator.Remove(context.Background(), data)
 		if err != nil {
-			return notify(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err), notificationError)
+			return statusbar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
 		}
 
 		return tea.Sequence(
-			notify(fmt.Sprintf("Removed %s successfully", data.GetName()), notificationOk),
+			statusbar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
 			helper.LoadData(m.orchestrator.GetAll(context.Background())),
 		)()
-	}
-}
-
-func notify(text string, t notificationType) tea.Cmd {
-	return func() tea.Msg {
-		return notificationMsg{
-			text: text,
-			t:    t,
-		}
 	}
 }
 
@@ -283,90 +274,4 @@ func removeEmptyStrings(strs ...string) []string {
 		}
 	}
 	return strs[:n]
-}
-
-type notificationType int
-
-const (
-	notificationNone notificationType = iota
-	notificationOk
-	notificationError
-)
-
-type notificationMsg struct {
-	text string
-	t    notificationType
-}
-
-type StatusBarModel struct {
-	width            int
-	notificationText string
-	notificationType notificationType
-	currentUser      string
-	ttl              time.Duration
-}
-
-func InitialStatusBarModel() *StatusBarModel {
-	return &StatusBarModel{
-		ttl: 3 * time.Second,
-	}
-}
-
-func (m *StatusBarModel) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case notificationMsg:
-		m.notificationText = msg.text
-		m.notificationType = msg.t
-		return m.ResetNotification()
-	}
-
-	return nil
-}
-
-func (m *StatusBarModel) View() string {
-	// TODO(trivial): попробовать другие стили
-
-	w := lipgloss.Width
-
-	helpInfo := lipgloss.NewStyle().
-		Width(8).
-		PaddingLeft(1).
-		Background(lipgloss.Color("243")).
-		Render("h Help")
-
-	user := lipgloss.NewStyle().
-		Width(w(m.currentUser) + 2).
-		PaddingLeft(1).
-		Background(lipgloss.Color("243")).
-		Render(m.currentUser)
-
-	// TODO: вынести в компонент
-	var restColor lipgloss.Color
-
-	switch m.notificationType {
-	case notificationOk:
-		restColor = lipgloss.Color("115")
-	case notificationError:
-		restColor = lipgloss.Color("169")
-	case notificationNone:
-		restColor = lipgloss.Color("105")
-	}
-
-	rest := lipgloss.NewStyle().
-		Width(m.width - w(helpInfo) - w(user)).
-		PaddingLeft(1).
-		Background(restColor).
-		Render(m.notificationText)
-
-	return lipgloss.JoinHorizontal(lipgloss.Top, helpInfo, rest, user)
-}
-
-// TODO: если быстро 2 уведомления прокинуть, то обнуление от первого сработает быстрее, и второе покажется малое время
-func (m *StatusBarModel) ResetNotification() tea.Cmd {
-	return tea.Tick(m.ttl, func(t time.Time) tea.Msg {
-		return notificationMsg{
-			text: "",
-			t:    notificationNone,
-		}
-	})
 }

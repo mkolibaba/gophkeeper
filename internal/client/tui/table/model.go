@@ -41,7 +41,7 @@ type Model struct {
 	renderedRows []Row
 }
 
-func NewModel() Model {
+func New() Model {
 	return Model{}
 }
 

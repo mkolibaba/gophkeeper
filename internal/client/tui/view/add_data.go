@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
@@ -197,12 +198,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 
 			return tea.Sequence(
 				ExitAddDataView,
-				func() tea.Msg {
-					return notificationMsg{
-						text: fmt.Sprintf("Add %s successfully", data.Name),
-						t:    notificationOk,
-					}
-				},
+				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)), // TODO: это не должно быть тут, должно быть событи другого типа
 			)()
 		}
 	case DataTypeNote:
@@ -218,12 +214,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 
 			return tea.Sequence(
 				ExitAddDataView,
-				func() tea.Msg {
-					return notificationMsg{
-						text: fmt.Sprintf("Add %s successfully", data.Name),
-						t:    notificationOk,
-					}
-				},
+				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
 			)()
 		}
 	case DataTypeBinary:
@@ -240,12 +231,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 
 			return tea.Sequence(
 				ExitAddDataView,
-				func() tea.Msg {
-					return notificationMsg{
-						text: fmt.Sprintf("Add %s successfully", data.Name),
-						t:    notificationOk,
-					}
-				},
+				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
 			)()
 		}
 	case DataTypeCard:
@@ -265,12 +251,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 
 			return tea.Sequence(
 				ExitAddDataView,
-				func() tea.Msg {
-					return notificationMsg{
-						text: fmt.Sprintf("Add %s successfully", data.Name),
-						t:    notificationOk,
-					}
-				},
+				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
 			)()
 		}
 	}
