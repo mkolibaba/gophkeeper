@@ -92,14 +92,21 @@ func (i TextArea) Placeholder() string {
 }
 
 type FilePicker struct {
-	filepicker.Model
-	placeholder  string
+	filePicker   filepicker.Model
+	textInput    textinput.Model
 	focused      bool
 	pickingMode  bool
 	selectedFile string
 }
 
 func NewFilePicker(placeholder string) Input {
+	input := textinput.New()
+	input.Placeholder = placeholder
+	input.CharLimit = 255
+	input.Width = 100
+	input.Cursor.SetMode(cursor.CursorStatic)
+	input.PromptStyle = promptStyle
+
 	picker := filepicker.New()
 	picker.CurrentDirectory, _ = os.Getwd()
 	picker.SetHeight(15)
@@ -107,71 +114,82 @@ func NewFilePicker(placeholder string) Input {
 	picker.Cursor = " "
 
 	return &FilePicker{
-		Model:       picker,
-		placeholder: placeholder,
+		filePicker: picker,
+		textInput:  input,
 	}
 }
 
-func (i FilePicker) Update(msg tea.Msg) (Input, tea.Cmd) {
+func (f *FilePicker) Init() tea.Cmd {
+	return f.filePicker.Init()
+}
+
+func (i *FilePicker) Update(msg tea.Msg) (Input, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if !i.focused {
-			return &i, nil
-		}
-
 		switch msg.String() {
 		case "ctrl+p":
 			i.pickingMode = !i.pickingMode
+			if i.pickingMode {
+				i.textInput.Blur()
+			} else {
+				i.textInput.Focus()
+			}
 		}
+
+	default:
+		i.filePicker, cmd = i.filePicker.Update(msg) // TODO: причесать это. тут скорее всего будет filePicker.Init()
+		return i, cmd
 	}
 
-	var cmd tea.Cmd
-	i.Model, cmd = i.Model.Update(msg)
+	if i.pickingMode {
+		i.filePicker, cmd = i.filePicker.Update(msg)
+	} else {
+		i.textInput, cmd = i.textInput.Update(msg)
+	}
 
 	// Did the user select a file?
-	if didSelect, path := i.Model.DidSelectFile(msg); didSelect {
+	if didSelect, path := i.filePicker.DidSelectFile(msg); didSelect {
 		// Get the path of the selected file.
-		i.selectedFile = path
+		i.textInput.SetValue(path)
 	}
 
-	return &i, cmd
+	return i, cmd
 }
 
 func (i FilePicker) View() string {
-	content := i.selectedFile
-	if content == "" {
-		placeholderStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-		content = placeholderStyle.Render("File path")
-	}
-
-	view := promptStyle.Render("> ") + content
+	view := i.textInput.View()
 
 	if i.pickingMode {
 		view += fmt.Sprintf("\n  %s %s\n", lipgloss.NewStyle().
-			Foreground(lipgloss.Color("171")).Render("Directory:"), i.Model.CurrentDirectory) + i.Model.View()
+			Foreground(lipgloss.Color("171")).Render("Directory:"), i.filePicker.CurrentDirectory) + i.filePicker.View()
 	}
 
 	return view
 }
 
 func (i FilePicker) Placeholder() string {
-	return i.placeholder
+	return i.textInput.Placeholder
 }
 
 func (i FilePicker) Value() string {
-	return i.selectedFile
+	return i.textInput.Value()
 }
 
 func (i *FilePicker) Focus() tea.Cmd {
 	i.focused = true
+	i.textInput.Focus()
 	return nil
 }
 
 func (i *FilePicker) Blur() {
 	i.focused = false
 	i.pickingMode = false
+	i.textInput.Blur()
 }
 
 func (i *FilePicker) Reset() {
-	i.Model.CurrentDirectory, _ = os.Getwd()
+	i.filePicker.CurrentDirectory, _ = os.Getwd()
+	i.textInput.Reset()
 }

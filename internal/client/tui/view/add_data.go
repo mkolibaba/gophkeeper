@@ -96,6 +96,7 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case AddDataCallMsg:
 		m.ResetFor(msg.t)
+		return m.Init()
 
 	case addDataErrMsg:
 		m.inputSet.Err = msg.err

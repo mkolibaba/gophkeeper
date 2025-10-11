@@ -111,7 +111,7 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Вызов окна добавления данных
 	case view.AddDataCallMsg:
 		b.view = ViewAddData
-		return b, tea.Sequence(b.views[ViewAddData].Update(msg), b.views[ViewAddData].Init()) // TODO: не ок выглядит
+		return b, b.views[ViewAddData].Update(msg)
 
 	// Выход из окна добавления данных
 	case view.ExitAddDataViewMsg:
