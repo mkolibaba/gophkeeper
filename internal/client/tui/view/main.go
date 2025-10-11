@@ -111,10 +111,10 @@ func InitialMainViewModel(
 }
 
 type AddDataCallMsg struct {
-	t DataType
+	t helper.DataType
 }
 
-func AddDataCall(t DataType) tea.Cmd {
+func AddDataCall(t helper.DataType) tea.Cmd {
 	return func() tea.Msg {
 		return AddDataCallMsg{
 			t: t,
@@ -135,8 +135,11 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 		cmd = m.dataTable.Update(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
-	case statusbar.NotificationMsg:
-		return m.statusBar.Update(msg)
+	case AddDataResultMsg:
+		if msg.Err == nil {
+			return m.statusBar.NotifyOk(fmt.Sprintf("Added %s successfully", msg.Name))
+		}
+		return m.statusBar.NotifyError(fmt.Sprintf("Adding %s failed. See logs", msg.Name))
 
 	case tea.KeyMsg:
 		switch {
@@ -158,23 +161,26 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 			return m.removeData(current)
 
 		case key.Matches(msg, m.keyMap.AddLogin):
-			return AddDataCall(DataTypeLogin)
+			return AddDataCall(helper.DataTypeLogin)
 
 		case key.Matches(msg, m.keyMap.AddNote):
-			return AddDataCall(DataTypeNote)
+			return AddDataCall(helper.DataTypeNote)
 
 		case key.Matches(msg, m.keyMap.AddBinary):
-			return AddDataCall(DataTypeBinary)
+			return AddDataCall(helper.DataTypeBinary)
 
 		case key.Matches(msg, m.keyMap.AddCard):
-			return AddDataCall(DataTypeCard)
+			return AddDataCall(helper.DataTypeCard)
 
 		case key.Matches(msg, m.keyMap.Help):
 			m.showHelp = !m.showHelp
 		}
 	}
 
-	return cmd
+	return tea.Batch(
+		cmd,
+		m.statusBar.Update(msg),
+	)
 }
 
 func (m *MainViewModel) View() string {
@@ -233,7 +239,7 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 		"Detail",
 		"",
 		lipgloss.NewStyle().
-			Padding(0, 1).
+			Padding(0, 1). // TODO: при длинном сообщении нет паддинга на всех строках
 			Render(m.dataDetail.View()),
 		width,
 		height,
@@ -244,10 +250,10 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.Name)
 		if err != nil {
-			return statusbar.NotifyError(fmt.Sprintf("Download %s failed: %v", data.Name, err))
+			return m.statusBar.NotifyError(fmt.Sprintf("Download %s failed: %v", data.Name, err))
 		}
 
-		return statusbar.NotifyOk(fmt.Sprintf("Downloaded %s successfully", data.Name))
+		return m.statusBar.NotifyOk(fmt.Sprintf("Downloaded %s successfully", data.Name))
 	}
 }
 
@@ -255,11 +261,11 @@ func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 	return func() tea.Msg {
 		err := m.orchestrator.Remove(context.Background(), data)
 		if err != nil {
-			return statusbar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
+			return m.statusBar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
 		}
 
 		return tea.Batch(
-			statusbar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
+			m.statusBar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
 			helper.LoadData(m.orchestrator.GetAll(context.Background())),
 		)()
 	}

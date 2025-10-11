@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"os"
 )
 
@@ -110,7 +111,7 @@ func NewFilePicker(placeholder string) Input {
 	picker := filepicker.New()
 	picker.CurrentDirectory, _ = os.Getwd()
 	picker.SetHeight(15)
-	picker.Styles.Selected = lipgloss.NewStyle().Background(lipgloss.Color("171"))
+	picker.Styles.Selected = lipgloss.NewStyle().Background(helper.HeaderColor)
 	picker.Cursor = " "
 
 	return &FilePicker{
@@ -163,7 +164,7 @@ func (i FilePicker) View() string {
 
 	if i.pickingMode {
 		view += fmt.Sprintf("\n  %s %s\n", lipgloss.NewStyle().
-			Foreground(lipgloss.Color("171")).Render("Directory:"), i.filePicker.CurrentDirectory) + i.filePicker.View()
+			Foreground(helper.HeaderColor).Render("Directory:"), i.filePicker.CurrentDirectory) + i.filePicker.View()
 	}
 
 	return view

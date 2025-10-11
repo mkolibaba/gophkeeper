@@ -14,10 +14,13 @@ const (
 	NotificationError
 )
 
-type NotificationMsg struct {
-	Text string
-	T    NotificationType
+var notificationColors = map[NotificationType]lipgloss.Color{
+	NotificationNone:  lipgloss.Color("105"),
+	NotificationOk:    lipgloss.Color("34"),
+	NotificationError: lipgloss.Color("169"),
 }
+
+type clearNotificationMsg struct{}
 
 type Model struct {
 	Width            int
@@ -25,6 +28,7 @@ type Model struct {
 	notificationType NotificationType
 	CurrentUser      string
 	ttl              time.Duration
+	until            time.Time
 }
 
 func New() *Model {
@@ -34,11 +38,12 @@ func New() *Model {
 }
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
-	switch msg := msg.(type) {
-	case NotificationMsg:
-		m.notificationText = msg.Text
-		m.notificationType = msg.T
-		return m.ResetNotification()
+	switch msg.(type) {
+	case clearNotificationMsg:
+		if time.Since(m.until) > 0 {
+			m.notificationText = ""
+			m.notificationType = NotificationNone
+		}
 	}
 
 	return nil
@@ -61,51 +66,28 @@ func (m *Model) View() string {
 		Background(lipgloss.Color("243")).
 		Render(m.CurrentUser)
 
-	// TODO: вынести в компонент
-	var restColor lipgloss.Color
-
-	switch m.notificationType {
-	case NotificationOk:
-		restColor = lipgloss.Color("115")
-	case NotificationError:
-		restColor = lipgloss.Color("169")
-	case NotificationNone:
-		restColor = lipgloss.Color("105")
-	}
-
 	rest := lipgloss.NewStyle().
 		Width(m.Width - w(helpInfo) - w(user)).
 		PaddingLeft(1).
-		Background(restColor).
+		Background(notificationColors[m.notificationType]).
 		Render(m.notificationText)
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, helpInfo, rest, user)
 }
 
-// TODO: если быстро 2 уведомления прокинуть, то обнуление от первого сработает быстрее, и второе покажется малое время
-func (m *Model) ResetNotification() tea.Cmd {
+func (m *Model) NotifyOk(text string) tea.Cmd {
+	return m.notify(text, NotificationOk)
+}
+
+func (m *Model) NotifyError(text string) tea.Cmd {
+	return m.notify(text, NotificationError)
+}
+
+func (m *Model) notify(text string, t NotificationType) tea.Cmd {
+	m.notificationText = text
+	m.notificationType = t
+	m.until = time.Now().Add(m.ttl)
 	return tea.Tick(m.ttl, func(t time.Time) tea.Msg {
-		return NotificationMsg{
-			Text: "",
-			T:    NotificationNone,
-		}
+		return clearNotificationMsg{}
 	})
-}
-
-// TODO: как будто можно вообще без сообщения?
-func NotifyOk(text string) tea.Cmd {
-	return notify(text, NotificationOk)
-}
-
-func NotifyError(text string) tea.Cmd {
-	return notify(text, NotificationError)
-}
-
-func notify(text string, t NotificationType) tea.Cmd {
-	return func() tea.Msg {
-		return NotificationMsg{
-			Text: text,
-			T:    t,
-		}
-	}
 }
