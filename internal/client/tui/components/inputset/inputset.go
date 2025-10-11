@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
 const (
@@ -13,17 +14,13 @@ const (
 )
 
 var (
+	promptStyle = helper.HeaderStyle
+
 	errorStyle = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("169"))
+			Foreground(lipgloss.Color("169"))
 )
 
 type Option func(*textinput.Model)
-
-func WithFocus() Option {
-	return func(input *textinput.Model) {
-		input.Focus()
-	}
-}
 
 func WithEchoModePassword() Option {
 	return func(input *textinput.Model) {
@@ -38,19 +35,13 @@ func WithCharLimit(charLimit int) Option {
 	}
 }
 
-// TODO: как-нибудь вынести в глобальные стили, потому что это везде
-func WithPromptStyle(style lipgloss.Style) Option {
-	return func(input *textinput.Model) {
-		input.PromptStyle = style
-	}
-}
-
 func NewInput(placeholder string, opts ...Option) textinput.Model {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = defaultCharLimit
 	input.Width = defaultWidth
 	input.Cursor.SetMode(cursor.CursorStatic)
+	input.PromptStyle = promptStyle
 
 	for _, o := range opts {
 		o(&input)
@@ -66,10 +57,14 @@ type Model struct {
 	focused int
 }
 
+// TODO: указать, что по умолчанию фокус устанавливается на нулевом инпуте
 func NewInputSet(inputs ...textinput.Model) *Model {
-	return &Model{
+	m := &Model{
 		inputs: inputs,
 	}
+	m.setFocus(0)
+
+	return m
 }
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {

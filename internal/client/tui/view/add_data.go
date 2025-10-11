@@ -129,43 +129,41 @@ func (m *AddDataViewModel) View() string {
 }
 
 func (m *AddDataViewModel) ResetFor(t DataType) {
-	// TODO: добавить metadata
 	m.dataType = t
 
 	switch m.dataType {
 	case DataTypeLogin:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Login", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Password", inputset.WithEchoModePassword(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Website", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Name"),
+			inputset.NewInput("Login"),
+			inputset.NewInput("Password", inputset.WithEchoModePassword()),
+			inputset.NewInput("Website"),
+			inputset.NewInput("Notes"),
 		)
 	case DataTypeNote:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Text", inputset.WithCharLimit(2000), inputset.WithPromptStyle(helper.HeaderStyle)), // TODO: тут нужен textarea
+			inputset.NewInput("Name"),
+			inputset.NewInput("Text", inputset.WithCharLimit(2000)), // TODO: textarea
 		)
 	case DataTypeBinary:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("File path", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Name"),
+			inputset.NewInput("File path"), // TODO: file explorer
+			inputset.NewInput("Notes"),
 		)
 	case DataTypeCard:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Number", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Expiration date", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("CVV", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Cardholder", inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Name"),
+			inputset.NewInput("Number"),
+			inputset.NewInput("Expiration date"),
+			inputset.NewInput("CVV"),
+			inputset.NewInput("Cardholder"),
+			inputset.NewInput("Notes"),
 		)
 	}
 }
 
 func (m *AddDataViewModel) send() tea.Cmd {
-	// TODO: после вебинара понять что должно быть в metadata
 	values := m.inputSet.Values()
 
 	switch m.dataType {

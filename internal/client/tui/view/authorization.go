@@ -18,8 +18,8 @@ func InitialAuthorizationViewModel(manager *state.Manager) *AuthorizationViewMod
 	return &AuthorizationViewModel{
 		manager: manager,
 		inputSet: inputset.NewInputSet(
-			inputset.NewInput("Login", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
-			inputset.NewInput("Password", inputset.WithEchoModePassword(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Login"),
+			inputset.NewInput("Password", inputset.WithEchoModePassword()),
 		),
 	}
 }
