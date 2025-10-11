@@ -36,18 +36,18 @@ func (s *LoginServiceServer) Save(ctx context.Context, in *pb.Login) (*empty.Emp
 	user := utils.UserFromContext(ctx)
 
 	data := server.LoginData{
-		User:     user,
 		Name:     in.GetName(),
 		Login:    in.GetLogin(),
 		Password: in.GetPassword(),
-		Metadata: in.GetMetadata(),
+		Website:  in.GetWebsite(),
+		Notes:    in.GetNotes(),
 	}
 
 	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.loginService.Save(ctx, data); err != nil {
+	if err := s.loginService.Save(ctx, data, user); err != nil {
 		if errors.Is(err, server.ErrDataAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
 		}
@@ -73,7 +73,8 @@ func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.Ge
 		out.SetName(login.Name)
 		out.SetLogin(login.Login)
 		out.SetPassword(login.Password)
-		out.SetMetadata(login.Metadata)
+		out.SetWebsite(login.Website)
+		out.SetNotes(login.Notes)
 		result = append(result, &out)
 	}
 

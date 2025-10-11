@@ -23,7 +23,8 @@ func (l *LoginService) Save(ctx context.Context, data client.LoginData) error {
 	login.SetName(data.Name)
 	login.SetLogin(data.Login)
 	login.SetPassword(data.Password)
-	login.SetMetadata(data.Metadata)
+	login.SetWebsite(data.Website)
+	login.SetWebsite(data.Notes)
 
 	_, err := l.client.Save(ctx, &login)
 	return err
@@ -41,7 +42,8 @@ func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
 			Name:     data.GetName(),
 			Login:    data.GetLogin(),
 			Password: data.GetPassword(),
-			Metadata: data.GetMetadata(),
+			Website:  data.GetWebsite(),
+			Notes:    data.GetNotes(),
 		})
 	}
 

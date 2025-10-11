@@ -13,7 +13,7 @@ message Card {
   string exp_date = 3;
   string cvv = 4;
   string cardholder = 5;
-  map<string, string> metadata = 6;
+  string notes = 6;
 }
 
 message GetAllCardsResponse {

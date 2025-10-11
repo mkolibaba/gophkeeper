@@ -22,7 +22,6 @@ func (n *NoteService) Save(ctx context.Context, data client.NoteData) error {
 	var note pb.Note
 	note.SetName(data.Name)
 	note.SetText(data.Text)
-	note.SetMetadata(data.Metadata)
 
 	_, err := n.client.Save(ctx, &note)
 	return err
@@ -37,9 +36,8 @@ func (n *NoteService) GetAll(ctx context.Context) ([]client.NoteData, error) {
 	var notes []client.NoteData
 	for _, data := range result.GetResult() {
 		notes = append(notes, client.NoteData{
-			Name:     data.GetName(),
-			Text:     data.GetText(),
-			Metadata: data.GetMetadata(),
+			Name: data.GetName(),
+			Text: data.GetText(),
 		})
 	}
 	return notes, nil

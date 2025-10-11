@@ -25,7 +25,7 @@ func (c *CardService) Save(ctx context.Context, data client.CardData) error {
 	card.SetExpDate(data.ExpDate)
 	card.SetCvv(data.CVV)
 	card.SetCardholder(data.Cardholder)
-	card.SetMetadata(data.Metadata)
+	card.SetNotes(data.Notes)
 
 	_, err := c.client.Save(ctx, &card)
 	return err
@@ -45,7 +45,7 @@ func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
 			ExpDate:    data.GetExpDate(),
 			CVV:        data.GetCvv(),
 			Cardholder: data.GetCardholder(),
-			Metadata:   data.GetMetadata(),
+			Notes:      data.GetNotes(),
 		})
 	}
 	return cards, nil

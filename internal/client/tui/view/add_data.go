@@ -138,6 +138,8 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
 			inputset.NewInput("Login", inputset.WithPromptStyle(helper.HeaderStyle)),
 			inputset.NewInput("Password", inputset.WithEchoModePassword(), inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Website", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
 		)
 	case DataTypeNote:
 		m.inputSet = inputset.NewInputSet(
@@ -148,6 +150,7 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewInput("Name", inputset.WithFocus(), inputset.WithPromptStyle(helper.HeaderStyle)),
 			inputset.NewInput("File path", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
 		)
 	case DataTypeCard:
 		m.inputSet = inputset.NewInputSet(
@@ -156,6 +159,7 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 			inputset.NewInput("Expiration date", inputset.WithPromptStyle(helper.HeaderStyle)),
 			inputset.NewInput("CVV", inputset.WithPromptStyle(helper.HeaderStyle)),
 			inputset.NewInput("Cardholder", inputset.WithPromptStyle(helper.HeaderStyle)),
+			inputset.NewInput("Notes", inputset.WithPromptStyle(helper.HeaderStyle)),
 		)
 	}
 }
@@ -170,7 +174,8 @@ func (m *AddDataViewModel) send() tea.Cmd {
 			Name:     values["Name"],
 			Login:    values["Login"],
 			Password: values["Password"],
-			Metadata: nil, // TODO: не забыть
+			Website:  values["Website"],
+			Notes:    values["Notes"],
 		}
 		return func() tea.Msg {
 			err := m.loginService.Save(context.Background(), data)
@@ -190,9 +195,8 @@ func (m *AddDataViewModel) send() tea.Cmd {
 		}
 	case DataTypeNote:
 		data := client.NoteData{
-			Name:     values["Name"],
-			Text:     values["Text"],
-			Metadata: nil, // TODO: не забыть
+			Name: values["Name"],
+			Text: values["Text"],
 		}
 		return func() tea.Msg {
 			err := m.noteService.Save(context.Background(), data)
@@ -214,7 +218,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 		data := client.BinaryData{
 			Name:     values["Name"],
 			FileName: values["File path"],
-			Metadata: nil,
+			Notes:    values["Notes"],
 		}
 		return func() tea.Msg {
 			err := m.binaryService.Save(context.Background(), data)
@@ -239,7 +243,7 @@ func (m *AddDataViewModel) send() tea.Cmd {
 			ExpDate:    values["Expiration date"],
 			CVV:        values["CVV"],
 			Cardholder: values["Cardholder"],
-			Metadata:   nil,
+			Notes:      values["Notes"],
 		}
 		return func() tea.Msg {
 			err := m.cardService.Save(context.Background(), data)

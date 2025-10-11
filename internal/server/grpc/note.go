@@ -36,17 +36,15 @@ func (s *NoteServiceServer) Save(ctx context.Context, in *pb.Note) (*empty.Empty
 	user := utils.UserFromContext(ctx)
 
 	data := server.NoteData{
-		User:     user,
-		Name:     in.GetName(),
-		Text:     in.GetText(),
-		Metadata: in.GetMetadata(),
+		Name: in.GetName(),
+		Text: in.GetText(),
 	}
 
 	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.noteService.Save(ctx, data); err != nil {
+	if err := s.noteService.Save(ctx, data, user); err != nil {
 		if errors.Is(err, server.ErrDataAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
 		}
@@ -72,7 +70,6 @@ func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.Get
 		var out pb.Note
 		out.SetName(note.Name)
 		out.SetText(note.Text)
-		out.SetMetadata(note.Metadata)
 		result = append(result, &out)
 	}
 

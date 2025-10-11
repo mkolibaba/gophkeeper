@@ -7,7 +7,7 @@ package sqlc
 type Binary struct {
 	Name     string
 	Filename string
-	Metadata []byte
+	Notes    *string
 	User     string
 }
 
@@ -17,7 +17,7 @@ type Card struct {
 	ExpDate    string
 	Cvv        string
 	Cardholder string
-	Metadata   []byte
+	Notes      *string
 	User       string
 }
 
@@ -25,15 +25,15 @@ type Login struct {
 	Name     string
 	Login    string
 	Password *string
-	Metadata []byte
+	Website  *string
+	Notes    *string
 	User     string
 }
 
 type Note struct {
-	Name     string
-	Text     *string
-	Metadata []byte
-	User     string
+	Name string
+	Text *string
+	User string
 }
 
 type User struct {

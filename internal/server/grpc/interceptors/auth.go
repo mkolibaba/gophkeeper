@@ -27,7 +27,7 @@ func UnaryAuth(authService *server.AuthService) grpc.UnaryServerInterceptor {
 
 		authorization := metadata.ValueFromIncomingContext(ctx, "authorization")
 		if len(authorization) == 0 {
-			return nil, status.Errorf(codes.Unauthenticated, "credentials are not provided")
+			return nil, status.Error(codes.Unauthenticated, "credentials are not provided")
 		}
 
 		credentials := authorization[0]
@@ -38,14 +38,14 @@ func UnaryAuth(authService *server.AuthService) grpc.UnaryServerInterceptor {
 
 		split := strings.Split(string(decoded), ":")
 		if len(split) != 2 {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid credentials format")
+			return nil, status.Error(codes.Unauthenticated, "invalid credentials format")
 		}
 
 		login := split[0]
 		password := split[1]
 
 		if err := authService.Authorize(ctx, login, password); err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 
 		userCtx := utils.NewContextWithUser(ctx, login)
@@ -88,7 +88,7 @@ func StreamAuth(authService *server.AuthService) grpc.StreamServerInterceptor {
 		password := split[1]
 
 		if err := authService.Authorize(ss.Context(), login, password); err != nil {
-			return status.Errorf(codes.Unauthenticated, err.Error())
+			return status.Error(codes.Unauthenticated, err.Error())
 		}
 
 		userCtx := utils.NewContextWithUser(ss.Context(), login)

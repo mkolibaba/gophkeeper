@@ -36,20 +36,19 @@ func (s *CardServiceServer) Save(ctx context.Context, in *pb.Card) (*empty.Empty
 	user := utils.UserFromContext(ctx)
 
 	data := server.CardData{
-		User:       user,
 		Name:       in.GetName(),
 		Number:     in.GetNumber(),
 		ExpDate:    in.GetExpDate(),
 		CVV:        in.GetCvv(),
 		Cardholder: in.GetCardholder(),
-		Metadata:   in.GetMetadata(),
+		Notes:      in.GetNotes(),
 	}
 
 	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.cardService.Save(ctx, data); err != nil {
+	if err := s.cardService.Save(ctx, data, user); err != nil {
 		if errors.Is(err, server.ErrDataAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
 		}
@@ -77,7 +76,7 @@ func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.Get
 		out.SetExpDate(card.ExpDate)
 		out.SetCvv(card.CVV)
 		out.SetCardholder(card.Cardholder)
-		out.SetMetadata(card.Metadata)
+		out.SetNotes(card.Notes)
 		result = append(result, &out)
 	}
 

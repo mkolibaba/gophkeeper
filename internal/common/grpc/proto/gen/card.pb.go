@@ -28,7 +28,7 @@ type Card struct {
 	xxx_hidden_ExpDate     *string                `protobuf:"bytes,3,opt,name=exp_date,json=expDate"`
 	xxx_hidden_Cvv         *string                `protobuf:"bytes,4,opt,name=cvv"`
 	xxx_hidden_Cardholder  *string                `protobuf:"bytes,5,opt,name=cardholder"`
-	xxx_hidden_Metadata    map[string]string      `protobuf:"bytes,6,rep,name=metadata" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,6,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -110,11 +110,14 @@ func (x *Card) GetCardholder() string {
 	return ""
 }
 
-func (x *Card) GetMetadata() map[string]string {
+func (x *Card) GetNotes() string {
 	if x != nil {
-		return x.xxx_hidden_Metadata
+		if x.xxx_hidden_Notes != nil {
+			return *x.xxx_hidden_Notes
+		}
+		return ""
 	}
-	return nil
+	return ""
 }
 
 func (x *Card) SetName(v string) {
@@ -142,8 +145,9 @@ func (x *Card) SetCardholder(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
 }
 
-func (x *Card) SetMetadata(v map[string]string) {
-	x.xxx_hidden_Metadata = v
+func (x *Card) SetNotes(v string) {
+	x.xxx_hidden_Notes = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *Card) HasName() bool {
@@ -181,6 +185,13 @@ func (x *Card) HasCardholder() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
+func (x *Card) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
 func (x *Card) ClearName() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Name = nil
@@ -206,6 +217,11 @@ func (x *Card) ClearCardholder() {
 	x.xxx_hidden_Cardholder = nil
 }
 
+func (x *Card) ClearNotes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Notes = nil
+}
+
 type Card_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -214,7 +230,7 @@ type Card_builder struct {
 	ExpDate    *string
 	Cvv        *string
 	Cardholder *string
-	Metadata   map[string]string
+	Notes      *string
 }
 
 func (b0 Card_builder) Build() *Card {
@@ -241,7 +257,10 @@ func (b0 Card_builder) Build() *Card {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
 		x.xxx_hidden_Cardholder = b.Cardholder
 	}
-	x.xxx_hidden_Metadata = b.Metadata
+	if b.Notes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		x.xxx_hidden_Notes = b.Notes
+	}
 	return m0
 }
 
@@ -311,7 +330,7 @@ const file_card_proto_rawDesc = "" +
 	"\n" +
 	"card.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"\xf8\x01\n" +
+	"data.proto\"\x95\x01\n" +
 	"\x04Card\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\tR\x06number\x12\x19\n" +
@@ -319,11 +338,8 @@ const file_card_proto_rawDesc = "" +
 	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12\x1e\n" +
 	"\n" +
 	"cardholder\x18\x05 \x01(\tR\n" +
-	"cardholder\x12:\n" +
-	"\bmetadata\x18\x06 \x03(\v2\x1e.gophkeeper.Card.MetadataEntryR\bmetadata\x1a;\n" +
-	"\rMetadataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"?\n" +
+	"cardholder\x12\x14\n" +
+	"\x05notes\x18\x06 \x01(\tR\x05notes\"?\n" +
 	"\x13GetAllCardsResponse\x12(\n" +
 	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xc3\x01\n" +
 	"\vCardService\x120\n" +
@@ -331,28 +347,26 @@ const file_card_proto_rawDesc = "" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllCardsResponse\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
-var file_card_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_card_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_card_proto_goTypes = []any{
 	(*Card)(nil),                // 0: gophkeeper.Card
 	(*GetAllCardsResponse)(nil), // 1: gophkeeper.GetAllCardsResponse
-	nil,                         // 2: gophkeeper.Card.MetadataEntry
-	(*empty.Empty)(nil),         // 3: google.protobuf.Empty
-	(*RemoveDataRequest)(nil),   // 4: gophkeeper.RemoveDataRequest
+	(*empty.Empty)(nil),         // 2: google.protobuf.Empty
+	(*RemoveDataRequest)(nil),   // 3: gophkeeper.RemoveDataRequest
 }
 var file_card_proto_depIdxs = []int32{
-	2, // 0: gophkeeper.Card.metadata:type_name -> gophkeeper.Card.MetadataEntry
-	0, // 1: gophkeeper.GetAllCardsResponse.result:type_name -> gophkeeper.Card
-	0, // 2: gophkeeper.CardService.Save:input_type -> gophkeeper.Card
-	3, // 3: gophkeeper.CardService.GetAll:input_type -> google.protobuf.Empty
-	4, // 4: gophkeeper.CardService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	3, // 5: gophkeeper.CardService.Save:output_type -> google.protobuf.Empty
-	1, // 6: gophkeeper.CardService.GetAll:output_type -> gophkeeper.GetAllCardsResponse
-	3, // 7: gophkeeper.CardService.Remove:output_type -> google.protobuf.Empty
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 0: gophkeeper.GetAllCardsResponse.result:type_name -> gophkeeper.Card
+	0, // 1: gophkeeper.CardService.Save:input_type -> gophkeeper.Card
+	2, // 2: gophkeeper.CardService.GetAll:input_type -> google.protobuf.Empty
+	3, // 3: gophkeeper.CardService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 4: gophkeeper.CardService.Save:output_type -> google.protobuf.Empty
+	1, // 5: gophkeeper.CardService.GetAll:output_type -> gophkeeper.GetAllCardsResponse
+	2, // 6: gophkeeper.CardService.Remove:output_type -> google.protobuf.Empty
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_card_proto_init() }
@@ -367,7 +381,7 @@ func file_card_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_card_proto_rawDesc), len(file_card_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

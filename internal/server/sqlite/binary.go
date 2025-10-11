@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/internal/server"
@@ -25,19 +24,14 @@ func NewBinaryService(queries *sqlc.Queries, db *DB) *BinaryService {
 	}
 }
 
-func (b *BinaryService) Save(ctx context.Context, data server.BinaryData) error {
-	metadata, err := json.Marshal(data.Metadata)
-	if err != nil {
-		return fmt.Errorf("save: invalid metadata: %w", err)
-	}
-
+func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user string) error {
 	// TODO: тут лучше проверить, что такой записи и такого файла нет
 
-	err = b.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
+	err := b.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
 		Name:     data.Name,
 		Filename: data.FileName,
-		Metadata: metadata,
-		User:     data.User,
+		Notes:    stringOrNull(data.Notes),
+		User:     user,
 	})
 
 	if err != nil {
@@ -70,11 +64,6 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 		return server.BinaryData{}, fmt.Errorf("get: %w", err)
 	}
 
-	metadata, err := unmarshalMetadata(binary.Metadata)
-	if err != nil {
-		return server.BinaryData{}, fmt.Errorf("get: %w", err)
-	}
-
 	path := filepath.Join(b.binariesFolder, binary.Name)
 
 	file, err := os.Open(path)
@@ -88,9 +77,8 @@ func (b *BinaryService) Get(ctx context.Context, name string, user string) (serv
 	}
 
 	return server.BinaryData{
-		User:       binary.User,
 		Name:       binary.Name,
-		Metadata:   metadata,
+		Notes:      stringOrEmpty(binary.Notes),
 		FileName:   binary.Filename,
 		DataReader: file,
 		Size:       stat.Size(),
@@ -105,16 +93,11 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]server.Binar
 
 	var result []server.BinaryData
 	for _, binary := range binaries {
-		metadata, err := unmarshalMetadata(binary.Metadata)
-		if err != nil {
-			return nil, fmt.Errorf("get all: %w", err)
-		}
-
 		result = append(result, server.BinaryData{
-			User:     binary.User,
 			Name:     binary.Name,
 			FileName: binary.Filename,
-			Metadata: metadata,
+			Notes:    stringOrEmpty(binary.Notes),
+			// TODO: тут нужно возвращать Size
 		})
 	}
 

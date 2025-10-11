@@ -8,8 +8,8 @@ INSERT INTO user (login, password)
 VALUES (?, ?);
 
 -- name: SaveLogin :exec
-INSERT INTO login (name, login, password, metadata, user)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO login (name, login, password, website, notes, user)
+VALUES (?, ?, ?, ?, ?, ?);
 
 -- name: GetAllLogins :many
 SELECT *
@@ -22,8 +22,8 @@ FROM login
 WHERE name = ?;
 
 -- name: SaveNote :exec
-INSERT INTO note (name, text, metadata, user)
-VALUES (?, ?, ?, ?);
+INSERT INTO note (name, text, user)
+VALUES (?, ?, ?);
 
 -- name: GetAllNotes :many
 SELECT *
@@ -36,7 +36,7 @@ FROM note
 WHERE name = ?;
 
 -- name: SaveBinary :exec
-INSERT INTO binary (name, filename, metadata, user)
+INSERT INTO binary (name, filename, notes, user)
 VALUES (?, ?, ?, ?);
 
 -- name: GetBinary :one
@@ -56,7 +56,7 @@ FROM binary
 WHERE name = ?;
 
 -- name: SaveCard :exec
-INSERT INTO card (name, number, exp_date, cvv, cardholder, metadata, user)
+INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
 -- name: GetAllCards :many

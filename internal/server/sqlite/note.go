@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	sqlc "github.com/mkolibaba/gophkeeper/internal/server/sqlite/sqlc/gen"
@@ -18,17 +17,11 @@ func NewNoteService(queries *sqlc.Queries) *NoteService {
 	}
 }
 
-func (n *NoteService) Save(ctx context.Context, data server.NoteData) error {
-	metadata, err := json.Marshal(data.Metadata)
-	if err != nil {
-		return fmt.Errorf("save: invalid metadata: %w", err)
-	}
-
-	err = n.qs.SaveNote(ctx, sqlc.SaveNoteParams{
-		Name:     data.Name,
-		Text:     &data.Text,
-		Metadata: metadata,
-		User:     data.User,
+func (n *NoteService) Save(ctx context.Context, data server.NoteData, user string) error {
+	err := n.qs.SaveNote(ctx, sqlc.SaveNoteParams{
+		Name: data.Name,
+		Text: stringOrNull(data.Text),
+		User: user,
 	})
 
 	return tryUnwrapSaveError(err)
@@ -42,16 +35,9 @@ func (n *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteDat
 
 	var result []server.NoteData
 	for _, note := range notes {
-		metadata, err := unmarshalMetadata(note.Metadata)
-		if err != nil {
-			return nil, fmt.Errorf("get all: %w", err)
-		}
-
 		result = append(result, server.NoteData{
-			User:     note.User,
-			Name:     note.Name,
-			Text:     *note.Text,
-			Metadata: metadata,
+			Name: note.Name,
+			Text: stringOrEmpty(note.Text),
 		})
 	}
 

@@ -1,6 +1,7 @@
 package detail
 
 import (
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
@@ -44,8 +45,13 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("Password"),
 			d.Password,
+			"",
+			fieldStyle.Render("Website"),
+			d.Website,
+			"",
+			fieldStyle.Render("Notes"),
+			d.Notes,
 		}
-		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.NoteData:
 		lines = []string{
 			fieldStyle.Render("Type"),
@@ -57,7 +63,6 @@ func (m Model) View() string {
 			fieldStyle.Render("Text"),
 			d.Text,
 		}
-		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.BinaryData:
 		lines = []string{
 			fieldStyle.Render("Type"),
@@ -66,10 +71,15 @@ func (m Model) View() string {
 			fieldStyle.Render("Name"),
 			d.Name,
 			"",
-			fieldStyle.Render("File"),
-			"<binary>",
+			fieldStyle.Render("File name"),
+			d.FileName,
+			"",
+			fieldStyle.Render("Size"),
+			fmt.Sprintf("%d", d.Size),
+			"",
+			fieldStyle.Render("Notes"),
+			d.Notes,
 		}
-		lines = append(lines, renderMetadata(d.Metadata)...)
 	case client.CardData:
 		lines = []string{
 			fieldStyle.Render("Type"),
@@ -89,8 +99,10 @@ func (m Model) View() string {
 			"",
 			fieldStyle.Render("Cardholder"),
 			d.Cardholder,
+			"",
+			fieldStyle.Render("Notes"),
+			d.Notes,
 		}
-		lines = append(lines, renderMetadata(d.Metadata)...)
 	case nil:
 		lines = []string{"No data"}
 	}

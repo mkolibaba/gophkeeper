@@ -26,7 +26,8 @@ type Login struct {
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
 	xxx_hidden_Login       *string                `protobuf:"bytes,2,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,3,opt,name=password"`
-	xxx_hidden_Metadata    map[string]string      `protobuf:"bytes,4,rep,name=metadata" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Website     *string                `protobuf:"bytes,4,opt,name=website"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,5,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -88,30 +89,49 @@ func (x *Login) GetPassword() string {
 	return ""
 }
 
-func (x *Login) GetMetadata() map[string]string {
+func (x *Login) GetWebsite() string {
 	if x != nil {
-		return x.xxx_hidden_Metadata
+		if x.xxx_hidden_Website != nil {
+			return *x.xxx_hidden_Website
+		}
+		return ""
 	}
-	return nil
+	return ""
+}
+
+func (x *Login) GetNotes() string {
+	if x != nil {
+		if x.xxx_hidden_Notes != nil {
+			return *x.xxx_hidden_Notes
+		}
+		return ""
+	}
+	return ""
 }
 
 func (x *Login) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *Login) SetLogin(v string) {
 	x.xxx_hidden_Login = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *Login) SetPassword(v string) {
 	x.xxx_hidden_Password = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
-func (x *Login) SetMetadata(v map[string]string) {
-	x.xxx_hidden_Metadata = v
+func (x *Login) SetWebsite(v string) {
+	x.xxx_hidden_Website = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *Login) SetNotes(v string) {
+	x.xxx_hidden_Notes = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
 func (x *Login) HasName() bool {
@@ -135,6 +155,20 @@ func (x *Login) HasPassword() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
+func (x *Login) HasWebsite() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *Login) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
 func (x *Login) ClearName() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Name = nil
@@ -150,13 +184,24 @@ func (x *Login) ClearPassword() {
 	x.xxx_hidden_Password = nil
 }
 
+func (x *Login) ClearWebsite() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Website = nil
+}
+
+func (x *Login) ClearNotes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Notes = nil
+}
+
 type Login_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Name     *string
 	Login    *string
 	Password *string
-	Metadata map[string]string
+	Website  *string
+	Notes    *string
 }
 
 func (b0 Login_builder) Build() *Login {
@@ -164,18 +209,25 @@ func (b0 Login_builder) Build() *Login {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Login != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Login = b.Login
 	}
 	if b.Password != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Password = b.Password
 	}
-	x.xxx_hidden_Metadata = b.Metadata
+	if b.Website != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		x.xxx_hidden_Website = b.Website
+	}
+	if b.Notes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_Notes = b.Notes
+	}
 	return m0
 }
 
@@ -244,15 +296,13 @@ const file_login_proto_rawDesc = "" +
 	"\n" +
 	"\vlogin.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"\xc7\x01\n" +
+	"data.proto\"}\n" +
 	"\x05Login\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05login\x18\x02 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x03 \x01(\tR\bpassword\x12;\n" +
-	"\bmetadata\x18\x04 \x03(\v2\x1f.gophkeeper.Login.MetadataEntryR\bmetadata\x1a;\n" +
-	"\rMetadataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"A\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x18\n" +
+	"\awebsite\x18\x04 \x01(\tR\awebsite\x12\x14\n" +
+	"\x05notes\x18\x05 \x01(\tR\x05notes\"A\n" +
 	"\x14GetAllLoginsResponse\x12)\n" +
 	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result2\xc6\x01\n" +
 	"\fLoginService\x121\n" +
@@ -260,28 +310,26 @@ const file_login_proto_rawDesc = "" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a .gophkeeper.GetAllLoginsResponse\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
-var file_login_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_login_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_login_proto_goTypes = []any{
 	(*Login)(nil),                // 0: gophkeeper.Login
 	(*GetAllLoginsResponse)(nil), // 1: gophkeeper.GetAllLoginsResponse
-	nil,                          // 2: gophkeeper.Login.MetadataEntry
-	(*empty.Empty)(nil),          // 3: google.protobuf.Empty
-	(*RemoveDataRequest)(nil),    // 4: gophkeeper.RemoveDataRequest
+	(*empty.Empty)(nil),          // 2: google.protobuf.Empty
+	(*RemoveDataRequest)(nil),    // 3: gophkeeper.RemoveDataRequest
 }
 var file_login_proto_depIdxs = []int32{
-	2, // 0: gophkeeper.Login.metadata:type_name -> gophkeeper.Login.MetadataEntry
-	0, // 1: gophkeeper.GetAllLoginsResponse.result:type_name -> gophkeeper.Login
-	0, // 2: gophkeeper.LoginService.Save:input_type -> gophkeeper.Login
-	3, // 3: gophkeeper.LoginService.GetAll:input_type -> google.protobuf.Empty
-	4, // 4: gophkeeper.LoginService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	3, // 5: gophkeeper.LoginService.Save:output_type -> google.protobuf.Empty
-	1, // 6: gophkeeper.LoginService.GetAll:output_type -> gophkeeper.GetAllLoginsResponse
-	3, // 7: gophkeeper.LoginService.Remove:output_type -> google.protobuf.Empty
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 0: gophkeeper.GetAllLoginsResponse.result:type_name -> gophkeeper.Login
+	0, // 1: gophkeeper.LoginService.Save:input_type -> gophkeeper.Login
+	2, // 2: gophkeeper.LoginService.GetAll:input_type -> google.protobuf.Empty
+	3, // 3: gophkeeper.LoginService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 4: gophkeeper.LoginService.Save:output_type -> google.protobuf.Empty
+	1, // 5: gophkeeper.LoginService.GetAll:output_type -> gophkeeper.GetAllLoginsResponse
+	2, // 6: gophkeeper.LoginService.Remove:output_type -> google.protobuf.Empty
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_login_proto_init() }
@@ -296,7 +344,7 @@ func file_login_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_login_proto_rawDesc), len(file_login_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

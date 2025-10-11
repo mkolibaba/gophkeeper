@@ -10,7 +10,7 @@ import (
 )
 
 const getAllBinaries = `-- name: GetAllBinaries :many
-SELECT name, filename, metadata, user
+SELECT name, filename, notes, user
 FROM binary
 WHERE user = ?
 `
@@ -27,7 +27,7 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 		if err := rows.Scan(
 			&i.Name,
 			&i.Filename,
-			&i.Metadata,
+			&i.Notes,
 			&i.User,
 		); err != nil {
 			return nil, err
@@ -44,7 +44,7 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 }
 
 const getAllCards = `-- name: GetAllCards :many
-SELECT name, number, exp_date, cvv, cardholder, metadata, user
+SELECT name, number, exp_date, cvv, cardholder, notes, user
 FROM card
 WHERE user = ?
 `
@@ -64,7 +64,7 @@ func (q *Queries) GetAllCards(ctx context.Context, user string) ([]*Card, error)
 			&i.ExpDate,
 			&i.Cvv,
 			&i.Cardholder,
-			&i.Metadata,
+			&i.Notes,
 			&i.User,
 		); err != nil {
 			return nil, err
@@ -81,7 +81,7 @@ func (q *Queries) GetAllCards(ctx context.Context, user string) ([]*Card, error)
 }
 
 const getAllLogins = `-- name: GetAllLogins :many
-SELECT name, login, password, metadata, user
+SELECT name, login, password, website, notes, user
 FROM login
 WHERE user = ?
 `
@@ -99,7 +99,8 @@ func (q *Queries) GetAllLogins(ctx context.Context, user string) ([]*Login, erro
 			&i.Name,
 			&i.Login,
 			&i.Password,
-			&i.Metadata,
+			&i.Website,
+			&i.Notes,
 			&i.User,
 		); err != nil {
 			return nil, err
@@ -116,7 +117,7 @@ func (q *Queries) GetAllLogins(ctx context.Context, user string) ([]*Login, erro
 }
 
 const getAllNotes = `-- name: GetAllNotes :many
-SELECT name, text, metadata, user
+SELECT name, text, user
 FROM note
 WHERE user = ?
 `
@@ -130,12 +131,7 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 	var items []*Note
 	for rows.Next() {
 		var i Note
-		if err := rows.Scan(
-			&i.Name,
-			&i.Text,
-			&i.Metadata,
-			&i.User,
-		); err != nil {
+		if err := rows.Scan(&i.Name, &i.Text, &i.User); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -150,7 +146,7 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 }
 
 const getBinary = `-- name: GetBinary :one
-SELECT name, filename, metadata, user
+SELECT name, filename, notes, user
 FROM binary
 WHERE name = ?
   AND user = ?
@@ -162,7 +158,7 @@ func (q *Queries) GetBinary(ctx context.Context, name string, user string) (*Bin
 	err := row.Scan(
 		&i.Name,
 		&i.Filename,
-		&i.Metadata,
+		&i.Notes,
 		&i.User,
 	)
 	return &i, err
@@ -238,14 +234,14 @@ func (q *Queries) RemoveNote(ctx context.Context, name string) (int64, error) {
 }
 
 const saveBinary = `-- name: SaveBinary :exec
-INSERT INTO binary (name, filename, metadata, user)
+INSERT INTO binary (name, filename, notes, user)
 VALUES (?, ?, ?, ?)
 `
 
 type SaveBinaryParams struct {
 	Name     string
 	Filename string
-	Metadata []byte
+	Notes    *string
 	User     string
 }
 
@@ -253,14 +249,14 @@ func (q *Queries) SaveBinary(ctx context.Context, arg SaveBinaryParams) error {
 	_, err := q.db.ExecContext(ctx, saveBinary,
 		arg.Name,
 		arg.Filename,
-		arg.Metadata,
+		arg.Notes,
 		arg.User,
 	)
 	return err
 }
 
 const saveCard = `-- name: SaveCard :exec
-INSERT INTO card (name, number, exp_date, cvv, cardholder, metadata, user)
+INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?)
 `
 
@@ -270,7 +266,7 @@ type SaveCardParams struct {
 	ExpDate    string
 	Cvv        string
 	Cardholder string
-	Metadata   []byte
+	Notes      *string
 	User       string
 }
 
@@ -281,22 +277,23 @@ func (q *Queries) SaveCard(ctx context.Context, arg SaveCardParams) error {
 		arg.ExpDate,
 		arg.Cvv,
 		arg.Cardholder,
-		arg.Metadata,
+		arg.Notes,
 		arg.User,
 	)
 	return err
 }
 
 const saveLogin = `-- name: SaveLogin :exec
-INSERT INTO login (name, login, password, metadata, user)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO login (name, login, password, website, notes, user)
+VALUES (?, ?, ?, ?, ?, ?)
 `
 
 type SaveLoginParams struct {
 	Name     string
 	Login    string
 	Password *string
-	Metadata []byte
+	Website  *string
+	Notes    *string
 	User     string
 }
 
@@ -305,31 +302,26 @@ func (q *Queries) SaveLogin(ctx context.Context, arg SaveLoginParams) error {
 		arg.Name,
 		arg.Login,
 		arg.Password,
-		arg.Metadata,
+		arg.Website,
+		arg.Notes,
 		arg.User,
 	)
 	return err
 }
 
 const saveNote = `-- name: SaveNote :exec
-INSERT INTO note (name, text, metadata, user)
-VALUES (?, ?, ?, ?)
+INSERT INTO note (name, text, user)
+VALUES (?, ?, ?)
 `
 
 type SaveNoteParams struct {
-	Name     string
-	Text     *string
-	Metadata []byte
-	User     string
+	Name string
+	Text *string
+	User string
 }
 
 func (q *Queries) SaveNote(ctx context.Context, arg SaveNoteParams) error {
-	_, err := q.db.ExecContext(ctx, saveNote,
-		arg.Name,
-		arg.Text,
-		arg.Metadata,
-		arg.User,
-	)
+	_, err := q.db.ExecContext(ctx, saveNote, arg.Name, arg.Text, arg.User)
 	return err
 }
 

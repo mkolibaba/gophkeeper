@@ -11,7 +11,8 @@ message Login {
   string name = 1;
   string login = 2;
   string password = 3;
-  map<string, string> metadata = 4;
+  string website = 4;
+  string notes = 5;
 }
 
 message GetAllLoginsResponse {

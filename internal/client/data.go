@@ -15,22 +15,22 @@ type (
 		Name     string `validate:"required"`
 		Login    string `validate:"required"`
 		Password string
-		Metadata map[string]string
+		Website  string
+		Notes    string
 	}
 
 	NoteData struct {
 		Data
-		Name     string `validate:"required"`
-		Text     string
-		Metadata map[string]string
+		Name string `validate:"required"`
+		Text string
 	}
 
 	BinaryData struct {
 		Data
-		Name string `validate:"required"`
-		//Size     int
+		Name     string `validate:"required"`
 		FileName string `validate:"required"`
-		Metadata map[string]string
+		Size     int64
+		Notes    string
 	}
 
 	CardData struct {
@@ -40,7 +40,7 @@ type (
 		ExpDate    string `validate:"required,exp_date"`
 		CVV        string `validate:"required,len=3"`
 		Cardholder string `validate:"required"`
-		Metadata   map[string]string
+		Notes      string
 	}
 
 	User struct {

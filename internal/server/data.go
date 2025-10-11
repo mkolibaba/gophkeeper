@@ -10,11 +10,13 @@ import (
 	"regexp"
 )
 
-var ErrDataAlreadyExists = errors.New("data already exists")
-var ErrDataNotFound = errors.New("data not found")
-var ErrUserAlreadyExists = errors.New("user already exists")
-var ErrUserNotFound = errors.New("user not found")
-var ErrInvalidCredentials = errors.New("invalid login or password")
+var (
+	ErrDataAlreadyExists  = errors.New("data already exists")
+	ErrDataNotFound       = errors.New("data not found")
+	ErrUserAlreadyExists  = errors.New("user already exists")
+	ErrUserNotFound       = errors.New("user not found")
+	ErrInvalidCredentials = errors.New("invalid login or password")
+)
 
 type (
 	Data interface {
@@ -22,37 +24,33 @@ type (
 	}
 
 	LoginData struct {
-		User     string `validate:"required"`
 		Name     string `validate:"required"`
 		Login    string `validate:"required"`
 		Password string
-		Metadata map[string]string
+		Website  string
+		Notes    string
 	}
 
 	NoteData struct {
-		User     string `validate:"required"`
-		Name     string `validate:"required"`
-		Text     string
-		Metadata map[string]string
+		Name string `validate:"required"`
+		Text string
 	}
 
 	BinaryData struct {
-		User       string `validate:"required"`
 		Name       string `validate:"required"`
 		FileName   string
 		DataReader io.ReadCloser
 		Size       int64
-		Metadata   map[string]string
+		Notes      string
 	}
 
 	CardData struct {
-		User       string `validate:"required"`
 		Name       string `validate:"required"`
 		Number     string `validate:"required,credit_card"`
 		ExpDate    string `validate:"required,exp_date"`
 		CVV        string `validate:"required,len=3"`
 		Cardholder string `validate:"required"`
-		Metadata   map[string]string
+		Notes      string
 	}
 
 	User struct {
@@ -61,9 +59,11 @@ type (
 	}
 
 	TypedDataService[T Data] interface {
-		Save(ctx context.Context, data T) error
+		Save(ctx context.Context, data T, user string) error
 		GetAll(ctx context.Context, user string) ([]T, error)
 		// TODO: update method
+
+		// TODO: тут нужен user? возможно, да, но только для валидации
 		Remove(ctx context.Context, name string, user string) error
 	}
 

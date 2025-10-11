@@ -9,14 +9,14 @@ option go_package = "gophkeeper/gen;gophkeeper";
 
 message Binary {
   string name = 1;
-  string file_name = 3;
-  map<string, string> metadata = 4;
+  string file_name = 2;
+  string notes = 3;
 }
 
 message SaveBinaryRequest {
   FileChunk chunk = 1;
   string name = 2;
-  map<string, string> metadata = 4;
+  string notes = 3;
 }
 
 message DownloadBinaryRequest {

@@ -83,9 +83,10 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	var binaries []client.BinaryData
 	for _, b := range result.GetResult() {
 		binaries = append(binaries, client.BinaryData{
-			Name:     b.GetName(),
+			Name: b.GetName(),
+			// TODO: добавить size. для этого нужно подчистить chunk и работу с ним в proto
 			FileName: b.GetFileName(),
-			Metadata: b.GetMetadata(),
+			Notes:    b.GetNotes(),
 		})
 	}
 	return binaries, nil

@@ -24,8 +24,8 @@ const (
 type Binary struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_FileName    *string                `protobuf:"bytes,3,opt,name=file_name,json=fileName"`
-	xxx_hidden_Metadata    map[string]string      `protobuf:"bytes,4,rep,name=metadata" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_FileName    *string                `protobuf:"bytes,2,opt,name=file_name,json=fileName"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,3,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -77,11 +77,14 @@ func (x *Binary) GetFileName() string {
 	return ""
 }
 
-func (x *Binary) GetMetadata() map[string]string {
+func (x *Binary) GetNotes() string {
 	if x != nil {
-		return x.xxx_hidden_Metadata
+		if x.xxx_hidden_Notes != nil {
+			return *x.xxx_hidden_Notes
+		}
+		return ""
 	}
-	return nil
+	return ""
 }
 
 func (x *Binary) SetName(v string) {
@@ -94,8 +97,9 @@ func (x *Binary) SetFileName(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
 }
 
-func (x *Binary) SetMetadata(v map[string]string) {
-	x.xxx_hidden_Metadata = v
+func (x *Binary) SetNotes(v string) {
+	x.xxx_hidden_Notes = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
 }
 
 func (x *Binary) HasName() bool {
@@ -112,6 +116,13 @@ func (x *Binary) HasFileName() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
+func (x *Binary) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
 func (x *Binary) ClearName() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Name = nil
@@ -122,12 +133,17 @@ func (x *Binary) ClearFileName() {
 	x.xxx_hidden_FileName = nil
 }
 
+func (x *Binary) ClearNotes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Notes = nil
+}
+
 type Binary_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Name     *string
 	FileName *string
-	Metadata map[string]string
+	Notes    *string
 }
 
 func (b0 Binary_builder) Build() *Binary {
@@ -142,7 +158,10 @@ func (b0 Binary_builder) Build() *Binary {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
 		x.xxx_hidden_FileName = b.FileName
 	}
-	x.xxx_hidden_Metadata = b.Metadata
+	if b.Notes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_Notes = b.Notes
+	}
 	return m0
 }
 
@@ -150,7 +169,7 @@ type SaveBinaryRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Chunk       *FileChunk             `protobuf:"bytes,1,opt,name=chunk"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Metadata    map[string]string      `protobuf:"bytes,4,rep,name=metadata" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,3,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -199,11 +218,14 @@ func (x *SaveBinaryRequest) GetName() string {
 	return ""
 }
 
-func (x *SaveBinaryRequest) GetMetadata() map[string]string {
+func (x *SaveBinaryRequest) GetNotes() string {
 	if x != nil {
-		return x.xxx_hidden_Metadata
+		if x.xxx_hidden_Notes != nil {
+			return *x.xxx_hidden_Notes
+		}
+		return ""
 	}
-	return nil
+	return ""
 }
 
 func (x *SaveBinaryRequest) SetChunk(v *FileChunk) {
@@ -215,8 +237,9 @@ func (x *SaveBinaryRequest) SetName(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
 }
 
-func (x *SaveBinaryRequest) SetMetadata(v map[string]string) {
-	x.xxx_hidden_Metadata = v
+func (x *SaveBinaryRequest) SetNotes(v string) {
+	x.xxx_hidden_Notes = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
 }
 
 func (x *SaveBinaryRequest) HasChunk() bool {
@@ -233,6 +256,13 @@ func (x *SaveBinaryRequest) HasName() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
+func (x *SaveBinaryRequest) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
 func (x *SaveBinaryRequest) ClearChunk() {
 	x.xxx_hidden_Chunk = nil
 }
@@ -242,12 +272,17 @@ func (x *SaveBinaryRequest) ClearName() {
 	x.xxx_hidden_Name = nil
 }
 
+func (x *SaveBinaryRequest) ClearNotes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Notes = nil
+}
+
 type SaveBinaryRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Chunk    *FileChunk
-	Name     *string
-	Metadata map[string]string
+	Chunk *FileChunk
+	Name  *string
+	Notes *string
 }
 
 func (b0 SaveBinaryRequest_builder) Build() *SaveBinaryRequest {
@@ -259,7 +294,10 @@ func (b0 SaveBinaryRequest_builder) Build() *SaveBinaryRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
 		x.xxx_hidden_Name = b.Name
 	}
-	x.xxx_hidden_Metadata = b.Metadata
+	if b.Notes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_Notes = b.Notes
+	}
 	return m0
 }
 
@@ -577,21 +615,15 @@ const file_binary_proto_rawDesc = "" +
 	"\n" +
 	"\fbinary.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"\xb4\x01\n" +
+	"data.proto\"O\n" +
 	"\x06Binary\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
-	"\tfile_name\x18\x03 \x01(\tR\bfileName\x12<\n" +
-	"\bmetadata\x18\x04 \x03(\v2 .gophkeeper.Binary.MetadataEntryR\bmetadata\x1a;\n" +
-	"\rMetadataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xda\x01\n" +
+	"\tfile_name\x18\x02 \x01(\tR\bfileName\x12\x14\n" +
+	"\x05notes\x18\x03 \x01(\tR\x05notes\"j\n" +
 	"\x11SaveBinaryRequest\x12+\n" +
 	"\x05chunk\x18\x01 \x01(\v2\x15.gophkeeper.FileChunkR\x05chunk\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12G\n" +
-	"\bmetadata\x18\x04 \x03(\v2+.gophkeeper.SaveBinaryRequest.MetadataEntryR\bmetadata\x1a;\n" +
-	"\rMetadataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"+\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05notes\x18\x03 \x01(\tR\x05notes\"+\n" +
 	"\x15DownloadBinaryRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"\x86\x01\n" +
 	"\tFileChunk\x12\x1d\n" +
@@ -610,36 +642,32 @@ const file_binary_proto_rawDesc = "" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x12F\n" +
 	"\bDownload\x12!.gophkeeper.DownloadBinaryRequest\x1a\x15.gophkeeper.FileChunk0\x01B\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
-var file_binary_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_binary_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_binary_proto_goTypes = []any{
 	(*Binary)(nil),                 // 0: gophkeeper.Binary
 	(*SaveBinaryRequest)(nil),      // 1: gophkeeper.SaveBinaryRequest
 	(*DownloadBinaryRequest)(nil),  // 2: gophkeeper.DownloadBinaryRequest
 	(*FileChunk)(nil),              // 3: gophkeeper.FileChunk
 	(*GetAllBinariesResponse)(nil), // 4: gophkeeper.GetAllBinariesResponse
-	nil,                            // 5: gophkeeper.Binary.MetadataEntry
-	nil,                            // 6: gophkeeper.SaveBinaryRequest.MetadataEntry
-	(*empty.Empty)(nil),            // 7: google.protobuf.Empty
-	(*RemoveDataRequest)(nil),      // 8: gophkeeper.RemoveDataRequest
+	(*empty.Empty)(nil),            // 5: google.protobuf.Empty
+	(*RemoveDataRequest)(nil),      // 6: gophkeeper.RemoveDataRequest
 }
 var file_binary_proto_depIdxs = []int32{
-	5, // 0: gophkeeper.Binary.metadata:type_name -> gophkeeper.Binary.MetadataEntry
-	3, // 1: gophkeeper.SaveBinaryRequest.chunk:type_name -> gophkeeper.FileChunk
-	6, // 2: gophkeeper.SaveBinaryRequest.metadata:type_name -> gophkeeper.SaveBinaryRequest.MetadataEntry
-	0, // 3: gophkeeper.GetAllBinariesResponse.result:type_name -> gophkeeper.Binary
-	1, // 4: gophkeeper.BinaryService.Upload:input_type -> gophkeeper.SaveBinaryRequest
-	7, // 5: gophkeeper.BinaryService.GetAll:input_type -> google.protobuf.Empty
-	8, // 6: gophkeeper.BinaryService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	2, // 7: gophkeeper.BinaryService.Download:input_type -> gophkeeper.DownloadBinaryRequest
-	7, // 8: gophkeeper.BinaryService.Upload:output_type -> google.protobuf.Empty
-	4, // 9: gophkeeper.BinaryService.GetAll:output_type -> gophkeeper.GetAllBinariesResponse
-	7, // 10: gophkeeper.BinaryService.Remove:output_type -> google.protobuf.Empty
-	3, // 11: gophkeeper.BinaryService.Download:output_type -> gophkeeper.FileChunk
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: gophkeeper.SaveBinaryRequest.chunk:type_name -> gophkeeper.FileChunk
+	0, // 1: gophkeeper.GetAllBinariesResponse.result:type_name -> gophkeeper.Binary
+	1, // 2: gophkeeper.BinaryService.Upload:input_type -> gophkeeper.SaveBinaryRequest
+	5, // 3: gophkeeper.BinaryService.GetAll:input_type -> google.protobuf.Empty
+	6, // 4: gophkeeper.BinaryService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 5: gophkeeper.BinaryService.Download:input_type -> gophkeeper.DownloadBinaryRequest
+	5, // 6: gophkeeper.BinaryService.Upload:output_type -> google.protobuf.Empty
+	4, // 7: gophkeeper.BinaryService.GetAll:output_type -> gophkeeper.GetAllBinariesResponse
+	5, // 8: gophkeeper.BinaryService.Remove:output_type -> google.protobuf.Empty
+	3, // 9: gophkeeper.BinaryService.Download:output_type -> gophkeeper.FileChunk
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_binary_proto_init() }
@@ -654,7 +682,7 @@ func file_binary_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_binary_proto_rawDesc), len(file_binary_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

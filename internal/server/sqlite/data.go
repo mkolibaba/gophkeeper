@@ -1,8 +1,6 @@
 package sqlite
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/mkolibaba/gophkeeper/internal/common/errors"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	"modernc.org/sqlite"
@@ -22,13 +20,17 @@ func tryUnwrapSaveError(err error) error {
 	return err
 }
 
-func unmarshalMetadata(data []byte) (metadata map[string]string, err error) {
-	if len(data) == 0 {
-		return
+// TODO: может быть лучше в дате сразу это обозначить? почитать на сайте sqlc как лучше поступать с нуллабл
+func stringOrNull(s string) *string {
+	if s == "" {
+		return nil
 	}
+	return &s
+}
 
-	if err = json.Unmarshal(data, &metadata); err != nil {
-		return nil, fmt.Errorf("unmarshal metadata: %w", err)
+func stringOrEmpty(s *string) string {
+	if s == nil {
+		return ""
 	}
-	return
+	return *s
 }

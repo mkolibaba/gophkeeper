@@ -25,7 +25,6 @@ type Note struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
 	xxx_hidden_Text        *string                `protobuf:"bytes,2,opt,name=text"`
-	xxx_hidden_Metadata    map[string]string      `protobuf:"bytes,3,rep,name=metadata" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -77,25 +76,14 @@ func (x *Note) GetText() string {
 	return ""
 }
 
-func (x *Note) GetMetadata() map[string]string {
-	if x != nil {
-		return x.xxx_hidden_Metadata
-	}
-	return nil
-}
-
 func (x *Note) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
 }
 
 func (x *Note) SetText(v string) {
 	x.xxx_hidden_Text = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
-}
-
-func (x *Note) SetMetadata(v map[string]string) {
-	x.xxx_hidden_Metadata = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
 func (x *Note) HasName() bool {
@@ -125,9 +113,8 @@ func (x *Note) ClearText() {
 type Note_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name     *string
-	Text     *string
-	Metadata map[string]string
+	Name *string
+	Text *string
 }
 
 func (b0 Note_builder) Build() *Note {
@@ -135,14 +122,13 @@ func (b0 Note_builder) Build() *Note {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Text != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
 		x.xxx_hidden_Text = b.Text
 	}
-	x.xxx_hidden_Metadata = b.Metadata
 	return m0
 }
 
@@ -212,14 +198,10 @@ const file_note_proto_rawDesc = "" +
 	"\n" +
 	"note.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"\xa7\x01\n" +
+	"data.proto\".\n" +
 	"\x04Note\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
-	"\x04text\x18\x02 \x01(\tR\x04text\x12:\n" +
-	"\bmetadata\x18\x03 \x03(\v2\x1e.gophkeeper.Note.MetadataEntryR\bmetadata\x1a;\n" +
-	"\rMetadataEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"?\n" +
+	"\x04text\x18\x02 \x01(\tR\x04text\"?\n" +
 	"\x13GetAllNotesResponse\x12(\n" +
 	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result2\xc3\x01\n" +
 	"\vNoteService\x120\n" +
@@ -227,28 +209,26 @@ const file_note_proto_rawDesc = "" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllNotesResponse\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1bZ\x19gophkeeper/gen;gophkeeperb\beditionsp\xe8\a"
 
-var file_note_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_note_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_note_proto_goTypes = []any{
 	(*Note)(nil),                // 0: gophkeeper.Note
 	(*GetAllNotesResponse)(nil), // 1: gophkeeper.GetAllNotesResponse
-	nil,                         // 2: gophkeeper.Note.MetadataEntry
-	(*empty.Empty)(nil),         // 3: google.protobuf.Empty
-	(*RemoveDataRequest)(nil),   // 4: gophkeeper.RemoveDataRequest
+	(*empty.Empty)(nil),         // 2: google.protobuf.Empty
+	(*RemoveDataRequest)(nil),   // 3: gophkeeper.RemoveDataRequest
 }
 var file_note_proto_depIdxs = []int32{
-	2, // 0: gophkeeper.Note.metadata:type_name -> gophkeeper.Note.MetadataEntry
-	0, // 1: gophkeeper.GetAllNotesResponse.result:type_name -> gophkeeper.Note
-	0, // 2: gophkeeper.NoteService.Save:input_type -> gophkeeper.Note
-	3, // 3: gophkeeper.NoteService.GetAll:input_type -> google.protobuf.Empty
-	4, // 4: gophkeeper.NoteService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	3, // 5: gophkeeper.NoteService.Save:output_type -> google.protobuf.Empty
-	1, // 6: gophkeeper.NoteService.GetAll:output_type -> gophkeeper.GetAllNotesResponse
-	3, // 7: gophkeeper.NoteService.Remove:output_type -> google.protobuf.Empty
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0, // 0: gophkeeper.GetAllNotesResponse.result:type_name -> gophkeeper.Note
+	0, // 1: gophkeeper.NoteService.Save:input_type -> gophkeeper.Note
+	2, // 2: gophkeeper.NoteService.GetAll:input_type -> google.protobuf.Empty
+	3, // 3: gophkeeper.NoteService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 4: gophkeeper.NoteService.Save:output_type -> google.protobuf.Empty
+	1, // 5: gophkeeper.NoteService.GetAll:output_type -> gophkeeper.GetAllNotesResponse
+	2, // 6: gophkeeper.NoteService.Remove:output_type -> google.protobuf.Empty
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_note_proto_init() }
@@ -263,7 +243,7 @@ func file_note_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_note_proto_rawDesc), len(file_note_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

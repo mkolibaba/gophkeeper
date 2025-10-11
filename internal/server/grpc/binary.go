@@ -40,11 +40,13 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBi
 	}
 	defer os.Remove(file.Name())
 
-	var filename string
-	var size int64
-	var name string
-	var metadata map[string]string
-	var initialized bool
+	var (
+		filename    string
+		size        int64
+		name        string
+		notes       string
+		initialized bool
+	)
 
 	for {
 		in, err := stream.Recv()
@@ -59,7 +61,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBi
 			name = in.GetName()
 			filename = in.GetChunk().GetFilename()
 			size = in.GetChunk().GetTotalSize()
-			metadata = in.GetMetadata()
+			notes = in.GetNotes()
 			initialized = true
 		}
 
@@ -77,13 +79,12 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[pb.SaveBi
 	}
 
 	err = s.binaryService.Save(stream.Context(), server.BinaryData{
-		User:       user,
 		Name:       name,
 		FileName:   filename,
 		DataReader: file,
 		Size:       size,
-		Metadata:   metadata,
-	})
+		Notes:      notes,
+	}, user)
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
@@ -105,7 +106,7 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.G
 		var out pb.Binary
 		out.SetName(binary.Name)
 		out.SetFileName(binary.FileName)
-		out.SetMetadata(binary.Metadata)
+		out.SetNotes(binary.Notes)
 		result = append(result, &out)
 	}
 
