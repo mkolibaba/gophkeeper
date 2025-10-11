@@ -15,11 +15,11 @@ var (
 			Border(lipgloss.DoubleBorder()).
 			BorderForeground(BorderColor)
 
+	customBorderStyle = lipgloss.NewStyle().
+				Foreground(BorderColor)
+
 	TitleStyle = lipgloss.NewStyle().
 			PaddingLeft(1).
 			Background(lipgloss.Color("105")).
 			SetString("Gophkeeper")
-
-	CustomBorderStyle = lipgloss.NewStyle().
-				Foreground(BorderColor)
 )
