@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/internal/client"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"sync"
@@ -15,9 +14,6 @@ type Orchestrator struct {
 	noteService   client.NoteService
 	binaryService client.BinaryService
 	cardService   client.CardService
-
-	// TODO: временно
-	manager *state.Manager
 
 	logger *zap.Logger
 }
@@ -30,9 +26,6 @@ type OrchestratorParams struct {
 	BinaryService client.BinaryService
 	CardService   client.CardService
 
-	// TODO: временно
-	StateManager *state.Manager
-
 	Logger *zap.Logger
 }
 
@@ -42,7 +35,6 @@ func New(p OrchestratorParams) *Orchestrator {
 		noteService:   p.NoteService,
 		binaryService: p.BinaryService,
 		cardService:   p.CardService,
-		manager:       p.StateManager,
 		logger:        p.Logger,
 	}
 }
@@ -112,17 +104,17 @@ func (o *Orchestrator) GetAll(ctx context.Context) []client.Data {
 	return result
 }
 
-func (o *Orchestrator) Remove(ctx context.Context, data client.Data) (string, error) {
+func (o *Orchestrator) Remove(ctx context.Context, data client.Data) error {
 	switch data := data.(type) {
 	case client.LoginData:
-		return data.Name, o.loginService.Remove(ctx, data.Name)
+		return o.loginService.Remove(ctx, data.Name)
 	case client.NoteData:
-		return data.Name, o.noteService.Remove(ctx, data.Name)
+		return o.noteService.Remove(ctx, data.Name)
 	case client.BinaryData:
-		return data.Name, o.binaryService.Remove(ctx, data.Name)
+		return o.binaryService.Remove(ctx, data.Name)
 	case client.CardData:
-		return data.Name, o.cardService.Remove(ctx, data.Name)
+		return o.cardService.Remove(ctx, data.Name)
 	}
 
-	return "", fmt.Errorf("unknown data type %T", data)
+	return fmt.Errorf("unknown data type %T", data)
 }

@@ -130,7 +130,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case orchestrator.LoadDataMsg:
+	case helper.LoadDataMsg:
 		m.statusBar.currentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
 		m.dataTable, cmd = m.dataTable.Update(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
@@ -253,41 +253,33 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.Name)
 		if err != nil {
-			return notificationMsg{
-				text: fmt.Sprintf("Download %s failed: %v", data.Name, err),
-				t:    notificationError,
-			}
+			return notify(fmt.Sprintf("Download %s failed: %v", data.Name, err), notificationError)
 		}
 
-		return notificationMsg{
-			text: fmt.Sprintf("Downloaded %s successfully", data.Name),
-			t:    notificationOk,
-		}
+		return notify(fmt.Sprintf("Downloaded %s successfully", data.Name), notificationOk)
 	}
 }
 
-// TODO: при удалении последнего элемента вылетает паника. нужно сдвигать курсор
 func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 	return func() tea.Msg {
-		name, err := m.orchestrator.Remove(context.Background(), data)
+		err := m.orchestrator.Remove(context.Background(), data)
 		if err != nil {
-			return notificationMsg{
-				text: fmt.Sprintf("Removing %s failed: %v", name, err),
-				t:    notificationError,
-			}
+			return notify(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err), notificationError)
 		}
 
 		return tea.Sequence(
-			func() tea.Msg {
-				return notificationMsg{
-					text: fmt.Sprintf("Removed %s successfully", name),
-					t:    notificationOk,
-				}
-			},
-			func() tea.Msg {
-				return orchestrator.LoadDataMsg(m.orchestrator.GetAll(context.Background()))
-			},
+			notify(fmt.Sprintf("Removed %s successfully", data.GetName()), notificationOk),
+			helper.LoadData(m.orchestrator.GetAll(context.Background())),
 		)()
+	}
+}
+
+func notify(text string, t notificationType) tea.Cmd {
+	return func() tea.Msg {
+		return notificationMsg{
+			text: text,
+			t:    t,
+		}
 	}
 }
 

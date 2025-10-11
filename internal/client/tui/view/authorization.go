@@ -1,22 +1,23 @@
 package view
 
 import (
+	"context"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
 )
 
 type AuthorizationViewModel struct {
 	baseViewModel
-	manager  *state.Manager
-	inputSet *inputset.Model
+	inputSet             *inputset.Model
+	authorizationService client.AuthorizationService
 }
 
-func InitialAuthorizationViewModel(manager *state.Manager) *AuthorizationViewModel {
+func InitialAuthorizationViewModel(authorizationService client.AuthorizationService) *AuthorizationViewModel {
 	return &AuthorizationViewModel{
-		manager: manager,
+		authorizationService: authorizationService,
 		inputSet: inputset.NewInputSet(
 			inputset.NewTextInput("Login"),
 			inputset.NewTextInput("Password", inputset.WithEchoModePassword()),
@@ -30,7 +31,7 @@ func (m *AuthorizationViewModel) Init() tea.Cmd {
 
 func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case state.AuthorizationResultMsg:
+	case AuthorizationResultMsg:
 		m.inputSet.Err = msg.Err
 		m.inputSet.Reset()
 
@@ -43,8 +44,7 @@ func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 			return m.inputSet.Update(msg)
 
 		case "enter":
-			values := m.inputSet.Values()
-			return m.manager.Authorize(values["Login"], values["Password"])
+			return m.authorize()
 		}
 	}
 
@@ -67,4 +67,22 @@ func (m *AuthorizationViewModel) View() string {
 		Render(m.inputSet.View())
 
 	return lipgloss.JoinVertical(lipgloss.Top, borderTop, authorizationView)
+}
+
+type AuthorizationResultMsg struct {
+	Login    string
+	Password string
+	Err      error
+}
+
+func (m *AuthorizationViewModel) authorize() tea.Cmd {
+	values := m.inputSet.Values()
+	return func() tea.Msg {
+		_, err := m.authorizationService.Authorize(context.Background(), values["Login"], values["Password"])
+		return AuthorizationResultMsg{
+			Login:    values["Login"],
+			Password: values["Password"],
+			Err:      err,
+		}
+	}
 }

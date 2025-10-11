@@ -5,8 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/state"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"regexp"
 )
 
@@ -40,7 +39,6 @@ type Model struct {
 	cursor       int
 	data         []client.Data
 	renderedRows []Row
-	manager      *state.Manager
 }
 
 func NewModel() Model {
@@ -53,7 +51,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case orchestrator.LoadDataMsg:
+	case helper.LoadDataMsg:
 		m = m.processFetchedData(msg)
 		m.cursor = min(max(0, m.cursor), len(m.data)-1) // TODO: написать зачем это нужно (удаление последнего эелемента)
 		return m, nil
@@ -121,7 +119,7 @@ func (m Model) renderRow(t DataType, name, value string, selected bool) string {
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m Model) processFetchedData(msg orchestrator.LoadDataMsg) Model {
+func (m Model) processFetchedData(msg helper.LoadDataMsg) Model {
 	m.data = msg
 
 	m.renderedRows = make([]Row, 0, len(m.data))
