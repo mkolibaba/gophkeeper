@@ -2,10 +2,12 @@ package tui
 
 import (
 	"context"
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/client"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
@@ -101,6 +103,16 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password})
 			b.view = ViewMain
 			return b, helper.LoadData(b.orchestrator.GetAll(context.Background()))
+		}
+
+	// Добавление данных
+	case view.AddDataResultMsg:
+		if msg.Err == nil {
+			b.view = ViewMain
+			return b, tea.Batch(
+				statusbar.NotifyOk(fmt.Sprintf("Added %s successfully", msg.Name)),
+				helper.LoadData(b.orchestrator.GetAll(context.Background())),
+			)
 		}
 
 	// Вызов окна добавления данных

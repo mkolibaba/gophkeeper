@@ -9,19 +9,13 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
-// TODO: вынести в одно место
-type DataType string
-
-const (
-	DataTypeLogin  = DataType("Login")
-	DataTypeNote   = DataType("Note")
-	DataTypeBinary = DataType("Binary")
-	DataTypeCard   = DataType("Card")
-)
+type AddDataResultMsg struct {
+	Name string
+	Err  error
+}
 
 type addViewKeyMap struct {
 	ToggleFilepicker key.Binding
@@ -47,8 +41,9 @@ func (k addViewKeyMap) FullHelp() [][]key.Binding {
 type AddDataViewModel struct {
 	baseViewModel
 	keyMap        addViewKeyMap
-	dataType      DataType
+	dataType      helper.DataType
 	inputSet      *inputset.Model
+	send          func(map[string]string) error
 	loginService  client.LoginService
 	noteService   client.NoteService
 	binaryService client.BinaryService
@@ -99,14 +94,14 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 		m.ResetFor(msg.t)
 		return m.Init()
 
-	case addDataErrMsg:
-		m.inputSet.Err = msg.err
+	case AddDataResultMsg:
+		m.inputSet.Err = msg.Err
 		m.inputSet.Reset()
 
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.Send):
-			return m.send()
+			return m.save()
 
 		case key.Matches(msg, m.keyMap.Exit):
 			return ExitAddDataView
@@ -143,11 +138,11 @@ func (m *AddDataViewModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, addDataView, helpView)
 }
 
-func (m *AddDataViewModel) ResetFor(t DataType) {
+func (m *AddDataViewModel) ResetFor(t helper.DataType) {
 	m.dataType = t
 
 	switch m.dataType {
-	case DataTypeLogin:
+	case helper.DataTypeLogin:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name"),
 			inputset.NewTextInput("Login"),
@@ -155,18 +150,40 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 			inputset.NewTextInput("Website"),
 			inputset.NewTextInput("Notes"),
 		)
-	case DataTypeNote:
+		m.send = func(values map[string]string) error {
+			return m.loginService.Save(context.Background(), client.LoginData{
+				Name:     values["Name"],
+				Login:    values["Login"],
+				Password: values["Password"],
+				Website:  values["Website"],
+				Notes:    values["Notes"],
+			})
+		}
+	case helper.DataTypeNote:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name"),
 			inputset.NewTextArea("Text"),
 		)
-	case DataTypeBinary:
+		m.send = func(values map[string]string) error {
+			return m.noteService.Save(context.Background(), client.NoteData{
+				Name: values["Name"],
+				Text: values["Text"],
+			})
+		}
+	case helper.DataTypeBinary:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name"),
 			inputset.NewFilePicker("File path"),
 			inputset.NewTextInput("Notes"),
 		)
-	case DataTypeCard:
+		m.send = func(values map[string]string) error {
+			return m.binaryService.Save(context.Background(), client.BinaryData{
+				Name:     values["Name"],
+				Filename: values["File path"],
+				Notes:    values["Notes"],
+			})
+		}
+	case helper.DataTypeCard:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name"),
 			inputset.NewTextInput("Number"),
@@ -175,90 +192,25 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 			inputset.NewTextInput("Cardholder"),
 			inputset.NewTextInput("Notes"),
 		)
+		m.send = func(values map[string]string) error {
+			return m.cardService.Save(context.Background(), client.CardData{
+				Name:       values["Name"],
+				Number:     values["Number"],
+				ExpDate:    values["Expiration date"],
+				CVV:        values["CVV"],
+				Cardholder: values["Cardholder"],
+				Notes:      values["Notes"],
+			})
+		}
 	}
 }
 
-func (m *AddDataViewModel) send() tea.Cmd {
+func (m *AddDataViewModel) save() tea.Cmd {
 	values := m.inputSet.Values()
-
-	switch m.dataType {
-	case DataTypeLogin:
-		data := client.LoginData{
-			Name:     values["Name"],
-			Login:    values["Login"],
-			Password: values["Password"],
-			Website:  values["Website"],
-			Notes:    values["Notes"],
-		}
-		return func() tea.Msg {
-			err := m.loginService.Save(context.Background(), data)
-			if err != nil {
-				return addDataErrMsg{err: err}
-			}
-
-			return tea.Sequence(
-				ExitAddDataView,
-				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)), // TODO: это не должно быть тут, должно быть событи другого типа
-			)()
-		}
-	case DataTypeNote:
-		data := client.NoteData{
+	return func() tea.Msg {
+		return AddDataResultMsg{
 			Name: values["Name"],
-			Text: values["Text"],
-		}
-		return func() tea.Msg {
-			err := m.noteService.Save(context.Background(), data)
-			if err != nil {
-				return addDataErrMsg{err: err}
-			}
-
-			return tea.Sequence(
-				ExitAddDataView,
-				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
-			)()
-		}
-	case DataTypeBinary:
-		data := client.BinaryData{
-			Name:     values["Name"],
-			Filename: values["File path"],
-			Notes:    values["Notes"],
-		}
-		return func() tea.Msg {
-			err := m.binaryService.Save(context.Background(), data)
-			if err != nil {
-				return addDataErrMsg{err: err}
-			}
-
-			return tea.Sequence(
-				ExitAddDataView,
-				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
-			)()
-		}
-	case DataTypeCard:
-		data := client.CardData{
-			Name:       values["Name"],
-			Number:     values["Number"],
-			ExpDate:    values["Expiration date"],
-			CVV:        values["CVV"],
-			Cardholder: values["Cardholder"],
-			Notes:      values["Notes"],
-		}
-		return func() tea.Msg {
-			err := m.cardService.Save(context.Background(), data)
-			if err != nil {
-				return addDataErrMsg{err: err}
-			}
-
-			return tea.Sequence(
-				ExitAddDataView,
-				statusbar.NotifyOk(fmt.Sprintf("Add %s successfully", data.Name)),
-			)()
+			Err:  m.send(values),
 		}
 	}
-
-	return nil
-}
-
-type addDataErrMsg struct {
-	err error
 }

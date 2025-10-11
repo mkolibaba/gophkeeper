@@ -92,6 +92,7 @@ func (m *Model) ResetNotification() tea.Cmd {
 	})
 }
 
+// TODO: как будто можно вообще без сообщения?
 func NotifyOk(text string) tea.Cmd {
 	return notify(text, NotificationOk)
 }

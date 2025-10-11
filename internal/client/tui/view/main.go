@@ -10,9 +10,9 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/detail"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/table"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/table"
 )
 
 type mainViewKeyMap struct {
@@ -42,7 +42,7 @@ func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 
 type MainViewModel struct {
 	baseViewModel
-	dataTable     table.Model
+	dataTable     *table.Model
 	dataDetail    detail.Model
 	keyMap        mainViewKeyMap
 	session       *client.Session
@@ -132,7 +132,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case helper.LoadDataMsg:
 		m.statusBar.CurrentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
-		m.dataTable, cmd = m.dataTable.Update(msg)
+		cmd = m.dataTable.Update(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
 	case statusbar.NotificationMsg:
@@ -141,7 +141,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keyMap.UpDown):
-			m.dataTable, cmd = m.dataTable.Update(msg)
+			cmd = m.dataTable.Update(msg)
 			m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
 		case key.Matches(msg, m.keyMap.Quit):
@@ -258,7 +258,7 @@ func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 			return statusbar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
 		}
 
-		return tea.Sequence(
+		return tea.Batch(
 			statusbar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
 			helper.LoadData(m.orchestrator.GetAll(context.Background())),
 		)()

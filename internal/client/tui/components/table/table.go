@@ -9,27 +9,21 @@ import (
 	"regexp"
 )
 
-type DataType string
-
-const (
-	DataTypeLogin  = DataType("Login")
-	DataTypeNote   = DataType("Note")
-	DataTypeBinary = DataType("Binary")
-	DataTypeCard   = DataType("Card")
-)
-
 var (
-	columnStyle = lipgloss.NewStyle().
-			Width(30).
-			Inline(true).
-			Padding(0, 1)
+	columnStyle = lipgloss.NewStyle().Inline(true)
 
 	maskingCardNumberRegexp = regexp.MustCompile(`(\d{6})\d{6}(\d{4})`)
 	spacingCardNumberRegexp = regexp.MustCompile(`(.{4})(.{4})(.{4})(.{4})`)
 )
 
+const (
+	typeWidth  = 10
+	nameWidth  = 30
+	valueWidth = 70 // TODO: тут должна быть родительская ширина
+)
+
 type Row struct {
-	DataType      DataType
+	DataType      helper.DataType
 	Name          string
 	Value         string
 	RenderedValue string
@@ -41,20 +35,16 @@ type Model struct {
 	renderedRows []Row
 }
 
-func New() Model {
-	return Model{}
+func New() *Model {
+	return &Model{}
 }
 
-func (m Model) Init() tea.Cmd {
-	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case helper.LoadDataMsg:
-		m = m.processFetchedData(msg)
+		m.processFetchedData(msg)
 		m.cursor = min(max(0, m.cursor), len(m.data)-1) // TODO: написать зачем это нужно (удаление последнего эелемента)
-		return m, nil
+		return nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
@@ -64,10 +54,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	}
 
-	return m, nil
+	return nil
 }
 
-func (m Model) View() string {
+func (m *Model) View() string {
 	if len(m.renderedRows) == 0 {
 		return "No data"
 	}
@@ -79,7 +69,7 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, rows...)
 }
 
-func (m Model) GetCurrentRow() client.Data {
+func (m *Model) GetCurrentRow() client.Data {
 	if len(m.data) == 0 {
 		return nil
 	}
@@ -87,8 +77,8 @@ func (m Model) GetCurrentRow() client.Data {
 	return m.data[m.cursor]
 }
 
-func (m Model) RenderInfoBar() string {
-	// TODO: выводить информацию, соответствующую действительности
+func (m *Model) RenderInfoBar() string {
+	// TODO: выводить информацию, соответствующую действительности (viewport)
 	//return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
 	return fmt.Sprintf("1-%d of %d", len(m.renderedRows), len(m.renderedRows))
 }
@@ -97,29 +87,29 @@ func (m Model) renderHeader() string {
 	return lipgloss.NewStyle().
 		Inline(true).
 		Render(lipgloss.JoinHorizontal(lipgloss.Left,
-			columnStyle.Width(10).Foreground(lipgloss.Color("171")).Render("Type"),
-			columnStyle.Width(30).Foreground(lipgloss.Color("171")).Render("Name"),
-			columnStyle.Width(52).Foreground(lipgloss.Color("171")).Render("Value"), // TODO: должна как-то определяться родительская ширина
+			helper.HeaderStyle.Width(typeWidth).Render("Type"),
+			helper.HeaderStyle.Width(nameWidth).Render("Name"),
+			helper.HeaderStyle.Width(valueWidth).Render("Value"),
 		))
 }
 
-func (m Model) renderRow(t DataType, name, value string, selected bool) string {
+func (m Model) renderRow(t helper.DataType, name, value string, selected bool) string {
 	columns := []string{
-		columnStyle.Width(10).Render(string(t)),
-		columnStyle.Width(30).Render(name),
-		columnStyle.Width(52).Render(value), // TODO: должна как-то определяться родительская ширина
+		columnStyle.Width(typeWidth).Render(string(t)),
+		columnStyle.Width(nameWidth).Render(name),
+		columnStyle.Width(valueWidth).Render(value),
 	}
 
 	rowStyle := lipgloss.NewStyle().
 		Inline(true)
 	if selected {
-		rowStyle = rowStyle.Background(lipgloss.Color("171"))
+		rowStyle = rowStyle.Background(helper.HeaderColor)
 	}
 	return rowStyle.
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m Model) processFetchedData(msg helper.LoadDataMsg) Model {
+func (m *Model) processFetchedData(msg helper.LoadDataMsg) {
 	m.data = msg
 
 	m.renderedRows = make([]Row, 0, len(m.data))
@@ -127,43 +117,40 @@ func (m Model) processFetchedData(msg helper.LoadDataMsg) Model {
 		switch el := el.(type) {
 		case client.LoginData:
 			m.renderedRows = append(m.renderedRows, Row{
-				DataType:      DataTypeLogin,
+				DataType:      helper.DataTypeLogin,
 				Name:          el.Name,
 				Value:         el.Login,
 				RenderedValue: el.Login,
 			})
 		case client.NoteData:
 			m.renderedRows = append(m.renderedRows, Row{
-				DataType:      DataTypeNote,
+				DataType:      helper.DataTypeNote,
 				Name:          el.Name,
 				Value:         el.Text,
 				RenderedValue: trimNoteText(el.Text),
 			})
 		case client.BinaryData:
 			m.renderedRows = append(m.renderedRows, Row{
-				DataType:      DataTypeBinary,
+				DataType:      helper.DataTypeBinary,
 				Name:          el.Name,
 				Value:         "<binary>",
 				RenderedValue: "<binary>",
 			})
 		case client.CardData:
 			m.renderedRows = append(m.renderedRows, Row{
-				DataType:      DataTypeCard,
+				DataType:      helper.DataTypeCard,
 				Name:          el.Name,
 				Value:         el.Number,
 				RenderedValue: maskCardNumber(el.Number),
 			})
 		}
 	}
-
-	return m
 }
 
 func trimNoteText(text string) string {
-	maxLength := 50
 	asRunes := []rune(text) // TODO: может есть лучше решение?
-	if len(asRunes) > maxLength {
-		return string(asRunes[:maxLength-3]) + "..."
+	if len(asRunes) > valueWidth {
+		return string(asRunes[:valueWidth-3]) + "..."
 	}
 	return text
 }
