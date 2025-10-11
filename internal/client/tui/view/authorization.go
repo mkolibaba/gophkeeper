@@ -3,6 +3,7 @@ package view
 import (
 	"context"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
@@ -52,14 +53,14 @@ func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 
 func (m *AuthorizationViewModel) View() string {
 	return helper.Borderize(
-		helper.ContentStyle.
-			Width(m.Width-helper.ContentStyle.GetHorizontalFrameSize()).
-			Height((m.Height-helper.ContentStyle.GetVerticalBorderSize())/2).
-			PaddingTop(1).
-			PaddingLeft(1),
 		"Authorization",
 		"",
-		m.inputSet.View(),
+		lipgloss.NewStyle().
+			Width(m.Width-2).
+			Height(m.Height/2-2).
+			PaddingTop(1).
+			PaddingLeft(1).
+			Render(m.inputSet.View()),
 	)
 }
 

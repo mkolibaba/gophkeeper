@@ -129,14 +129,14 @@ func (m *AddDataViewModel) View() string {
 	helpView := lipgloss.NewStyle().PaddingLeft(1).Render(hm.View(m.keyMap))
 
 	addDataView := helper.Borderize(
-		helper.ContentStyle.
-			Width(m.Width-helper.ContentStyle.GetHorizontalFrameSize()).
-			Height(m.Height-helper.ContentStyle.GetVerticalBorderSize()-lipgloss.Height(helpView)).
-			PaddingLeft(1).
-			PaddingTop(1),
 		fmt.Sprintf("Add %s", m.dataType),
 		"",
-		m.inputSet.View(),
+		lipgloss.NewStyle().
+			Width(m.Width-2).
+			Height(m.Height-lipgloss.Height(helpView)-2).
+			PaddingLeft(1).
+			PaddingTop(1).
+			Render(m.inputSet.View()),
 	)
 
 	return lipgloss.JoinVertical(lipgloss.Top, addDataView, helpView)

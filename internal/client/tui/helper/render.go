@@ -6,27 +6,27 @@ import (
 	"unicode/utf8"
 )
 
-func Borderize(style lipgloss.Style, topText, bottomText, content string) string {
-	width := style.GetWidth()
+func Borderize(topText, bottomText, content string) string {
+	width := lipgloss.Width(content)
+	height := lipgloss.Height(content)
 
-	top := renderBorderTop(style, topText, width)
-	bottom := renderBorderBottom(style, bottomText, width)
-	middle := style.
+	top := renderBorderTop(topText, width)
+	bottom := renderBorderBottom(bottomText, width)
+	middle := borderStyle.
 		BorderTop(false).
 		BorderBottom(false).
-		//Height(style.GetHeight() - lipgloss.Height(top) - lipgloss.Height(bottom)). // TODO: сделать это здесь
-		Height(style.GetHeight()).
+		Width(width).
+		Height(height).
 		Render(content)
 
 	return lipgloss.JoinVertical(lipgloss.Left, top, middle, bottom)
 }
 
-// renderBorderTop отрисовывает верхнюю границу рамки заданной ширины width для
-// стиля style с текстом text.
-func renderBorderTop(style lipgloss.Style, text string, width int) string {
+// renderBorderTop отрисовывает верхнюю границу рамки заданной ширины width с текстом text.
+func renderBorderTop(text string, width int) string {
 	s := CustomBorderStyle // TODO: нужно брать из аргумента
 
-	border, _, _, _, _ := style.GetBorder()
+	border, _, _, _, _ := borderStyle.GetBorder()
 	borderLeft := border.TopLeft
 	borderMiddle := border.Top
 	borderRight := border.TopRight
@@ -53,13 +53,12 @@ func renderBorderTop(style lipgloss.Style, text string, width int) string {
 	return lipgloss.JoinHorizontal(lipgloss.Top, left, text, right)
 }
 
-// renderBorderBottom отрисовывает нижнюю границу рамки заданной ширины width для
-// стиля style с текстом text.
-func renderBorderBottom(style lipgloss.Style, text string, width int) string {
+// renderBorderBottom отрисовывает нижнюю границу рамки заданной ширины width с текстом text.
+func renderBorderBottom(text string, width int) string {
 	// TODO: нужно брать style из агрументов
 	s := CustomBorderStyle
 
-	border, _, _, _, _ := style.GetBorder()
+	border, _, _, _, _ := borderStyle.GetBorder()
 	borderLeft := border.BottomLeft
 	borderMiddle := border.Bottom
 	borderRight := border.BottomRight

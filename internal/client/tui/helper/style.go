@@ -10,7 +10,8 @@ var (
 
 	BorderColor = lipgloss.Color("141")
 
-	ContentStyle = lipgloss.NewStyle().
+	// Стиль стандартных рамок приложения.
+	borderStyle = lipgloss.NewStyle().
 			Border(lipgloss.DoubleBorder()).
 			BorderForeground(BorderColor)
 
