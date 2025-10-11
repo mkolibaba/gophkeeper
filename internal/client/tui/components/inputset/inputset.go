@@ -2,6 +2,7 @@ package inputset
 
 import (
 	"github.com/charmbracelet/bubbles/cursor"
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -35,7 +36,7 @@ func WithCharLimit(charLimit int) Option {
 	}
 }
 
-func NewInput(placeholder string, opts ...Option) textinput.Model {
+func NewTextInput(placeholder string, opts ...Option) Input {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = defaultCharLimit
@@ -47,18 +48,36 @@ func NewInput(placeholder string, opts ...Option) textinput.Model {
 		o(&input)
 	}
 
-	return input
+	return &TextInput{input}
+}
+
+func NewTextArea(placeholder string) Input {
+	area := textarea.New()
+	area.Placeholder = placeholder
+	area.CharLimit = 2000 // TODO: в константы
+	area.SetWidth(defaultWidth)
+	area.SetHeight(5)
+	area.SetPromptFunc(2, func(lineIdx int) string {
+		if lineIdx == 0 {
+			return promptStyle.Render("> ")
+		}
+		return "  "
+	})
+	area.Cursor.SetMode(cursor.CursorStatic)
+	area.ShowLineNumbers = false
+
+	return &TextArea{area}
 }
 
 type Model struct {
 	Err error
 
-	inputs  []textinput.Model
+	inputs  []Input
 	focused int
 }
 
 // TODO: указать, что по умолчанию фокус устанавливается на нулевом инпуте
-func NewInputSet(inputs ...textinput.Model) *Model {
+func NewInputSet(inputs ...Input) *Model {
 	m := &Model{
 		inputs: inputs,
 	}
@@ -101,7 +120,7 @@ func (m *Model) View() string {
 func (m *Model) Values() map[string]string {
 	values := map[string]string{}
 	for _, input := range m.inputs {
-		values[input.Placeholder] = input.Value()
+		values[input.Placeholder()] = input.Value()
 	}
 	return values
 }

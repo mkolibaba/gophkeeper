@@ -134,31 +134,31 @@ func (m *AddDataViewModel) ResetFor(t DataType) {
 	switch m.dataType {
 	case DataTypeLogin:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name"),
-			inputset.NewInput("Login"),
-			inputset.NewInput("Password", inputset.WithEchoModePassword()),
-			inputset.NewInput("Website"),
-			inputset.NewInput("Notes"),
+			inputset.NewTextInput("Name"),
+			inputset.NewTextInput("Login"),
+			inputset.NewTextInput("Password", inputset.WithEchoModePassword()),
+			inputset.NewTextInput("Website"),
+			inputset.NewTextInput("Notes"),
 		)
 	case DataTypeNote:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name"),
-			inputset.NewInput("Text", inputset.WithCharLimit(2000)), // TODO: textarea
+			inputset.NewTextInput("Name"),
+			inputset.NewTextArea("Text"),
 		)
 	case DataTypeBinary:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name"),
-			inputset.NewInput("File path"), // TODO: file explorer
-			inputset.NewInput("Notes"),
+			inputset.NewTextInput("Name"),
+			inputset.NewTextInput("File path"), // TODO: file explorer
+			inputset.NewTextInput("Notes"),
 		)
 	case DataTypeCard:
 		m.inputSet = inputset.NewInputSet(
-			inputset.NewInput("Name"),
-			inputset.NewInput("Number"),
-			inputset.NewInput("Expiration date"),
-			inputset.NewInput("CVV"),
-			inputset.NewInput("Cardholder"),
-			inputset.NewInput("Notes"),
+			inputset.NewTextInput("Name"),
+			inputset.NewTextInput("Number"),
+			inputset.NewTextInput("Expiration date"),
+			inputset.NewTextInput("CVV"),
+			inputset.NewTextInput("Cardholder"),
+			inputset.NewTextInput("Notes"),
 		)
 	}
 }
