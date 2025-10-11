@@ -56,11 +56,11 @@ func (m *AuthorizationViewModel) View() string {
 		"Authorization",
 		"",
 		lipgloss.NewStyle().
-			Width(m.Width-2).
-			Height(m.Height/2-2).
 			PaddingTop(1).
 			PaddingLeft(1).
 			Render(m.inputSet.View()),
+		m.Width,
+		m.Height/2,
 	)
 }
 

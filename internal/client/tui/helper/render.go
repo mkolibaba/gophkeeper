@@ -5,17 +5,14 @@ import (
 	"strings"
 )
 
-func Borderize(topText, bottomText, content string) string {
-	width := lipgloss.Width(content)
-	height := lipgloss.Height(content)
-
-	top := renderBorderTop(topText, width+2)
-	bottom := renderBorderBottom(bottomText, width+2)
+func Borderize(topText, bottomText, content string, width, height int) string {
+	top := renderBorderTop(topText, width)
+	bottom := renderBorderBottom(bottomText, width)
 	middle := borderStyle.
 		BorderTop(false).
 		BorderBottom(false).
-		Width(width).
-		Height(height).
+		Width(width - 2).
+		Height(height - 2).
 		Render(content)
 
 	return lipgloss.JoinVertical(lipgloss.Left, top, middle, bottom)

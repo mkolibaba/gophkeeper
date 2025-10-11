@@ -221,10 +221,10 @@ func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
 		"Data",
 		m.dataTable.RenderInfoBar(),
 		lipgloss.NewStyle().
-			Width(bubbleWidth/3*2-2).
-			Height(height-2).
 			PaddingLeft(1).
 			Render(m.dataTable.View()),
+		bubbleWidth/3*2,
+		height,
 	)
 }
 
@@ -233,10 +233,10 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 		"Detail",
 		"",
 		lipgloss.NewStyle().
-			Width(width-2).
-			Height(height-2).
 			Padding(0, 1).
 			Render(m.dataDetail.View()),
+		width,
+		height,
 	)
 }
 
