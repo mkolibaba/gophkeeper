@@ -217,36 +217,27 @@ func (m *MainViewModel) SetSize(width int, height int) {
 }
 
 func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
-	w := bubbleWidth/3*2 - helper.ContentStyle.GetHorizontalFrameSize()
-
-	tableTopBorder := helper.RenderBorderTop(helper.ContentStyle, "Data", w)
-
-	tableBottomBorder := helper.RenderBorderBottom(helper.ContentStyle, m.dataTable.RenderInfoBar(), w)
-
-	tableView := helper.ContentStyle.
-		BorderTop(false).
-		BorderBottom(false).
-		Width(w).
-		Height(height - lipgloss.Height(tableTopBorder) - lipgloss.Height(tableBottomBorder)).
-		PaddingLeft(1).
-		Render(m.dataTable.View())
-
-	return lipgloss.JoinVertical(lipgloss.Top, tableTopBorder, tableView, tableBottomBorder)
+	return helper.Borderize(
+		helper.ContentStyle.
+			Width(bubbleWidth/3*2-helper.ContentStyle.GetHorizontalFrameSize()).
+			Height(height-helper.ContentStyle.GetVerticalFrameSize()).
+			PaddingLeft(1),
+		"Data",
+		m.dataTable.RenderInfoBar(),
+		m.dataTable.View(),
+	)
 }
 
 func (m *MainViewModel) renderDetailView(width int, height int) string {
-	w := width - helper.ContentStyle.GetHorizontalFrameSize()
-
-	detailTop := helper.RenderBorderTop(helper.ContentStyle, "Detail", w)
-
-	detailView := helper.ContentStyle.
-		BorderTop(false).
-		Width(w).
-		Height(height-helper.ContentStyle.GetBorderBottomSize()-lipgloss.Height(detailTop)).
-		Padding(0, 1).
-		Render(m.dataDetail.View())
-
-	return lipgloss.JoinVertical(lipgloss.Top, detailTop, detailView)
+	return helper.Borderize(
+		helper.ContentStyle.
+			Width(width-helper.ContentStyle.GetHorizontalFrameSize()).
+			Height(height-helper.ContentStyle.GetVerticalFrameSize()).
+			Padding(0, 1),
+		"Detail",
+		"",
+		m.dataDetail.View(),
+	)
 }
 
 func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {

@@ -3,7 +3,6 @@ package view
 import (
 	"context"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
@@ -52,21 +51,16 @@ func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (m *AuthorizationViewModel) View() string {
-	w := m.Width - helper.ContentStyle.GetHorizontalFrameSize()
-
-	borderTop := helper.RenderBorderTop(helper.ContentStyle, "Authorization", w)
-
-	h := m.Height - lipgloss.Height(borderTop) - helper.ContentStyle.GetBorderBottomSize()
-
-	authorizationView := helper.ContentStyle.
-		BorderTop(false).
-		Width(w).
-		Height(h / 2).
-		PaddingTop(1).
-		PaddingLeft(1).
-		Render(m.inputSet.View())
-
-	return lipgloss.JoinVertical(lipgloss.Top, borderTop, authorizationView)
+	return helper.Borderize(
+		helper.ContentStyle.
+			Width(m.Width-helper.ContentStyle.GetHorizontalFrameSize()).
+			Height((m.Height-helper.ContentStyle.GetVerticalBorderSize())/2).
+			PaddingTop(1).
+			PaddingLeft(1),
+		"Authorization",
+		"",
+		m.inputSet.View(),
+	)
 }
 
 type AuthorizationResultMsg struct {

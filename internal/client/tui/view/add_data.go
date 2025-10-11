@@ -128,23 +128,18 @@ func (m *AddDataViewModel) View() string {
 	hm.ShowAll = true
 	helpView := lipgloss.NewStyle().PaddingLeft(1).Render(hm.View(m.keyMap))
 
-	w := m.Width - helper.ContentStyle.GetHorizontalFrameSize()
+	addDataView := helper.Borderize(
+		helper.ContentStyle.
+			Width(m.Width-helper.ContentStyle.GetHorizontalFrameSize()).
+			Height(m.Height-helper.ContentStyle.GetVerticalBorderSize()-lipgloss.Height(helpView)).
+			PaddingLeft(1).
+			PaddingTop(1),
+		fmt.Sprintf("Add %s", m.dataType),
+		"",
+		m.inputSet.View(),
+	)
 
-	borderTop := helper.RenderBorderTop(helper.ContentStyle, fmt.Sprintf("Add %s", m.dataType), w)
-
-	h := m.Height - lipgloss.Height(borderTop) - helper.ContentStyle.GetBorderBottomSize() - lipgloss.Height(helpView)
-
-	content := m.inputSet.View()
-
-	addDataView := helper.ContentStyle.
-		BorderTop(false).
-		Width(w).
-		Height(h).
-		PaddingLeft(1).
-		PaddingTop(1).
-		Render(content)
-
-	return lipgloss.JoinVertical(lipgloss.Top, borderTop, addDataView, helpView)
+	return lipgloss.JoinVertical(lipgloss.Top, addDataView, helpView)
 }
 
 func (m *AddDataViewModel) ResetFor(t DataType) {
