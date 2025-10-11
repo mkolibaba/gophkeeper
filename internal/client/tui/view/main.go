@@ -12,8 +12,10 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/table"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
+	"sync"
 )
+
+type loadDataMsg []client.Data
 
 type mainViewKeyMap struct {
 	UpDown         key.Binding
@@ -48,14 +50,18 @@ type MainViewModel struct {
 	session       *client.Session
 	showHelp      bool
 	statusBar     *statusbar.Model
-	orchestrator  *orchestrator.Orchestrator
+	loginService  client.LoginService
 	binaryService client.BinaryService
+	noteService   client.NoteService
+	cardService   client.CardService
 }
 
 func InitialMainViewModel(
 	session *client.Session,
+	loginService client.LoginService,
 	binaryService client.BinaryService,
-	orchestrator *orchestrator.Orchestrator,
+	noteService client.NoteService,
+	cardService client.CardService,
 ) *MainViewModel {
 	keys := mainViewKeyMap{
 		UpDown: key.NewBinding(
@@ -105,8 +111,10 @@ func InitialMainViewModel(
 		statusBar:     statusBar,
 		keyMap:        keys,
 		session:       session,
-		orchestrator:  orchestrator,
+		loginService:  loginService,
 		binaryService: binaryService,
+		noteService:   noteService,
+		cardService:   cardService,
 	}
 }
 
@@ -130,16 +138,26 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case helper.LoadDataMsg:
+	case loadDataMsg:
 		m.statusBar.CurrentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
-		cmd = m.dataTable.Update(msg)
+		m.dataTable.ProcessFetchedData(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
 	case AddDataResultMsg:
+		// По процессу условие всегда true.
 		if msg.Err == nil {
-			return m.statusBar.NotifyOk(fmt.Sprintf("Added %s successfully", msg.Name))
+			return tea.Batch(
+				m.loadData(),
+				m.statusBar.NotifyOk(fmt.Sprintf("Added %s successfully", msg.Name)),
+			)
 		}
 		return m.statusBar.NotifyError(fmt.Sprintf("Adding %s failed. See logs", msg.Name))
+
+	case AuthorizationResultMsg:
+		// По процессу условие всегда true.
+		if msg.Err == nil {
+			return m.loadData()
+		}
 
 	case tea.KeyMsg:
 		switch {
@@ -246,6 +264,45 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 	)
 }
 
+func (m *MainViewModel) loadData() tea.Cmd {
+	return func() tea.Msg {
+		ctx := context.Background()
+
+		var result []client.Data
+
+		ch := make(chan client.Data)
+		var wg sync.WaitGroup
+
+		wg.Go(func() {
+			elems, err := m.loginService.GetAll(ctx)
+			collect(elems, err, ch)
+		})
+		wg.Go(func() {
+			elems, err := m.noteService.GetAll(ctx)
+			collect(elems, err, ch)
+		})
+		wg.Go(func() {
+			elems, err := m.binaryService.GetAll(ctx)
+			collect(elems, err, ch)
+		})
+		wg.Go(func() {
+			elems, err := m.cardService.GetAll(ctx)
+			collect(elems, err, ch)
+		})
+
+		go func() {
+			wg.Wait()
+			close(ch)
+		}()
+
+		for el := range ch {
+			result = append(result, el)
+		}
+
+		return loadDataMsg(result)
+	}
+}
+
 func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.Name)
@@ -259,14 +316,29 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 
 func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 	return func() tea.Msg {
-		err := m.orchestrator.Remove(context.Background(), data)
+		var (
+			ctx = context.Background()
+			err error
+		)
+
+		switch data := data.(type) {
+		case client.LoginData:
+			err = m.loginService.Remove(ctx, data.Name)
+		case client.NoteData:
+			err = m.noteService.Remove(ctx, data.Name)
+		case client.BinaryData:
+			err = m.binaryService.Remove(ctx, data.Name)
+		case client.CardData:
+			err = m.cardService.Remove(ctx, data.Name)
+		}
+
 		if err != nil {
 			return m.statusBar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
 		}
 
 		return tea.Batch(
 			m.statusBar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
-			helper.LoadData(m.orchestrator.GetAll(context.Background())),
+			m.loadData(),
 		)()
 	}
 }
@@ -280,4 +352,14 @@ func removeEmptyStrings(strs ...string) []string {
 		}
 	}
 	return strs[:n]
+}
+
+func collect[S ~[]E, E client.Data](s S, err error, out chan client.Data) {
+	if err != nil {
+		return
+	}
+
+	for _, el := range s {
+		out <- el
+	}
 }

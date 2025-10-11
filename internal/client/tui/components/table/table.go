@@ -41,10 +41,6 @@ func New() *Model {
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case helper.LoadDataMsg:
-		m.processFetchedData(msg)
-		m.cursor = min(max(0, m.cursor), len(m.data)-1) // TODO: написать зачем это нужно (удаление последнего эелемента)
-		return nil
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "up":
@@ -109,8 +105,9 @@ func (m Model) renderRow(t helper.DataType, name, value string, selected bool) s
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m *Model) processFetchedData(msg helper.LoadDataMsg) {
+func (m *Model) ProcessFetchedData(msg []client.Data) {
 	m.data = msg
+	m.cursor = min(max(0, m.cursor), len(m.data)-1)
 
 	m.renderedRows = make([]Row, 0, len(m.data))
 	for _, el := range m.data {

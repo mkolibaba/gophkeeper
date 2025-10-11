@@ -1,13 +1,11 @@
 package tui
 
 import (
-	"context"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
-	"github.com/mkolibaba/gophkeeper/internal/client/tui/orchestrator"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
 	"go.uber.org/fx"
 	"io"
@@ -38,8 +36,7 @@ type Bubble struct {
 	// Writer для дебага.
 	dump io.Writer
 
-	session      *client.Session
-	orchestrator *orchestrator.Orchestrator
+	session *client.Session
 
 	// Текущий view интерфейса.
 	view View
@@ -56,7 +53,6 @@ type BubbleParams struct {
 	NoteService          client.NoteService
 	CardService          client.CardService
 	AuthorizationService client.AuthorizationService
-	Orchestrator         *orchestrator.Orchestrator
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -74,10 +70,9 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 		session: p.Session,
 		views: map[View]view.Model{
 			ViewAuthorization: view.InitialAuthorizationViewModel(p.AuthorizationService),
-			ViewMain:          view.InitialMainViewModel(p.Session, p.BinaryService, p.Orchestrator),
+			ViewMain:          view.InitialMainViewModel(p.Session, p.LoginService, p.BinaryService, p.NoteService, p.CardService),
 			ViewAddData:       view.InitialAddDataViewModel(p.LoginService, p.NoteService, p.BinaryService, p.CardService),
 		},
-		orchestrator: p.Orchestrator,
 	}, nil
 }
 
@@ -98,36 +93,28 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Авторизация
 	case view.AuthorizationResultMsg:
 		if msg.Err == nil {
-			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password})
+			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password}) // TODO: в auth view
 			b.view = ViewMain
-			return b, helper.LoadData(b.orchestrator.GetAll(context.Background()))
 		}
 
 	// Добавление данных
 	case view.AddDataResultMsg:
 		if msg.Err == nil {
 			b.view = ViewMain
-			return b, tea.Batch(
-				b.views[b.view].Update(msg),
-				helper.LoadData(b.orchestrator.GetAll(context.Background())),
-			)
 		}
 
 	// Вызов окна добавления данных
 	case view.AddDataCallMsg:
 		b.view = ViewAddData
-		return b, b.views[ViewAddData].Update(msg)
 
 	// Выход из окна добавления данных
 	case view.ExitAddDataViewMsg:
 		b.view = ViewMain
-		return b, helper.LoadData(b.orchestrator.GetAll(context.Background()))
 
 	// Изменение размеров окна терминала
 	case tea.WindowSizeMsg:
 		b.width = msg.Width
 		b.height = msg.Height
-		// TODO(trivial): можно ли как-то вычислить высоту компонента заголовка?
 		for i := range b.views {
 			b.views[i].SetSize(b.width, b.height-1) // -1 для заголовка приложения
 		}

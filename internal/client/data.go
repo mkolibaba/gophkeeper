@@ -68,7 +68,7 @@ type (
 		BaseDataService[CardData]
 	}
 
-	// TODO: отрефакторить сервис
+	// TODO: отрефакторить сервис: убрать токен и сеттить юзера в нем или вызывать его из userservice
 	AuthorizationService interface {
 		Authorize(ctx context.Context, login string, password string) (string, error)
 		Register(ctx context.Context, login string, password string) (string, error)

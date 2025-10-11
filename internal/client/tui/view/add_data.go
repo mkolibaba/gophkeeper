@@ -106,7 +106,6 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 		case key.Matches(msg, m.keyMap.Exit):
 			return ExitAddDataView
 		}
-
 	}
 
 	cmd := m.inputSet.Update(msg)
