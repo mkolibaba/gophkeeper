@@ -13,7 +13,7 @@ import (
 )
 
 // View представляет состояние UI.
-type View int
+type View uint8
 
 const (
 	// ViewAuthorization - авторизация.
@@ -47,12 +47,10 @@ type Bubble struct {
 type BubbleParams struct {
 	fx.In
 
-	Session              *client.Session
-	BinaryService        client.BinaryService
-	LoginService         client.LoginService
-	NoteService          client.NoteService
-	CardService          client.CardService
-	AuthorizationService client.AuthorizationService
+	Session           *client.Session
+	AuthorizationView *view.AuthorizationViewModel
+	MainView          *view.MainViewModel
+	AddDataView       *view.AddDataViewModel
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -69,9 +67,9 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 		dump:    dump,
 		session: p.Session,
 		views: map[View]view.Model{
-			ViewAuthorization: view.InitialAuthorizationViewModel(p.AuthorizationService),
-			ViewMain:          view.InitialMainViewModel(p.Session, p.LoginService, p.BinaryService, p.NoteService, p.CardService),
-			ViewAddData:       view.InitialAddDataViewModel(p.LoginService, p.NoteService, p.BinaryService, p.CardService),
+			ViewAuthorization: p.AuthorizationView,
+			ViewMain:          p.MainView,
+			ViewAddData:       p.AddDataView,
 		},
 	}, nil
 }
