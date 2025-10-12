@@ -1,4 +1,4 @@
-package view
+package adddata
 
 import (
 	"context"
@@ -10,25 +10,33 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
+	"go.uber.org/fx"
 )
+
+type ExitMsg struct{}
+
+func Exit() tea.Msg {
+	return ExitMsg{}
+}
 
 type AddDataResultMsg struct {
 	Name string
 	Err  error
 }
 
-type addViewKeyMap struct {
+type keyMap struct {
 	ToggleFilepicker key.Binding
 	SelectFile       key.Binding
 	Send             key.Binding
 	Exit             key.Binding
 }
 
-func (k addViewKeyMap) ShortHelp() []key.Binding {
+func (k keyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.Send, k.Exit}
 }
 
-func (k addViewKeyMap) FullHelp() [][]key.Binding {
+func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		// TODO: добавить помощь по навигации по инпутам
 		{k.ToggleFilepicker},
@@ -38,9 +46,9 @@ func (k addViewKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-type AddDataViewModel struct {
-	baseViewModel
-	keyMap        addViewKeyMap
+type Model struct {
+	view.BaseModel
+	keyMap        keyMap
 	dataType      helper.DataType
 	inputSet      *inputset.Model
 	send          func(map[string]string) error
@@ -50,13 +58,17 @@ type AddDataViewModel struct {
 	cardService   client.CardService
 }
 
-func InitialAddDataViewModel(
-	loginService client.LoginService,
-	noteService client.NoteService,
-	binaryService client.BinaryService,
-	cardService client.CardService,
-) *AddDataViewModel {
-	keyMap := addViewKeyMap{
+type Params struct {
+	fx.In
+
+	LoginService  client.LoginService
+	NoteService   client.NoteService
+	BinaryService client.BinaryService
+	CardService   client.CardService
+}
+
+func New(p Params) *Model {
+	keyMap := keyMap{
 		ToggleFilepicker: key.NewBinding(
 			key.WithKeys("ctrl+p"),
 			key.WithHelp("ctrl+p", "toggle file picker"),
@@ -75,25 +87,21 @@ func InitialAddDataViewModel(
 		),
 	}
 
-	return &AddDataViewModel{
+	return &Model{
 		keyMap:        keyMap,
-		loginService:  loginService,
-		noteService:   noteService,
-		binaryService: binaryService,
-		cardService:   cardService,
+		loginService:  p.LoginService,
+		noteService:   p.NoteService,
+		binaryService: p.BinaryService,
+		cardService:   p.CardService,
 	}
 }
 
-func (m *AddDataViewModel) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return m.inputSet.Init()
 }
 
-func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case AddDataCallMsg:
-		m.ResetFor(msg.t)
-		return m.Init()
-
 	case AddDataResultMsg:
 		m.inputSet.Err = msg.Err
 		m.inputSet.Reset()
@@ -104,7 +112,7 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 			return m.save()
 
 		case key.Matches(msg, m.keyMap.Exit):
-			return ExitAddDataView
+			return Exit
 		}
 	}
 
@@ -117,7 +125,7 @@ func (m *AddDataViewModel) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (m *AddDataViewModel) View() string {
+func (m *Model) View() string {
 	// Строка помощи
 	hm := help.New()
 	hm.ShowAll = true
@@ -137,7 +145,7 @@ func (m *AddDataViewModel) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, addDataView, helpView)
 }
 
-func (m *AddDataViewModel) ResetFor(t helper.DataType) {
+func (m *Model) ResetFor(t helper.DataType) {
 	m.dataType = t
 
 	switch m.dataType {
@@ -204,7 +212,7 @@ func (m *AddDataViewModel) ResetFor(t helper.DataType) {
 	}
 }
 
-func (m *AddDataViewModel) save() tea.Cmd {
+func (m *Model) save() tea.Cmd {
 	values := m.inputSet.Values()
 	return func() tea.Msg {
 		return AddDataResultMsg{

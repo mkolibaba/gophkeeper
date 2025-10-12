@@ -1,4 +1,4 @@
-package view
+package authorization
 
 import (
 	"context"
@@ -7,16 +7,17 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
 )
 
-type AuthorizationViewModel struct {
-	baseViewModel
+type Model struct {
+	view.BaseModel
 	inputSet             *inputset.Model
 	authorizationService client.AuthorizationService
 }
 
-func InitialAuthorizationViewModel(authorizationService client.AuthorizationService) *AuthorizationViewModel {
-	return &AuthorizationViewModel{
+func New(authorizationService client.AuthorizationService) *Model {
+	return &Model{
 		authorizationService: authorizationService,
 		inputSet: inputset.NewInputSet(
 			inputset.NewTextInput("Login"),
@@ -25,11 +26,11 @@ func InitialAuthorizationViewModel(authorizationService client.AuthorizationServ
 	}
 }
 
-func (m *AuthorizationViewModel) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return m.inputSet.Init()
 }
 
-func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
 	case AuthorizationResultMsg:
 		m.inputSet.Err = msg.Err
@@ -51,7 +52,7 @@ func (m *AuthorizationViewModel) Update(msg tea.Msg) tea.Cmd {
 	return m.inputSet.Update(msg)
 }
 
-func (m *AuthorizationViewModel) View() string {
+func (m *Model) View() string {
 	return helper.Borderize(
 		"Authorization",
 		"",
@@ -70,7 +71,7 @@ type AuthorizationResultMsg struct {
 	Err      error
 }
 
-func (m *AuthorizationViewModel) authorize() tea.Cmd {
+func (m *Model) authorize() tea.Cmd {
 	values := m.inputSet.Values()
 	return func() tea.Msg {
 		_, err := m.authorizationService.Authorize(context.Background(), values["Login"], values["Password"])

@@ -1,4 +1,4 @@
-package view
+package home
 
 import (
 	"context"
@@ -12,12 +12,27 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/table"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/adddata"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/authorization"
+	"go.uber.org/fx"
 	"sync"
 )
 
+// TODO: название не нравится, переименовать
+
+// CallAddDataViewMsg отправляется при вызове пользователем окна добавления данных.
+type CallAddDataViewMsg helper.DataType
+
+func CallAddDataView(dataType helper.DataType) tea.Cmd {
+	return func() tea.Msg {
+		return CallAddDataViewMsg(dataType)
+	}
+}
+
 type loadDataMsg []client.Data
 
-type mainViewKeyMap struct {
+type keyMap struct {
 	UpDown         key.Binding
 	AddLogin       key.Binding
 	AddNote        key.Binding
@@ -29,11 +44,11 @@ type mainViewKeyMap struct {
 	Quit           key.Binding
 }
 
-func (k mainViewKeyMap) ShortHelp() []key.Binding {
+func (k keyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.UpDown, k.Quit}
 }
 
-func (k mainViewKeyMap) FullHelp() [][]key.Binding {
+func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.UpDown},
 		{k.AddLogin, k.AddNote, k.AddBinary, k.AddCard},
@@ -42,11 +57,11 @@ func (k mainViewKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-type MainViewModel struct {
-	baseViewModel
+type Model struct {
+	view.BaseModel
 	dataTable     *table.Model
 	dataDetail    detail.Model
-	keyMap        mainViewKeyMap
+	keyMap        keyMap
 	session       *client.Session
 	showHelp      bool
 	statusBar     *statusbar.Model
@@ -56,14 +71,18 @@ type MainViewModel struct {
 	cardService   client.CardService
 }
 
-func InitialMainViewModel(
-	session *client.Session,
-	loginService client.LoginService,
-	binaryService client.BinaryService,
-	noteService client.NoteService,
-	cardService client.CardService,
-) *MainViewModel {
-	keys := mainViewKeyMap{
+type Params struct {
+	fx.In
+
+	Session       *client.Session
+	LoginService  client.LoginService
+	BinaryService client.BinaryService
+	NoteService   client.NoteService
+	CardService   client.CardService
+}
+
+func New(p Params) *Model {
+	keys := keyMap{
 		UpDown: key.NewBinding(
 			key.WithKeys("up", "down"),
 			key.WithHelp("↑/↓", "move up/down"),
@@ -105,36 +124,24 @@ func InitialMainViewModel(
 	dataDetail := detail.New()
 	statusBar := statusbar.New()
 
-	return &MainViewModel{
+	return &Model{
 		dataTable:     dataTable,
 		dataDetail:    dataDetail,
 		statusBar:     statusBar,
 		keyMap:        keys,
-		session:       session,
-		loginService:  loginService,
-		binaryService: binaryService,
-		noteService:   noteService,
-		cardService:   cardService,
+		session:       p.Session,
+		loginService:  p.LoginService,
+		binaryService: p.BinaryService,
+		noteService:   p.NoteService,
+		cardService:   p.CardService,
 	}
 }
 
-type AddDataCallMsg struct {
-	t helper.DataType
-}
-
-func AddDataCall(t helper.DataType) tea.Cmd {
-	return func() tea.Msg {
-		return AddDataCallMsg{
-			t: t,
-		}
-	}
-}
-
-func (m *MainViewModel) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
+func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -143,20 +150,20 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 		m.dataTable.ProcessFetchedData(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 
-	case AddDataResultMsg:
+	case adddata.AddDataResultMsg:
 		// По процессу условие всегда true.
 		if msg.Err == nil {
 			return tea.Batch(
-				m.loadData(),
+				m.LoadData(),
 				m.statusBar.NotifyOk(fmt.Sprintf("Added %s successfully", msg.Name)),
 			)
 		}
 		return m.statusBar.NotifyError(fmt.Sprintf("Adding %s failed. See logs", msg.Name))
 
-	case AuthorizationResultMsg:
+	case authorization.AuthorizationResultMsg:
 		// По процессу условие всегда true.
 		if msg.Err == nil {
-			return m.loadData()
+			return m.LoadData()
 		}
 
 	case tea.KeyMsg:
@@ -179,16 +186,16 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 			return m.removeData(current)
 
 		case key.Matches(msg, m.keyMap.AddLogin):
-			return AddDataCall(helper.DataTypeLogin)
+			return CallAddDataView(helper.DataTypeLogin)
 
 		case key.Matches(msg, m.keyMap.AddNote):
-			return AddDataCall(helper.DataTypeNote)
+			return CallAddDataView(helper.DataTypeNote)
 
 		case key.Matches(msg, m.keyMap.AddBinary):
-			return AddDataCall(helper.DataTypeBinary)
+			return CallAddDataView(helper.DataTypeBinary)
 
 		case key.Matches(msg, m.keyMap.AddCard):
-			return AddDataCall(helper.DataTypeCard)
+			return CallAddDataView(helper.DataTypeCard)
 
 		case key.Matches(msg, m.keyMap.Help):
 			m.showHelp = !m.showHelp
@@ -201,7 +208,7 @@ func (m *MainViewModel) Update(msg tea.Msg) tea.Cmd {
 	)
 }
 
-func (m *MainViewModel) View() string {
+func (m *Model) View() string {
 	statusBar := m.statusBar.View()
 
 	var helpView string
@@ -235,12 +242,12 @@ func (m *MainViewModel) View() string {
 	)
 }
 
-func (m *MainViewModel) SetSize(width int, height int) {
-	m.baseViewModel.SetSize(width, height)
+func (m *Model) SetSize(width int, height int) {
+	m.BaseModel.SetSize(width, height)
 	m.statusBar.Width = width
 }
 
-func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
+func (m *Model) renderTableView(bubbleWidth int, height int) string {
 	return helper.Borderize(
 		"Data",
 		m.dataTable.RenderInfoBar(),
@@ -252,7 +259,7 @@ func (m *MainViewModel) renderTableView(bubbleWidth int, height int) string {
 	)
 }
 
-func (m *MainViewModel) renderDetailView(width int, height int) string {
+func (m *Model) renderDetailView(width int, height int) string {
 	return helper.Borderize(
 		"Detail",
 		"",
@@ -264,7 +271,7 @@ func (m *MainViewModel) renderDetailView(width int, height int) string {
 	)
 }
 
-func (m *MainViewModel) loadData() tea.Cmd {
+func (m *Model) LoadData() tea.Cmd {
 	return func() tea.Msg {
 		ctx := context.Background()
 
@@ -303,7 +310,15 @@ func (m *MainViewModel) loadData() tea.Cmd {
 	}
 }
 
-func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
+func (m *Model) NotifyOk(format string, a ...any) tea.Cmd {
+	return m.statusBar.NotifyOk(fmt.Sprintf(format, a...))
+}
+
+func (m *Model) NotifyError(format string, a ...any) tea.Cmd {
+	return m.statusBar.NotifyError(fmt.Sprintf(format, a...))
+}
+
+func (m *Model) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.Name)
 		if err != nil {
@@ -314,7 +329,7 @@ func (m *MainViewModel) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	}
 }
 
-func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
+func (m *Model) removeData(data client.Data) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			ctx = context.Background()
@@ -333,12 +348,12 @@ func (m *MainViewModel) removeData(data client.Data) tea.Cmd {
 		}
 
 		if err != nil {
-			return m.statusBar.NotifyError(fmt.Sprintf("Removing %s failed: %v", data.GetName(), err))
+			return m.NotifyError("Removing %s failed: %v", data.GetName(), err)
 		}
 
 		return tea.Batch(
-			m.statusBar.NotifyOk(fmt.Sprintf("Removed %s successfully", data.GetName())),
-			m.loadData(),
+			m.NotifyOk("Removed %s successfully", data.GetName()),
+			m.LoadData(),
 		)()
 	}
 }

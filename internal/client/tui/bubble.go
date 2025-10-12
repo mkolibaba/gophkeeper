@@ -7,23 +7,12 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/adddata"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/authorization"
+	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/home"
 	"go.uber.org/fx"
 	"io"
 	"os"
-)
-
-// View представляет состояние UI.
-type View uint8
-
-const (
-	// ViewAuthorization - авторизация.
-	ViewAuthorization View = iota
-
-	// ViewMain - основное окно приложения.
-	ViewMain
-
-	// ViewAddData - окно добавления данных.
-	ViewAddData
 )
 
 // Bubble представляет корневой объект UI.
@@ -39,18 +28,19 @@ type Bubble struct {
 	session *client.Session
 
 	// Текущий view интерфейса.
-	view View
+	view view.View
 
-	views map[View]view.Model
+	// Все возможные view интерфейса.
+	views map[view.View]view.Model
 }
 
 type BubbleParams struct {
 	fx.In
 
 	Session           *client.Session
-	AuthorizationView *view.AuthorizationViewModel
-	MainView          *view.MainViewModel
-	AddDataView       *view.AddDataViewModel
+	AuthorizationView *authorization.Model
+	MainView          *home.Model
+	AddDataView       *adddata.Model
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -66,10 +56,10 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 	return Bubble{
 		dump:    dump,
 		session: p.Session,
-		views: map[View]view.Model{
-			ViewAuthorization: p.AuthorizationView,
-			ViewMain:          p.MainView,
-			ViewAddData:       p.AddDataView,
+		views: map[view.View]view.Model{
+			view.ViewAuthorization: p.AuthorizationView,
+			view.ViewHome:          p.MainView,
+			view.ViewAddData:       p.AddDataView,
 		},
 	}, nil
 }
@@ -78,7 +68,7 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 func (b Bubble) Init() tea.Cmd {
 	return tea.Batch(
 		tea.SetWindowTitle("Gophkeeper"),
-		b.views[ViewAuthorization].Init(),
+		b.views[view.ViewAuthorization].Init(),
 	)
 }
 
@@ -89,25 +79,33 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Корневые события
 	switch msg := msg.(type) {
 	// Авторизация
-	case view.AuthorizationResultMsg:
+	case authorization.AuthorizationResultMsg:
 		if msg.Err == nil {
 			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password}) // TODO: в auth view
-			b.view = ViewMain
+			b.view = view.ViewHome
 		}
 
 	// Добавление данных
-	case view.AddDataResultMsg:
+	case adddata.AddDataResultMsg:
 		if msg.Err == nil {
-			b.view = ViewMain
+			b.view = view.ViewHome
+			homeView := b.views[view.ViewHome].(*home.Model)
+			return b, tea.Batch(
+				homeView.LoadData(),
+				homeView.NotifyOk("Added %s successfully", msg.Name),
+			)
 		}
 
 	// Вызов окна добавления данных
-	case view.AddDataCallMsg:
-		b.view = ViewAddData
+	case home.CallAddDataViewMsg:
+		b.view = view.ViewAddData
+		addDataView := b.views[view.ViewAddData].(*adddata.Model)
+		addDataView.ResetFor(helper.DataType(msg))
+		return b, addDataView.Init()
 
 	// Выход из окна добавления данных
-	case view.ExitAddDataViewMsg:
-		b.view = ViewMain
+	case adddata.ExitMsg:
+		b.view = view.ViewHome
 
 	// Изменение размеров окна терминала
 	case tea.WindowSizeMsg:
