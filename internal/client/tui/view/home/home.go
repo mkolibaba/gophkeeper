@@ -62,23 +62,23 @@ type Model struct {
 	dataTable     *table.Model
 	dataDetail    detail.Model
 	keyMap        keyMap
-	session       *client.Session
 	showHelp      bool
 	statusBar     *statusbar.Model
 	loginService  client.LoginService
 	binaryService client.BinaryService
 	noteService   client.NoteService
 	cardService   client.CardService
+	userService   client.UserService
 }
 
 type Params struct {
 	fx.In
 
-	Session       *client.Session
 	LoginService  client.LoginService
 	BinaryService client.BinaryService
 	NoteService   client.NoteService
 	CardService   client.CardService
+	UserService   client.UserService
 }
 
 func New(p Params) *Model {
@@ -129,11 +129,11 @@ func New(p Params) *Model {
 		dataDetail:    dataDetail,
 		statusBar:     statusBar,
 		keyMap:        keys,
-		session:       p.Session,
 		loginService:  p.LoginService,
 		binaryService: p.BinaryService,
 		noteService:   p.NoteService,
 		cardService:   p.CardService,
+		userService:   p.UserService,
 	}
 }
 
@@ -146,7 +146,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case loadDataMsg:
-		m.statusBar.CurrentUser = m.session.GetCurrentUser().Login // TODO: это хак, сделать лучше
+		m.statusBar.CurrentUser = m.userService.Get().Login
 		m.dataTable.ProcessFetchedData(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 

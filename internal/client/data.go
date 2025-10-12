@@ -40,11 +40,6 @@ type (
 		Notes      string
 	}
 
-	User struct {
-		Login    string
-		Password string
-	}
-
 	BaseDataService[T Data] interface {
 		Save(ctx context.Context, data T) error
 		GetAll(ctx context.Context) ([]T, error)
@@ -66,12 +61,6 @@ type (
 
 	CardService interface {
 		BaseDataService[CardData]
-	}
-
-	// TODO: отрефакторить сервис: убрать токен и сеттить юзера в нем или вызывать его из userservice
-	AuthorizationService interface {
-		Authorize(ctx context.Context, login string, password string) (string, error)
-		Register(ctx context.Context, login string, password string) (string, error)
 	}
 )
 
@@ -103,21 +92,4 @@ func NewDataValidator() (*validator.Validate, error) {
 	})
 
 	return v, err
-}
-
-// TODO: подумать
-type Session struct {
-	user *User
-}
-
-func NewSession() *Session {
-	return &Session{}
-}
-
-func (s *Session) SetCurrentUser(user User) {
-	s.user = &user
-}
-
-func (s *Session) GetCurrentUser() *User {
-	return s.user
 }

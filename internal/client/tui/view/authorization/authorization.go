@@ -8,17 +8,27 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
+	"go.uber.org/fx"
 )
 
 type Model struct {
 	view.BaseModel
 	inputSet             *inputset.Model
 	authorizationService client.AuthorizationService
+	userService          client.UserService
 }
 
-func New(authorizationService client.AuthorizationService) *Model {
+type Params struct {
+	fx.In
+
+	AuthorizationService client.AuthorizationService
+	UserService          client.UserService
+}
+
+func New(p Params) *Model {
 	return &Model{
-		authorizationService: authorizationService,
+		authorizationService: p.AuthorizationService,
+		userService:          p.UserService,
 		inputSet: inputset.NewInputSet(
 			inputset.NewTextInput("Login"),
 			inputset.NewTextInput("Password", inputset.WithEchoModePassword()),
@@ -66,19 +76,23 @@ func (m *Model) View() string {
 }
 
 type AuthorizationResultMsg struct {
-	Login    string
-	Password string
-	Err      error
+	Err error
 }
 
 func (m *Model) authorize() tea.Cmd {
 	values := m.inputSet.Values()
 	return func() tea.Msg {
-		_, err := m.authorizationService.Authorize(context.Background(), values["Login"], values["Password"])
+		login, password := values["Login"], values["Password"]
+		err := m.authorizationService.Authorize(context.Background(), login, password)
+		if err != nil {
+			m.userService.Set(client.User{
+				Login:    login,
+				Password: password,
+			})
+		}
+
 		return AuthorizationResultMsg{
-			Login:    values["Login"],
-			Password: values["Password"],
-			Err:      err,
+			Err: err,
 		}
 	}
 }

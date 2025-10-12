@@ -4,7 +4,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/mkolibaba/gophkeeper/internal/client"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view"
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/view/adddata"
@@ -25,8 +24,6 @@ type Bubble struct {
 	// Writer для дебага.
 	dump io.Writer
 
-	session *client.Session
-
 	// Текущий view интерфейса.
 	view view.View
 
@@ -37,7 +34,6 @@ type Bubble struct {
 type BubbleParams struct {
 	fx.In
 
-	Session           *client.Session
 	AuthorizationView *authorization.Model
 	MainView          *home.Model
 	AddDataView       *adddata.Model
@@ -54,8 +50,7 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 	}
 
 	return Bubble{
-		dump:    dump,
-		session: p.Session,
+		dump: dump,
 		views: map[view.View]view.Model{
 			view.ViewAuthorization: p.AuthorizationView,
 			view.ViewHome:          p.MainView,
@@ -81,7 +76,6 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Авторизация
 	case authorization.AuthorizationResultMsg:
 		if msg.Err == nil {
-			b.session.SetCurrentUser(client.User{Login: msg.Login, Password: msg.Password}) // TODO: в auth view
 			b.view = view.ViewHome
 		}
 

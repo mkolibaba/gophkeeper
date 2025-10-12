@@ -15,7 +15,7 @@ var skip = []string{
 	pb.AuthorizationService_Register_FullMethodName,
 }
 
-func UnaryAuth(session *client.Session) grpc.UnaryClientInterceptor {
+func UnaryAuth(userService client.UserService) grpc.UnaryClientInterceptor {
 	return func(
 		ctx context.Context,
 		method string,
@@ -28,7 +28,7 @@ func UnaryAuth(session *client.Session) grpc.UnaryClientInterceptor {
 			return invoker(ctx, method, req, reply, cc, opts...)
 		}
 
-		user := session.GetCurrentUser()
+		user := userService.Get()
 		if user == nil {
 			return fmt.Errorf("user not found in session")
 		}
@@ -39,7 +39,7 @@ func UnaryAuth(session *client.Session) grpc.UnaryClientInterceptor {
 	}
 }
 
-func StreamAuth(session *client.Session) grpc.StreamClientInterceptor {
+func StreamAuth(userService client.UserService) grpc.StreamClientInterceptor {
 	return func(
 		ctx context.Context,
 		desc *grpc.StreamDesc,
@@ -52,7 +52,7 @@ func StreamAuth(session *client.Session) grpc.StreamClientInterceptor {
 			return streamer(ctx, desc, cc, method, opts...)
 		}
 
-		user := session.GetCurrentUser()
+		user := userService.Get()
 		if user == nil {
 			return nil, fmt.Errorf("user not found in session")
 		}
