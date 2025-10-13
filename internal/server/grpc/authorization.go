@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -18,14 +17,12 @@ type AuthorizationServiceServer struct {
 	userService   server.UserService
 	authService   *server.AuthService
 	dataValidator *validator.Validate
-	logger        *zap.Logger
 }
 
 func NewAuthorizationServiceServer(
 	userService server.UserService,
 	authService *server.AuthService,
 	dataValidator *validator.Validate,
-	logger *zap.Logger,
 ) *AuthorizationServiceServer {
 	// TODO: стоит разделить
 	rules := map[string]string{
@@ -39,7 +36,6 @@ func NewAuthorizationServiceServer(
 		userService:   userService,
 		authService:   authService,
 		dataValidator: dataValidator,
-		logger:        logger,
 	}
 }
 

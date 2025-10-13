@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"go.uber.org/zap"
+	"github.com/charmbracelet/log"
 	"io/fs"
 	_ "modernc.org/sqlite"
 	"os"
@@ -18,10 +18,10 @@ type DB struct {
 	db             *sql.DB
 	dsn            string
 	binariesFolder string
-	logger         *zap.Logger
+	logger         *log.Logger
 }
 
-func NewDB(cfg *Config, logger *zap.Logger) *DB {
+func NewDB(cfg *Config, logger *log.Logger) *DB {
 	return &DB{
 		dsn:            fmt.Sprintf("%s/gophkeeper.sqlite", cfg.DataFolder),
 		binariesFolder: fmt.Sprintf("%s/assets/binary", cfg.DataFolder),
@@ -67,7 +67,7 @@ func (d *DB) migrate() error {
 }
 
 func (d *DB) migrateFile(name string) error {
-	d.logger.Info("running migration script", zap.String("name", name))
+	d.logger.Info("running migration script", "name", name)
 
 	tx, err := d.db.Begin()
 	if err != nil {
@@ -79,7 +79,7 @@ func (d *DB) migrateFile(name string) error {
 	if err := tx.QueryRow(`SELECT COUNT(*) FROM migration WHERE name = ?`, name).Scan(&n); err != nil {
 		return err
 	} else if n != 0 {
-		d.logger.Info("migration script already run", zap.String("name", name))
+		d.logger.Info("migration script already run", "name", name)
 		return nil
 	}
 
@@ -93,6 +93,6 @@ func (d *DB) migrateFile(name string) error {
 		return err
 	}
 
-	d.logger.Info("migration script run done", zap.String("name", name))
+	d.logger.Info("migration script run done", "name", name)
 	return tx.Commit()
 }

@@ -2,18 +2,16 @@ package interceptors
 
 import (
 	"context"
-	"time"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"github.com/charmbracelet/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
-func UnaryLogger(logger *zap.Logger) grpc.UnaryServerInterceptor {
+func UnaryLogger(logger *log.Logger) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
@@ -29,11 +27,11 @@ func UnaryLogger(logger *zap.Logger) grpc.UnaryServerInterceptor {
 
 		// Логируем начало запроса
 		logger.Debug("gRPC request started",
-			zap.String("method", info.FullMethod),
-			zap.String("client_ip", clientIP),
-			zap.String("user_agent", userAgent),
-			zap.String("request_id", requestID),
-			zap.Time("start_time", start),
+			"method", info.FullMethod,
+			"client_ip", clientIP,
+			"user_agent", userAgent,
+			"request_id", requestID,
+			"start_time", start,
 		)
 
 		// Вызываем обработчик
@@ -43,38 +41,34 @@ func UnaryLogger(logger *zap.Logger) grpc.UnaryServerInterceptor {
 		duration := time.Since(start)
 		statusCode := status.Code(err)
 
-		fields := []zap.Field{
-			zap.String("method", info.FullMethod),
-			zap.String("client_ip", clientIP),
-			zap.String("user_agent", userAgent),
-			zap.String("request_id", requestID),
-			zap.String("duration", duration.String()),
-			zap.Duration("duration_ms", duration),
-			zap.String("status", statusCode.String()),
-			zap.Int32("status_code", int32(statusCode)),
-			zap.Time("start_time", start),
-			zap.Time("end_time", time.Now()),
+		fields := []any{
+			"method", info.FullMethod,
+			"client_ip", clientIP,
+			"user_agent", userAgent,
+			"request_id", requestID,
+			"duration", duration.String(),
+			"duration_ms", duration,
+			"status", statusCode.String(),
+			"status_code", int32(statusCode),
+			"start_time", start,
+			"end_time", time.Now(),
 		}
-
-		// Логируем в зависимости от статуса
-		logLevel := getLogLevel(statusCode)
 
 		if err != nil {
 			fields = append(fields,
-				zap.Error(err),
-				zap.String("error_details", err.Error()),
+				"err", err,
+				"error_details", err.Error(),
 			)
 		}
 
-		// Логируем с соответствующим уровнем
-		logger.Log(logLevel, "gRPC request completed", fields...)
+		logger.Log(getLogLevel(statusCode), "gRPC request completed", fields...)
 
 		return resp, err
 	}
 }
 
 // StreamInterceptor для streaming RPC
-func StreamLogger(logger *zap.Logger) grpc.StreamServerInterceptor {
+func StreamLogger(logger *log.Logger) grpc.StreamServerInterceptor {
 	return func(
 		srv interface{},
 		stream grpc.ServerStream,
@@ -89,40 +83,39 @@ func StreamLogger(logger *zap.Logger) grpc.StreamServerInterceptor {
 		requestID := getRequestID(ctx)
 
 		logger.Debug("gRPC stream started",
-			zap.String("method", info.FullMethod),
-			zap.String("client_ip", clientIP),
-			zap.String("user_agent", userAgent),
-			zap.String("request_id", requestID),
-			zap.Bool("is_client_stream", info.IsClientStream),
-			zap.Bool("is_server_stream", info.IsServerStream),
-			zap.Time("start_time", start),
+			"method", info.FullMethod,
+			"client_ip", clientIP,
+			"user_agent", userAgent,
+			"request_id", requestID,
+			"is_client_stream", info.IsClientStream,
+			"is_server_stream", info.IsServerStream,
+			"start_time", start,
 		)
 
 		err := handler(srv, stream)
 		duration := time.Since(start)
 		statusCode := status.Code(err)
 
-		fields := []zap.Field{
-			zap.String("method", info.FullMethod),
-			zap.String("client_ip", clientIP),
-			zap.String("user_agent", userAgent),
-			zap.String("request_id", requestID),
-			zap.Bool("is_client_stream", info.IsClientStream),
-			zap.Bool("is_server_stream", info.IsServerStream),
-			zap.String("duration", duration.String()),
-			zap.Duration("duration_ms", duration),
-			zap.String("status", statusCode.String()),
-			zap.Int32("status_code", int32(statusCode)),
-			zap.Time("start_time", start),
-			zap.Time("end_time", time.Now()),
+		fields := []any{
+			"method", info.FullMethod,
+			"client_ip", clientIP,
+			"user_agent", userAgent,
+			"request_id", requestID,
+			"is_client_stream", info.IsClientStream,
+			"is_server_stream", info.IsServerStream,
+			"duration", duration.String(),
+			"duration_ms", duration,
+			"status", statusCode.String(),
+			"status_code", int32(statusCode),
+			"start_time", start,
+			"end_time", time.Now(),
 		}
 
-		logLevel := getLogLevel(statusCode)
 		if err != nil {
-			fields = append(fields, zap.Error(err))
+			fields = append(fields, "err", err)
 		}
 
-		logger.Log(logLevel, "gRPC stream completed", fields...)
+		logger.Log(getLogLevel(statusCode), "gRPC stream completed", fields...)
 
 		return err
 	}
@@ -157,16 +150,16 @@ func getRequestID(ctx context.Context) string {
 	return "unknown"
 }
 
-func getLogLevel(code codes.Code) zapcore.Level {
+func getLogLevel(code codes.Code) log.Level {
 	switch code {
 	case codes.OK:
-		return zapcore.InfoLevel
+		return log.InfoLevel
 	case codes.Canceled, codes.DeadlineExceeded:
-		return zapcore.WarnLevel
+		return log.WarnLevel
 	case codes.InvalidArgument, codes.NotFound, codes.AlreadyExists,
 		codes.PermissionDenied, codes.Unauthenticated:
-		return zapcore.InfoLevel
+		return log.InfoLevel
 	default:
-		return zapcore.ErrorLevel
+		return log.ErrorLevel
 	}
 }

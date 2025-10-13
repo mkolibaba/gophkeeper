@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator/v10"
-	"go.uber.org/zap"
 	"io"
 	"regexp"
 )
@@ -102,10 +102,10 @@ func NewDataValidator() (*validator.Validate, error) {
 // TODO: тут ли ему место? нужен ли интерфейс?
 type AuthService struct {
 	userService UserService
-	logger      *zap.Logger
+	logger      *log.Logger
 }
 
-func NewAuthService(userService UserService, logger *zap.Logger) *AuthService {
+func NewAuthService(userService UserService, logger *log.Logger) *AuthService {
 	return &AuthService{
 		userService: userService,
 		logger:      logger,
@@ -119,7 +119,7 @@ func (s *AuthService) Authorize(ctx context.Context, login string, password stri
 		return ErrInvalidCredentials
 	}
 	if err != nil {
-		s.logger.Error("user get error", zap.Error(err))
+		s.logger.Error("user get error", "err", err)
 		return fmt.Errorf("internal error")
 	}
 	if password != u.Password {

@@ -3,11 +3,11 @@ package grpc
 import (
 	"context"
 	"errors"
+	"github.com/charmbracelet/log"
 	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/utils"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,12 +18,12 @@ import (
 type BinaryServiceServer struct {
 	pb.UnimplementedBinaryServiceServer
 	binaryService server.BinaryService
-	logger        *zap.Logger
+	logger        *log.Logger
 }
 
 func NewBinaryServiceServer(
 	binaryService server.BinaryService,
-	logger *zap.Logger,
+	logger *log.Logger,
 ) *BinaryServiceServer {
 	return &BinaryServiceServer{
 		binaryService: binaryService,
@@ -97,7 +97,7 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.G
 
 	binaries, err := s.binaryService.GetAll(ctx, user)
 	if err != nil {
-		s.logger.Error("failed to retrieve binary data", zap.Error(err))
+		s.logger.Error("failed to retrieve binary data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
@@ -130,7 +130,7 @@ func (s *BinaryServiceServer) Remove(ctx context.Context, in *pb.RemoveDataReque
 		if errors.Is(err, server.ErrDataNotFound) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}
-		s.logger.Error("failed to remove data", zap.Error(err))
+		s.logger.Error("failed to remove data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
@@ -145,7 +145,7 @@ func (s *BinaryServiceServer) Download(in *pb.DownloadBinaryRequest, stream grpc
 		if errors.Is(err, server.ErrDataNotFound) {
 			return status.Error(codes.NotFound, "data not found")
 		}
-		s.logger.Error("failed to retrieve data", zap.Error(err))
+		s.logger.Error("failed to retrieve data", "err", err)
 		return status.Error(codes.Internal, "internal server error")
 	}
 

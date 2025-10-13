@@ -1,15 +1,22 @@
 package server
 
 import (
+	"github.com/charmbracelet/log"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
+	"os"
 )
 
 var Module = fx.Module(
 	"server",
 	fx.Provide(
-		zap.NewDevelopment,
+		newLogger,
 		NewDataValidator,
 		NewAuthService,
 	),
 )
+
+func newLogger() *log.Logger {
+	return log.NewWithOptions(os.Stderr, log.Options{
+		ReportTimestamp: true,
+	})
+}

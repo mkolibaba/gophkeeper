@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 	"errors"
+	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/utils"
-	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -17,13 +17,13 @@ type LoginServiceServer struct {
 	pb.UnimplementedLoginServiceServer
 	loginService  server.LoginService
 	dataValidator *validator.Validate
-	logger        *zap.Logger
+	logger        *log.Logger
 }
 
 func NewLoginServiceServer(
 	loginService server.LoginService,
 	dataValidator *validator.Validate,
-	logger *zap.Logger,
+	logger *log.Logger,
 ) *LoginServiceServer {
 	return &LoginServiceServer{
 		loginService:  loginService,
@@ -51,7 +51,7 @@ func (s *LoginServiceServer) Save(ctx context.Context, in *pb.Login) (*empty.Emp
 		if errors.Is(err, server.ErrDataAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
 		}
-		s.logger.Error("failed to save data", zap.Error(err))
+		s.logger.Error("failed to save data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
@@ -63,7 +63,7 @@ func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*pb.Ge
 
 	logins, err := s.loginService.GetAll(ctx, user)
 	if err != nil {
-		s.logger.Error("failed to retrieve login data", zap.Error(err))
+		s.logger.Error("failed to retrieve login data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
@@ -95,7 +95,7 @@ func (s *LoginServiceServer) Remove(ctx context.Context, in *pb.RemoveDataReques
 		if errors.Is(err, server.ErrDataNotFound) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}
-		s.logger.Error("failed to remove data", zap.Error(err))
+		s.logger.Error("failed to remove data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 

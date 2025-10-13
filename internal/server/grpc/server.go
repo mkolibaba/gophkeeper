@@ -3,11 +3,11 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/log"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	"github.com/mkolibaba/gophkeeper/internal/server/grpc/interceptors"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
@@ -16,7 +16,7 @@ import (
 type Server struct {
 	s      *grpc.Server
 	port   string
-	logger *zap.Logger
+	logger *log.Logger
 }
 
 type ServerParams struct {
@@ -30,7 +30,7 @@ type ServerParams struct {
 	BinaryServiceServer        *BinaryServiceServer
 	CardServiceServer          *CardServiceServer
 	Config                     *Config
-	Logger                     *zap.Logger
+	Logger                     *log.Logger
 }
 
 func NewServer(p ServerParams) *Server {
@@ -72,7 +72,7 @@ func NewServer(p ServerParams) *Server {
 }
 
 func (s *Server) start() error {
-	s.logger.Info("running grpc server", zap.String("port", s.port))
+	s.logger.Info("running grpc server", "port", s.port)
 
 	listen, err := net.Listen("tcp", ":"+s.port)
 	if err != nil {
