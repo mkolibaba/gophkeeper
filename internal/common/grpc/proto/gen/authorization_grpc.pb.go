@@ -8,6 +8,7 @@ package gophkeeper
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,8 +28,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
-	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error)
-	Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error)
+	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type authorizationServiceClient struct {
@@ -39,9 +40,9 @@ func NewAuthorizationServiceClient(cc grpc.ClientConnInterface) AuthorizationSer
 	return &authorizationServiceClient{cc}
 }
 
-func (c *authorizationServiceClient) Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error) {
+func (c *authorizationServiceClient) Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthorizationResponse)
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, AuthorizationService_Authorize_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -49,9 +50,9 @@ func (c *authorizationServiceClient) Authorize(ctx context.Context, in *Authoriz
 	return out, nil
 }
 
-func (c *authorizationServiceClient) Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error) {
+func (c *authorizationServiceClient) Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthorizationResponse)
+	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, AuthorizationService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func (c *authorizationServiceClient) Register(ctx context.Context, in *Authoriza
 // All implementations must embed UnimplementedAuthorizationServiceServer
 // for forward compatibility.
 type AuthorizationServiceServer interface {
-	Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error)
-	Register(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error)
+	Authorize(context.Context, *AuthorizationRequest) (*empty.Empty, error)
+	Register(context.Context, *AuthorizationRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAuthorizationServiceServer()
 }
 
@@ -75,10 +76,10 @@ type AuthorizationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthorizationServiceServer struct{}
 
-func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error) {
+func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *AuthorizationRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) Register(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error) {
+func (UnimplementedAuthorizationServiceServer) Register(context.Context, *AuthorizationRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedAuthorizationServiceServer) mustEmbedUnimplementedAuthorizationServiceServer() {}

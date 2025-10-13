@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang/protobuf/ptypes/empty"
 	pb "github.com/mkolibaba/gophkeeper/internal/common/grpc/proto/gen"
 	"github.com/mkolibaba/gophkeeper/internal/server"
 	"go.uber.org/zap"
@@ -43,7 +44,7 @@ func NewAuthorizationServiceServer(
 }
 
 // TODO: можно убрать токен и просто отправлять статус ок/не ок
-func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *pb.AuthorizationRequest) (*pb.AuthorizationResponse, error) {
+func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *pb.AuthorizationRequest) (*empty.Empty, error) {
 	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
 		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
 	}
@@ -52,12 +53,10 @@ func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *pb.Autho
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	var out pb.AuthorizationResponse
-	out.SetToken("cool token")
-	return &out, nil
+	return &empty.Empty{}, nil
 }
 
-func (s *AuthorizationServiceServer) Register(ctx context.Context, in *pb.AuthorizationRequest) (*pb.AuthorizationResponse, error) {
+func (s *AuthorizationServiceServer) Register(ctx context.Context, in *pb.AuthorizationRequest) (*empty.Empty, error) {
 	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
 		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
 	}
@@ -73,7 +72,5 @@ func (s *AuthorizationServiceServer) Register(ctx context.Context, in *pb.Author
 		return nil, status.Error(codes.Unauthenticated, err.Error()) // TODO: человеческая ошибка
 	}
 
-	var out pb.AuthorizationResponse
-	out.SetToken("cool token")
-	return &out, nil
+	return &empty.Empty{}, nil
 }

@@ -18,36 +18,36 @@ func NewAuthorizationService(conn *grpc.ClientConn) *AuthorizationService {
 	}
 }
 
-func (s *AuthorizationService) Authorize(ctx context.Context, login string, password string) (string, error) {
+func (s *AuthorizationService) Authorize(ctx context.Context, login string, password string) error {
 	var in pb.AuthorizationRequest
 	in.SetLogin(login)
 	in.SetPassword(password)
 
-	out, err := s.client.Authorize(ctx, &in)
+	_, err := s.client.Authorize(ctx, &in)
 
 	if err != nil {
 		if statusErr, ok := status.FromError(err); ok {
-			return "", fmt.Errorf("%s", statusErr.Message())
+			return fmt.Errorf("%s", statusErr.Message())
 		}
-		return "", err
+		return err
 	}
 
-	return out.GetToken(), nil
+	return nil
 }
 
-func (s *AuthorizationService) Register(ctx context.Context, login string, password string) (string, error) {
+func (s *AuthorizationService) Register(ctx context.Context, login string, password string) error {
 	var in pb.AuthorizationRequest
 	in.SetLogin(login)
 	in.SetPassword(password)
 
-	out, err := s.client.Register(ctx, &in)
+	_, err := s.client.Register(ctx, &in)
 
 	if err != nil {
 		if statusErr, ok := status.FromError(err); ok {
-			return "", fmt.Errorf("%s", statusErr.Message())
+			return fmt.Errorf("%s", statusErr.Message())
 		}
-		return "", err
+		return err
 	}
 
-	return out.GetToken(), nil
+	return nil
 }

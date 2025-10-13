@@ -1,5 +1,7 @@
 edition = "2023";
 
+import "google/protobuf/empty.proto";
+
 package gophkeeper;
 
 option go_package = "gophkeeper/gen;gophkeeper";
@@ -10,11 +12,7 @@ message AuthorizationRequest {
   string password = 2;
 }
 
-message AuthorizationResponse {
-  string token = 1;
-}
-
 service AuthorizationService {
-  rpc Authorize(AuthorizationRequest) returns (AuthorizationResponse);
-  rpc Register(AuthorizationRequest) returns (AuthorizationResponse);
+  rpc Authorize(AuthorizationRequest) returns (google.protobuf.Empty);
+  rpc Register(AuthorizationRequest) returns (google.protobuf.Empty);
 }

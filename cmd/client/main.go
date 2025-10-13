@@ -16,10 +16,6 @@ func main() {
 
 func createApp() fx.Option {
 	return fx.Options(
-		// TODO: нужно ли?
-		//fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
-		//	return &fxevent.ZapLogger{Logger: logger}
-		//}),
 		fx.Provide(
 			newLogger,
 		),
