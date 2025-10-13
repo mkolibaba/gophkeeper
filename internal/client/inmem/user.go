@@ -1,21 +1,21 @@
 package inmem
 
 import (
+	"github.com/charmbracelet/log"
 	"github.com/mkolibaba/gophkeeper/internal/client"
-	"go.uber.org/zap"
 )
 
 type UserService struct {
 	user   *client.User
-	logger *zap.Logger
+	logger *log.Logger
 }
 
-func NewUserService(logger *zap.Logger) *UserService {
+func NewUserService(logger *log.Logger) *UserService {
 	return &UserService{logger: logger}
 }
 
 func (s *UserService) Set(user client.User) {
-	s.logger.Debug("setting user", zap.String("login", user.Login))
+	s.logger.Debug("setting user", "login", user.Login)
 	s.user = &user
 }
 

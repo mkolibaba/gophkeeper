@@ -9,6 +9,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/reflection/grpc_reflection_v1"
+	"google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
 	"google.golang.org/grpc/status"
 	"slices"
 	"strings"
@@ -17,6 +19,8 @@ import (
 var skip = []string{
 	pb.AuthorizationService_Authorize_FullMethodName,
 	pb.AuthorizationService_Register_FullMethodName,
+	grpc_reflection_v1.ServerReflection_ServerReflectionInfo_FullMethodName,
+	grpc_reflection_v1alpha.ServerReflection_ServerReflectionInfo_FullMethodName,
 }
 
 func UnaryAuth(authService *server.AuthService) grpc.UnaryServerInterceptor {

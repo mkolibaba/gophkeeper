@@ -16,6 +16,7 @@ tasks:
     env:
       GRPC_SERVER_ADDRESS: localhost:8080
       LOG_OUTPUT: '{{.LOG_OUTPUT}}'
+      LOG_TRUNCATE: true
       SPEW_DUMP_OUTPUT: '{{.SPEW_DUMP_OUTPUT}}'
     cmds:
       - task: build
