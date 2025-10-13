@@ -126,5 +126,7 @@ func (b Bubble) View() string {
 
 // spew выводит в dump состояния объектов для дебага.
 func (b Bubble) spew(a ...any) {
-	spew.Fdump(b.dump, a...)
+	if b.dump != nil {
+		spew.Fdump(b.dump, a...)
+	}
 }

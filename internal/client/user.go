@@ -2,6 +2,7 @@ package client
 
 import "context"
 
+//go:generate moq -stub -pkg mock -out mock/authorization.go . AuthorizationService
 type (
 	User struct {
 		Login    string

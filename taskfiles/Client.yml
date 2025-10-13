@@ -31,3 +31,18 @@ tasks:
     desc: Show spew log
     cmds:
       - tail -n 1000 {{.SPEW_DUMP_OUTPUT}}
+
+  gen:mock:
+    desc: Generate mocks
+    deps:
+      - install-moq
+    cmds:
+      - go generate github.com/mkolibaba/gophkeeper/internal/client
+
+  install-moq:
+    internal: true
+    run: once
+    status:
+      - test -z (which moq)
+    cmds:
+      - go install github.com/matryer/moq@latest

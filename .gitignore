@@ -23,5 +23,6 @@ Thumbs.db
 *.swp
 *.bak
 
+.task
 bin
 data
