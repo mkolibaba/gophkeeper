@@ -12,6 +12,11 @@ import (
 	"os"
 )
 
+const (
+	defaultWidth     = 50
+	defaultCharLimit = defaultWidth
+)
+
 type Input interface {
 	Init() tea.Cmd
 	View() string
@@ -63,7 +68,7 @@ type TextArea struct {
 func NewTextArea(placeholder string) Input {
 	area := textarea.New()
 	area.Placeholder = placeholder
-	area.CharLimit = 2000 // TODO: в константы
+	area.CharLimit = 2000
 	area.SetWidth(defaultWidth)
 	area.SetHeight(15)
 	area.SetPromptFunc(2, func(lineIdx int) string {
@@ -150,9 +155,7 @@ func (i *FilePicker) Update(msg tea.Msg) (Input, tea.Cmd) {
 		i.textInput, cmd = i.textInput.Update(msg)
 	}
 
-	// Did the user select a file?
 	if didSelect, path := i.filePicker.DidSelectFile(msg); didSelect {
-		// Get the path of the selected file.
 		i.textInput.SetValue(path)
 	}
 
@@ -163,8 +166,9 @@ func (i FilePicker) View() string {
 	view := i.textInput.View()
 
 	if i.pickingMode {
-		view += fmt.Sprintf("\n  %s %s\n", lipgloss.NewStyle().
-			Foreground(helper.HeaderColor).Render("Directory:"), i.filePicker.CurrentDirectory) + i.filePicker.View()
+		view += fmt.Sprintf("\n  %s %s\n",
+			lipgloss.NewStyle().Foreground(helper.HeaderColor).Render("Directory: "),
+			i.filePicker.CurrentDirectory) + i.filePicker.View()
 	}
 
 	return view

@@ -84,7 +84,7 @@ func (m *Model) authorize() tea.Cmd {
 	return func() tea.Msg {
 		login, password := values["Login"], values["Password"]
 		err := m.authorizationService.Authorize(context.Background(), login, password)
-		if err != nil {
+		if err == nil {
 			m.userService.Set(client.User{
 				Login:    login,
 				Password: password,

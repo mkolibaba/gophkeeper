@@ -7,11 +7,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/internal/client/tui/helper"
 )
 
-const (
-	defaultWidth     = 50
-	defaultCharLimit = defaultWidth
-)
-
 var (
 	promptStyle = helper.HeaderStyle
 
