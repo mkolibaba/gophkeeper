@@ -227,7 +227,7 @@ func (m *Model) View() string {
 	}
 
 	// Окно со списком данных
-	tableView := m.renderTableView(m.Width, h)
+	tableView := m.renderTableView(h)
 
 	// Окно детального просмотра
 	detailViewWidth := m.Width - lipgloss.Width(tableView)
@@ -245,16 +245,17 @@ func (m *Model) View() string {
 func (m *Model) SetSize(width int, height int) {
 	m.BaseModel.SetSize(width, height)
 	m.statusBar.Width = width
+	m.dataTable.SetWidth(width/3*2 - 2 - 2) // -2 для паддинга и -2 для границ
 }
 
-func (m *Model) renderTableView(bubbleWidth int, height int) string {
+func (m *Model) renderTableView(height int) string {
 	return helper.Borderize(
 		"Data",
 		m.dataTable.RenderInfoBar(),
 		lipgloss.NewStyle().
-			PaddingLeft(1).
+			Padding(0, 1).
 			Render(m.dataTable.View()),
-		bubbleWidth/3*2,
+		m.Width/3*2,
 		height,
 	)
 }

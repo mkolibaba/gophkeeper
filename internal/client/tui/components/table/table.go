@@ -17,9 +17,8 @@ var (
 )
 
 const (
-	typeWidth  = 10
-	nameWidth  = 30
-	valueWidth = 70 // TODO: тут должна быть родительская ширина
+	typeWidth = 10
+	nameWidth = 30
 )
 
 type Row struct {
@@ -33,10 +32,14 @@ type Model struct {
 	cursor       int
 	data         []client.Data
 	renderedRows []Row
+
+	valueWidth int
 }
 
 func New() *Model {
-	return &Model{}
+	return &Model{
+		valueWidth: 70,
+	}
 }
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
@@ -73,6 +76,10 @@ func (m *Model) GetCurrentRow() client.Data {
 	return m.data[m.cursor]
 }
 
+func (m *Model) SetWidth(width int) {
+	m.valueWidth = width - typeWidth - nameWidth
+}
+
 func (m *Model) RenderInfoBar() string {
 	// TODO: выводить информацию, соответствующую действительности (viewport)
 	//return fmt.Sprintf("%d/%d", m.cursor+1, len(m.renderedRows))
@@ -85,7 +92,7 @@ func (m Model) renderHeader() string {
 		Render(lipgloss.JoinHorizontal(lipgloss.Left,
 			helper.HeaderStyle.Width(typeWidth).Render("Type"),
 			helper.HeaderStyle.Width(nameWidth).Render("Name"),
-			helper.HeaderStyle.Width(valueWidth).Render("Value"),
+			helper.HeaderStyle.Width(m.valueWidth).Render("Value"),
 		))
 }
 
@@ -93,7 +100,7 @@ func (m Model) renderRow(t helper.DataType, name, value string, selected bool) s
 	columns := []string{
 		columnStyle.Width(typeWidth).Render(string(t)),
 		columnStyle.Width(nameWidth).Render(name),
-		columnStyle.Width(valueWidth).Render(value),
+		columnStyle.Width(m.valueWidth).Render(value),
 	}
 
 	rowStyle := lipgloss.NewStyle().
@@ -124,7 +131,7 @@ func (m *Model) ProcessFetchedData(msg []client.Data) {
 				DataType:      helper.DataTypeNote,
 				Name:          el.Name,
 				Value:         el.Text,
-				RenderedValue: trimNoteText(el.Text),
+				RenderedValue: m.trimNoteText(el.Text),
 			})
 		case client.BinaryData:
 			m.renderedRows = append(m.renderedRows, Row{
@@ -144,10 +151,10 @@ func (m *Model) ProcessFetchedData(msg []client.Data) {
 	}
 }
 
-func trimNoteText(text string) string {
+func (m *Model) trimNoteText(text string) string {
 	asRunes := []rune(text) // TODO: может есть лучше решение?
-	if len(asRunes) > valueWidth {
-		return string(asRunes[:valueWidth-3]) + "..."
+	if len(asRunes) > m.valueWidth {
+		return string(asRunes[:m.valueWidth-3]) + "..."
 	}
 	return text
 }
