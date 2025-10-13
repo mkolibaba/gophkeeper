@@ -24,3 +24,13 @@ tasks:
     cmds:
       - task: build
       - ./{{.OUT_PATH}}
+
+  watch:
+    desc: Run server watching
+    preconditions:
+      - sh: test -n (which watchexec)
+        msg: please install watchexec (https://github.com/watchexec/watchexec) to use this task
+    env:
+      SQLITE_DATA_FOLDER: data
+    cmds:
+      - watchexec -r -c -e go --poll 1000 -- go run cmd/server/main.go
