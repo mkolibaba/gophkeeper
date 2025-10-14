@@ -1,27 +1,28 @@
 version: '3'
 
 includes:
-  server:
-    taskfile: ./taskfiles/Server.yml
   client:
-    taskfile: ./taskfiles/Client.yml
+    taskfile: ./client/Taskfile.yml
+    dir: ./client
+  proto:
+    taskfile: ./proto/Taskfile.yml
+    dir: ./proto
+  server:
+    taskfile: ./server/Taskfile.yml
+    dir: ./server
+
+vars:
+  MODULES: [ client, proto, server ]
 
 tasks:
-  gen:proto:
-    desc: Generate proto
-    vars:
-      PROTO_PATH: internal/common/grpc/proto
-    cmds:
-      - (cd {{.PROTO_PATH}};protoc --go_out=gen --go_opt=paths=source_relative --go-grpc_out=gen --go-grpc_opt=paths=source_relative --go_opt=default_api_level=API_OPAQUE *.proto)
-
-  build:
-    desc: Build apps
-    run: once
-    cmds:
-      - task: client:build
-      - task: server:build
-
   test:
-    desc: Run tests
+    desc: Run tests for all modules
     cmds:
-      - go test ./... {{.CLI_ARGS}}
+      - for: { var: MODULES }
+        cmd: cd {{.ITEM}} && go test ./... {{.CLI_ARGS}}
+
+  tidy:
+    desc: Run `go mod tidy` for all modules
+    cmds:
+      - for: { var: MODULES }
+        cmd: cd {{.ITEM}} && go mod tidy

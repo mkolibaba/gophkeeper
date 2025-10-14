@@ -1,0 +1,10 @@
+version: '3'
+
+tasks:
+  gen:
+    desc: Generate proto
+    vars:
+      PROTO_PATH: proto
+    cmds:
+      # TODO: причесать
+      - (cd {{.PROTO_PATH}};protoc --go_out=../gen/go/gophkeeper --go_opt=paths=source_relative --go-grpc_out=../gen/go/gophkeeper --go-grpc_opt=paths=source_relative --go_opt=default_api_level=API_OPAQUE *.proto)

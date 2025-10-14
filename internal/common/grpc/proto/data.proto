@@ -1,9 +1,0 @@
-edition = "2023";
-
-package gophkeeper;
-
-option go_package = "gophkeeper/gen;gophkeeper";
-
-message RemoveDataRequest {
-  string name = 1;
-}

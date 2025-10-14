@@ -1,0 +1,23 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+import "data.proto";
+
+package gophkeeper;
+
+option go_package = "gophkeeper.v1;gophkeeperv1";
+
+message Note {
+  string name = 1;
+  string text = 2;
+}
+
+message GetAllNotesResponse {
+  repeated Note result = 1;
+}
+
+service NoteService {
+  rpc Save(Note) returns (google.protobuf.Empty);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllNotesResponse);
+  rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
+}
