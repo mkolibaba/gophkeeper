@@ -1,11 +1,14 @@
 package grpc
 
-import "go.uber.org/fx"
+import (
+	"github.com/mkolibaba/gophkeeper/server/grpc/interceptors"
+	"go.uber.org/fx"
+)
 
 var Module = fx.Module(
 	"grpc",
 	fx.Provide(
-		NewConfig,
+		interceptors.NewAuthInterceptor,
 		NewAuthorizationServiceServer,
 		NewLoginServiceServer,
 		NewNoteServiceServer,

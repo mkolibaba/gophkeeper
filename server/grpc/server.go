@@ -23,13 +23,13 @@ type ServerParams struct {
 	fx.In
 
 	Lifecycle                  fx.Lifecycle
-	AuthService                *server.AuthService
+	AuthInterceptor            *interceptors.AuthInterceptor
 	AuthorizationServiceServer *AuthorizationServiceServer
 	LoginServiceServer         *LoginServiceServer
 	NoteServiceServer          *NoteServiceServer
 	BinaryServiceServer        *BinaryServiceServer
 	CardServiceServer          *CardServiceServer
-	Config                     *Config
+	Config                     *server.Config
 	Logger                     *log.Logger
 }
 
@@ -37,11 +37,11 @@ func NewServer(p ServerParams) *Server {
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			interceptors.UnaryLogger(p.Logger),
-			interceptors.UnaryAuth(p.AuthService),
+			p.AuthInterceptor.Unary,
 		),
 		grpc.ChainStreamInterceptor(
 			interceptors.StreamLogger(p.Logger),
-			interceptors.StreamAuth(p.AuthService),
+			p.AuthInterceptor.Stream,
 		),
 	)
 	gophkeeperv1.RegisterAuthorizationServiceServer(s, p.AuthorizationServiceServer)
@@ -53,7 +53,7 @@ func NewServer(p ServerParams) *Server {
 
 	srv := &Server{
 		s:      s,
-		port:   p.Config.Port,
+		port:   p.Config.GetGRPCPort(),
 		logger: p.Logger,
 	}
 

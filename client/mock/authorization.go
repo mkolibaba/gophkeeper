@@ -19,7 +19,7 @@ var _ client.AuthorizationService = &AuthorizationServiceMock{}
 //
 //		// make and configure a mocked client.AuthorizationService
 //		mockedAuthorizationService := &AuthorizationServiceMock{
-//			AuthorizeFunc: func(ctx context.Context, login string, password string) error {
+//			AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
 //				panic("mock out the Authorize method")
 //			},
 //			RegisterFunc: func(ctx context.Context, login string, password string) error {
@@ -33,7 +33,7 @@ var _ client.AuthorizationService = &AuthorizationServiceMock{}
 //	}
 type AuthorizationServiceMock struct {
 	// AuthorizeFunc mocks the Authorize method.
-	AuthorizeFunc func(ctx context.Context, login string, password string) error
+	AuthorizeFunc func(ctx context.Context, login string, password string) (string, error)
 
 	// RegisterFunc mocks the Register method.
 	RegisterFunc func(ctx context.Context, login string, password string) error
@@ -64,7 +64,7 @@ type AuthorizationServiceMock struct {
 }
 
 // Authorize calls AuthorizeFunc.
-func (mock *AuthorizationServiceMock) Authorize(ctx context.Context, login string, password string) error {
+func (mock *AuthorizationServiceMock) Authorize(ctx context.Context, login string, password string) (string, error) {
 	callInfo := struct {
 		Ctx      context.Context
 		Login    string
@@ -79,9 +79,10 @@ func (mock *AuthorizationServiceMock) Authorize(ctx context.Context, login strin
 	mock.lockAuthorize.Unlock()
 	if mock.AuthorizeFunc == nil {
 		var (
+			sOut   string
 			errOut error
 		)
-		return errOut
+		return sOut, errOut
 	}
 	return mock.AuthorizeFunc(ctx, login, password)
 }

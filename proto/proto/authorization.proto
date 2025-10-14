@@ -12,8 +12,11 @@ message AuthorizationRequest {
   string password = 2;
 }
 
+message AuthorizationResponse {
+  string token = 1;
+}
+
 service AuthorizationService {
-  // TODO: для авторизации в принципе можно тоже креды в метадате передавать
-  rpc Authorize(AuthorizationRequest) returns (google.protobuf.Empty);
+  rpc Authorize(AuthorizationRequest) returns (AuthorizationResponse);
   rpc Register(AuthorizationRequest) returns (google.protobuf.Empty);
 }

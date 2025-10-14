@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
 	// TODO: для авторизации в принципе можно тоже креды в метадате передавать
-	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error)
 	Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -41,9 +41,9 @@ func NewAuthorizationServiceClient(cc grpc.ClientConnInterface) AuthorizationSer
 	return &authorizationServiceClient{cc}
 }
 
-func (c *authorizationServiceClient) Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *authorizationServiceClient) Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(empty.Empty)
+	out := new(AuthorizationResponse)
 	err := c.cc.Invoke(ctx, AuthorizationService_Authorize_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (c *authorizationServiceClient) Register(ctx context.Context, in *Authoriza
 // for forward compatibility.
 type AuthorizationServiceServer interface {
 	// TODO: для авторизации в принципе можно тоже креды в метадате передавать
-	Authorize(context.Context, *AuthorizationRequest) (*empty.Empty, error)
+	Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error)
 	Register(context.Context, *AuthorizationRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAuthorizationServiceServer()
 }
@@ -78,7 +78,7 @@ type AuthorizationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthorizationServiceServer struct{}
 
-func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *AuthorizationRequest) (*empty.Empty, error) {
+func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
 }
 func (UnimplementedAuthorizationServiceServer) Register(context.Context, *AuthorizationRequest) (*empty.Empty, error) {

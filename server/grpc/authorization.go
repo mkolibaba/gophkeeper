@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 type AuthorizationServiceServer struct {
@@ -17,12 +19,16 @@ type AuthorizationServiceServer struct {
 	userService   server.UserService
 	authService   *server.AuthService
 	dataValidator *validator.Validate
+
+	jwtSecret string
+	jwtTTL    time.Duration
 }
 
 func NewAuthorizationServiceServer(
 	userService server.UserService,
 	authService *server.AuthService,
 	dataValidator *validator.Validate,
+	config *server.Config,
 ) *AuthorizationServiceServer {
 	// TODO: стоит разделить
 	rules := map[string]string{
@@ -36,11 +42,13 @@ func NewAuthorizationServiceServer(
 		userService:   userService,
 		authService:   authService,
 		dataValidator: dataValidator,
+		jwtSecret:     config.GetJWTSecret(),
+		jwtTTL:        config.GetJWTTTL(),
 	}
 }
 
 // TODO: можно убрать токен и просто отправлять статус ок/не ок
-func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *gophkeeperv1.AuthorizationRequest) (*empty.Empty, error) {
+func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *gophkeeperv1.AuthorizationRequest) (*gophkeeperv1.AuthorizationResponse, error) {
 	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
 		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
 	}
@@ -49,7 +57,14 @@ func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *gophkeep
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	return &empty.Empty{}, nil
+	token, err := s.newJWT(in.GetLogin())
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+
+	var out gophkeeperv1.AuthorizationResponse
+	out.SetToken(token)
+	return &out, nil
 }
 
 func (s *AuthorizationServiceServer) Register(ctx context.Context, in *gophkeeperv1.AuthorizationRequest) (*empty.Empty, error) {
@@ -69,4 +84,13 @@ func (s *AuthorizationServiceServer) Register(ctx context.Context, in *gophkeepe
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func (s *AuthorizationServiceServer) newJWT(login string) (string, error) {
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Subject:   login,
+		Issuer:    "gophkeeper",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.jwtTTL)),
+	}).SignedString([]byte(s.jwtSecret))
 }

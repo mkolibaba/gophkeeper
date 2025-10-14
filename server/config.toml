@@ -1,0 +1,6 @@
+[grpc]
+port = 8080
+
+[jwt]
+ttl = "100h"
+secret = "gophkeeper-app"

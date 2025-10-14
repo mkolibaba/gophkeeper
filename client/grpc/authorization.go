@@ -18,21 +18,21 @@ func NewAuthorizationService(conn *grpc.ClientConn) *AuthorizationService {
 	}
 }
 
-func (s *AuthorizationService) Authorize(ctx context.Context, login string, password string) error {
+func (s *AuthorizationService) Authorize(ctx context.Context, login string, password string) (string, error) {
 	var in gophkeeperv1.AuthorizationRequest
 	in.SetLogin(login)
 	in.SetPassword(password)
 
-	_, err := s.client.Authorize(ctx, &in)
+	out, err := s.client.Authorize(ctx, &in)
 
 	if err != nil {
 		if statusErr, ok := status.FromError(err); ok {
-			return fmt.Errorf("%s", statusErr.Message())
+			return "", fmt.Errorf("%s", statusErr.Message())
 		}
-		return err
+		return "", err
 	}
 
-	return nil
+	return out.GetToken(), nil
 }
 
 func (s *AuthorizationService) Register(ctx context.Context, login string, password string) error {
