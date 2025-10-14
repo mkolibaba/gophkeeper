@@ -15,6 +15,12 @@ vars:
   MODULES: [ client, proto, server ]
 
 tasks:
+  gen:
+    desc: Run gen for all modules
+    cmds:
+      - for: { var: MODULES }
+        task: '{{.ITEM}}:gen'
+
   test:
     desc: Run tests for all modules
     cmds:

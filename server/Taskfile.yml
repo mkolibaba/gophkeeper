@@ -6,11 +6,16 @@ vars:
   OUT_PATH: bin/gophkeeper-server
 
 tasks:
+  gen:
+    desc: Run gen
+    cmds:
+      - task: gen:sqlc
+
   gen:sqlc:
     desc: Generate sqlc
     vars:
       SQLC_REPOSITORY: github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0
-      SQLC_CONFIG: internal/server/sqlite/sqlc/sqlc.yml
+      SQLC_CONFIG: sqlite/sqlc/sqlc.yml
     cmds:
       - go run {{.SQLC_REPOSITORY}} generate -f {{.SQLC_CONFIG}}
 

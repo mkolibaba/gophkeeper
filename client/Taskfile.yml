@@ -40,17 +40,22 @@ tasks:
     cmds:
       - tail -n 1000 {{.SPEW_DUMP_OUTPUT}}
 
+  gen:
+    desc: Run gen
+    cmds:
+      - task: gen:mock
+
   gen:mock:
     desc: Generate mocks
     deps:
       - install-moq
     cmds:
-      - go generate github.com/mkolibaba/gophkeeper/internal/client
+      - go generate github.com/mkolibaba/gophkeeper/client
 
   install-moq:
     internal: true
     run: once
     status:
-      - test -z (which moq)
+      - command -v moq >/dev/null 2>&1
     cmds:
       - go install github.com/matryer/moq@latest
