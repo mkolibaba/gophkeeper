@@ -32,6 +32,11 @@ tasks:
       - task: build
       - ./{{.OUT_PATH}}
 
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
   watch:
     desc: Run server watching
     preconditions:

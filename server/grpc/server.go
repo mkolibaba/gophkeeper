@@ -53,7 +53,7 @@ func NewServer(p ServerParams) *Server {
 
 	srv := &Server{
 		s:      s,
-		port:   p.Config.GetGRPCPort(),
+		port:   p.Config.GRPC.Port,
 		logger: p.Logger,
 	}
 

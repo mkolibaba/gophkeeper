@@ -9,7 +9,6 @@ import (
 var Module = fx.Module(
 	"sqlite",
 	fx.Provide(
-		NewConfig,
 		NewDB,
 		NewQueries,
 		fx.Annotate(NewUserService, fx.As(new(server.UserService))),

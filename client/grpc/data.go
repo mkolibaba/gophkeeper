@@ -11,13 +11,13 @@ import (
 type ConnectionParams struct {
 	fx.In
 
-	Config      *Config
+	Config      *client.Config
 	UserService client.UserService
 }
 
 func NewConnection(p ConnectionParams) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(
-		p.Config.ServerAddress,
+		p.Config.GRPC.ServerAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(interceptors.UnaryAuth(p.UserService)),
 		grpc.WithStreamInterceptor(interceptors.StreamAuth(p.UserService)),

@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"github.com/charmbracelet/log"
+	"github.com/mkolibaba/gophkeeper/server"
 	"io/fs"
 	_ "modernc.org/sqlite"
 	"os"
@@ -21,10 +22,10 @@ type DB struct {
 	logger         *log.Logger
 }
 
-func NewDB(cfg *Config, logger *log.Logger) *DB {
+func NewDB(config *server.Config, logger *log.Logger) *DB {
 	return &DB{
-		dsn:            fmt.Sprintf("%s/gophkeeper.sqlite", cfg.DataFolder),
-		binariesFolder: fmt.Sprintf("%s/assets/binary", cfg.DataFolder),
+		dsn:            fmt.Sprintf("%s/gophkeeper.sqlite", config.SQLite.DataFolder),
+		binariesFolder: fmt.Sprintf("%s/assets/binary", config.SQLite.DataFolder),
 		logger:         logger,
 	}
 }

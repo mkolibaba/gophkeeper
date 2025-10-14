@@ -1,22 +1,22 @@
-package server
+package client
 
 import (
 	"fmt"
 	"github.com/spf13/viper"
 	"strings"
-	"time"
 )
 
 type Config struct {
 	GRPC struct {
-		Port string
+		ServerAddress string `mapstructure:"server_address"`
 	}
-	SQLite struct {
-		DataFolder string `mapstructure:"data_folder"`
+	Log struct {
+		Output   string
+		Truncate bool
 	}
-	JWT struct {
-		Secret string
-		TTL    time.Duration
+	Development struct {
+		Enabled    bool
+		SpewOutput string `mapstructure:"spew_output"`
 	}
 }
 

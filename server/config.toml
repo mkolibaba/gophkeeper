@@ -1,6 +1,9 @@
 [grpc]
 port = 8080
 
+[sqlite]
+data_folder = "data"
+
 [jwt]
 ttl = "100h"
 secret = "gophkeeper-app"

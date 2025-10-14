@@ -4,6 +4,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
@@ -34,6 +35,7 @@ type Bubble struct {
 type BubbleParams struct {
 	fx.In
 
+	Config            *client.Config
 	AuthorizationView *authorization.Model
 	MainView          *home.Model
 	AddDataView       *adddata.Model
@@ -41,9 +43,9 @@ type BubbleParams struct {
 
 func NewBubble(p BubbleParams) (Bubble, error) {
 	var dump *os.File
-	if dumpPath, ok := os.LookupEnv("SPEW_DUMP_OUTPUT"); ok {
+	if p.Config.Development.Enabled {
 		var err error
-		dump, err = os.OpenFile(dumpPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
+		dump, err = os.OpenFile(p.Config.Development.SpewOutput, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
 		if err != nil {
 			return Bubble{}, err
 		}

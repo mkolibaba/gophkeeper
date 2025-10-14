@@ -88,7 +88,7 @@ func (i *AuthInterceptor) getSub(ctx context.Context) (string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("jwt: unexpected signing method")
 		}
-		return i.config.GetJWTSecret(), nil
+		return i.config.JWT.Secret, nil
 	})
 	if err != nil {
 		return "", fmt.Errorf("bearer token: %w", err)

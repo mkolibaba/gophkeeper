@@ -42,8 +42,8 @@ func NewAuthorizationServiceServer(
 		userService:   userService,
 		authService:   authService,
 		dataValidator: dataValidator,
-		jwtSecret:     config.GetJWTSecret(),
-		jwtTTL:        config.GetJWTTTL(),
+		jwtSecret:     config.JWT.Secret,
+		jwtTTL:        config.JWT.TTL,
 	}
 }
 

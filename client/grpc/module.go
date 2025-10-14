@@ -8,7 +8,6 @@ import (
 var Module = fx.Module(
 	"grpc",
 	fx.Provide(
-		NewConfig,
 		NewConnection,
 		fx.Annotate(NewAuthorizationService, fx.As(new(client.AuthorizationService))),
 		fx.Annotate(NewLoginService, fx.As(new(client.LoginService))),

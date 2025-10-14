@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/log"
 	"go.uber.org/fx"
 	"os"
-	"strings"
 )
 
 var Module = fx.Module(
@@ -13,17 +12,21 @@ var Module = fx.Module(
 	fx.Provide(
 		newLogger,
 		NewDataValidator,
+		NewConfig,
+	),
+	fx.Invoke(
+		printConfig,
 	),
 )
 
-func newLogger() (*log.Logger, error) {
-	logOutput := os.Getenv("LOG_OUTPUT")
+func newLogger(config *Config) (*log.Logger, error) {
+	logOutput := config.Log.Output
 	if logOutput == "" {
-		return nil, fmt.Errorf("environment variable LOG_OUTPUT is not set")
+		return nil, fmt.Errorf("log output is not set")
 	}
 
 	flags := os.O_WRONLY | os.O_CREATE
-	if strings.ToLower(os.Getenv("LOG_TRUNCATE")) == "true" {
+	if config.Log.Truncate {
 		flags |= os.O_TRUNC
 	} else {
 		flags |= os.O_EXCL
@@ -34,9 +37,17 @@ func newLogger() (*log.Logger, error) {
 		return nil, fmt.Errorf("new logger: %w", err)
 	}
 
-	return log.NewWithOptions(out, log.Options{
+	opts := log.Options{
 		ReportTimestamp: true,
-		Level:           log.DebugLevel,
 		Formatter:       log.JSONFormatter,
-	}), nil
+	}
+	if config.Development.Enabled {
+		opts.Level = log.DebugLevel
+	}
+
+	return log.NewWithOptions(out, opts), nil
+}
+
+func printConfig(logger *log.Logger, config *Config) {
+	logger.Debug("client config", "config", config)
 }
