@@ -15,20 +15,20 @@ import (
 
 type CardServiceServer struct {
 	gophkeeperv1.UnimplementedCardServiceServer
-	cardService   server.CardService
-	dataValidator *validator.Validate
-	logger        *log.Logger
+	cardService server.CardService
+	validate    *validator.Validate
+	logger      *log.Logger
 }
 
 func NewCardServiceServer(
 	cardService server.CardService,
-	dataValidator *validator.Validate,
+	validate *validator.Validate,
 	logger *log.Logger,
 ) *CardServiceServer {
 	return &CardServiceServer{
-		cardService:   cardService,
-		dataValidator: dataValidator,
-		logger:        logger,
+		cardService: cardService,
+		validate:    validate,
+		logger:      logger,
 	}
 }
 
@@ -44,7 +44,7 @@ func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*e
 		Notes:      in.GetNotes(),
 	}
 
-	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
+	if err := s.validate.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 

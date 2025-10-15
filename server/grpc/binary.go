@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/charmbracelet/log"
+	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
@@ -18,15 +19,18 @@ import (
 type BinaryServiceServer struct {
 	gophkeeperv1.UnimplementedBinaryServiceServer
 	binaryService server.BinaryService
+	validate      *validator.Validate
 	logger        *log.Logger
 }
 
 func NewBinaryServiceServer(
 	binaryService server.BinaryService,
+	validate *validator.Validate,
 	logger *log.Logger,
 ) *BinaryServiceServer {
 	return &BinaryServiceServer{
 		binaryService: binaryService,
+		validate:      validate, // TODO: использовать
 		logger:        logger,
 	}
 }
@@ -78,12 +82,14 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 		return status.Error(codes.Internal, err.Error())
 	}
 
-	err = s.binaryService.Save(stream.Context(), server.BinaryData{
-		Name:       name,
-		Filename:   filename,
+	err = s.binaryService.Save(stream.Context(), server.ReadableBinaryData{
+		BinaryData: server.BinaryData{
+			Name:     name,
+			Filename: filename,
+			Size:     size,
+			Notes:    notes,
+		},
 		DataReader: file,
-		Size:       size,
-		Notes:      notes,
 	}, user)
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())

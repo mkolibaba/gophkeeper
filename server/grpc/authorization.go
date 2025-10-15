@@ -16,26 +16,18 @@ type AuthorizationServiceServer struct {
 	gophkeeperv1.UnimplementedAuthorizationServiceServer
 	userService          server.UserService
 	authorizationService server.AuthorizationService
-	dataValidator        *validator.Validate
+	validate             *validator.Validate
 }
 
 func NewAuthorizationServiceServer(
 	userService server.UserService,
 	authorizationService server.AuthorizationService,
-	dataValidator *validator.Validate,
+	validate *validator.Validate,
 ) *AuthorizationServiceServer {
-	// TODO: стоит разделить
-	rules := map[string]string{
-		"login":    "required",
-		"password": "required",
-	}
-
-	dataValidator.RegisterStructValidationMapRules(rules, gophkeeperv1.UserCredentials{})
-
 	return &AuthorizationServiceServer{
 		userService:          userService,
 		authorizationService: authorizationService,
-		dataValidator:        dataValidator,
+		validate:             validate,
 	}
 }
 
@@ -43,7 +35,7 @@ func (s *AuthorizationServiceServer) Authorize(
 	ctx context.Context,
 	in *gophkeeperv1.UserCredentials,
 ) (*gophkeeperv1.TokenResponse, error) {
-	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
+	if err := s.validate.StructCtx(ctx, in); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
@@ -74,7 +66,7 @@ func (s *AuthorizationServiceServer) Register(
 	ctx context.Context,
 	in *gophkeeperv1.UserCredentials,
 ) (*gophkeeperv1.TokenResponse, error) {
-	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
+	if err := s.validate.StructCtx(ctx, in); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 

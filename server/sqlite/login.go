@@ -17,8 +17,8 @@ func NewLoginService(queries *sqlc.Queries) *LoginService {
 	}
 }
 
-func (l *LoginService) Save(ctx context.Context, data server.LoginData, user string) error {
-	err := l.qs.SaveLogin(ctx, sqlc.SaveLoginParams{
+func (s *LoginService) Save(ctx context.Context, data server.LoginData, user string) error {
+	err := s.qs.SaveLogin(ctx, sqlc.SaveLoginParams{
 		Name:     data.Name,
 		Login:    data.Login,
 		Password: stringOrNull(data.Password),
@@ -30,8 +30,8 @@ func (l *LoginService) Save(ctx context.Context, data server.LoginData, user str
 	return tryUnwrapSaveError(err)
 }
 
-func (l *LoginService) GetAll(ctx context.Context, user string) ([]server.LoginData, error) {
-	logins, err := l.qs.GetAllLogins(ctx, user)
+func (s *LoginService) GetAll(ctx context.Context, user string) ([]server.LoginData, error) {
+	logins, err := s.qs.GetAllLogins(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -50,8 +50,13 @@ func (l *LoginService) GetAll(ctx context.Context, user string) ([]server.LoginD
 	return result, nil
 }
 
-func (l *LoginService) Remove(ctx context.Context, name string, user string) error {
-	n, err := l.qs.RemoveLogin(ctx, name)
+func (s *LoginService) Update(ctx context.Context, data server.LoginDataUpdate, user string) error {
+	// TODO: implement
+	panic("implement me")
+}
+
+func (s *LoginService) Remove(ctx context.Context, name string, user string) error {
+	n, err := s.qs.RemoveLogin(ctx, name)
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

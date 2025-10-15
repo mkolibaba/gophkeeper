@@ -15,20 +15,20 @@ import (
 
 type LoginServiceServer struct {
 	gophkeeperv1.UnimplementedLoginServiceServer
-	loginService  server.LoginService
-	dataValidator *validator.Validate
-	logger        *log.Logger
+	loginService server.LoginService
+	validate     *validator.Validate
+	logger       *log.Logger
 }
 
 func NewLoginServiceServer(
 	loginService server.LoginService,
-	dataValidator *validator.Validate,
+	validate *validator.Validate,
 	logger *log.Logger,
 ) *LoginServiceServer {
 	return &LoginServiceServer{
-		loginService:  loginService,
-		dataValidator: dataValidator,
-		logger:        logger,
+		loginService: loginService,
+		validate:     validate,
+		logger:       logger,
 	}
 }
 
@@ -43,7 +43,7 @@ func (s *LoginServiceServer) Save(ctx context.Context, in *gophkeeperv1.Login) (
 		Notes:    in.GetNotes(),
 	}
 
-	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
+	if err := s.validate.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 

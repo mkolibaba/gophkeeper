@@ -17,8 +17,8 @@ func NewCardService(queries *sqlc.Queries) *CardService {
 	}
 }
 
-func (c *CardService) Save(ctx context.Context, data server.CardData, user string) error {
-	err := c.qs.SaveCard(ctx, sqlc.SaveCardParams{
+func (s *CardService) Save(ctx context.Context, data server.CardData, user string) error {
+	err := s.qs.SaveCard(ctx, sqlc.SaveCardParams{
 		Name:       data.Name,
 		Number:     data.Number,
 		ExpDate:    data.ExpDate,
@@ -31,8 +31,8 @@ func (c *CardService) Save(ctx context.Context, data server.CardData, user strin
 	return tryUnwrapSaveError(err)
 }
 
-func (c *CardService) GetAll(ctx context.Context, user string) ([]server.CardData, error) {
-	cards, err := c.qs.GetAllCards(ctx, user)
+func (s *CardService) GetAll(ctx context.Context, user string) ([]server.CardData, error) {
+	cards, err := s.qs.GetAllCards(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -52,8 +52,13 @@ func (c *CardService) GetAll(ctx context.Context, user string) ([]server.CardDat
 	return result, nil
 }
 
-func (c *CardService) Remove(ctx context.Context, name string, user string) error {
-	n, err := c.qs.RemoveCard(ctx, name)
+func (s *CardService) Update(ctx context.Context, data server.CardData, user string) error {
+	// TODO: implement
+	panic("implement me")
+}
+
+func (s *CardService) Remove(ctx context.Context, name string, user string) error {
+	n, err := s.qs.RemoveCard(ctx, name)
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

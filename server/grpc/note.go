@@ -15,20 +15,20 @@ import (
 
 type NoteServiceServer struct {
 	gophkeeperv1.UnimplementedNoteServiceServer
-	noteService   server.NoteService
-	dataValidator *validator.Validate
-	logger        *log.Logger
+	noteService server.NoteService
+	validate    *validator.Validate
+	logger      *log.Logger
 }
 
 func NewNoteServiceServer(
 	noteService server.NoteService,
-	dataValidator *validator.Validate,
+	validate *validator.Validate,
 	logger *log.Logger,
 ) *NoteServiceServer {
 	return &NoteServiceServer{
-		noteService:   noteService,
-		dataValidator: dataValidator,
-		logger:        logger,
+		noteService: noteService,
+		validate:    validate,
+		logger:      logger,
 	}
 }
 
@@ -40,7 +40,7 @@ func (s *NoteServiceServer) Save(ctx context.Context, in *gophkeeperv1.Note) (*e
 		Text: in.GetText(),
 	}
 
-	if err := s.dataValidator.StructCtx(ctx, &data); err != nil {
+	if err := s.validate.StructCtx(ctx, &data); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 

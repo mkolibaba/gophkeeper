@@ -24,10 +24,10 @@ func NewBinaryService(queries *sqlc.Queries, db *DB) *BinaryService {
 	}
 }
 
-func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user string) error {
+func (s *BinaryService) Save(ctx context.Context, data server.ReadableBinaryData, user string) error {
 	// TODO: тут лучше проверить, что такой записи и такого файла нет
 
-	err := b.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
+	err := s.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
 		Name:     data.Name,
 		Filename: data.Filename,
 		Size:     data.Size,
@@ -39,7 +39,7 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user s
 		return tryUnwrapSaveError(err)
 	}
 
-	dest, err := os.Create(filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, data.Name)))
+	dest, err := os.Create(filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, data.Name)))
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
 	}
@@ -56,33 +56,35 @@ func (b *BinaryService) Save(ctx context.Context, data server.BinaryData, user s
 	return nil
 }
 
-func (b *BinaryService) Get(ctx context.Context, name string, user string) (server.BinaryData, error) {
-	binary, err := b.qs.GetBinary(ctx, name, user)
+func (s *BinaryService) Get(ctx context.Context, name string, user string) (*server.ReadableBinaryData, error) {
+	binary, err := s.qs.GetBinary(ctx, name, user)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return server.BinaryData{}, server.ErrDataNotFound
+			return nil, server.ErrDataNotFound
 		}
-		return server.BinaryData{}, fmt.Errorf("get: %w", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	path := filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, binary.Name))
+	path := filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, binary.Name))
 
 	file, err := os.Open(path)
 	if err != nil {
-		return server.BinaryData{}, fmt.Errorf("get: %w", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	return server.BinaryData{
-		Name:       binary.Name,
-		Notes:      stringOrEmpty(binary.Notes),
-		Filename:   binary.Filename,
-		Size:       binary.Size,
+	return &server.ReadableBinaryData{
+		BinaryData: server.BinaryData{
+			Name:     binary.Name,
+			Notes:    stringOrEmpty(binary.Notes),
+			Filename: binary.Filename,
+			Size:     binary.Size,
+		},
 		DataReader: file,
 	}, nil
 }
 
-func (b *BinaryService) GetAll(ctx context.Context, user string) ([]server.BinaryData, error) {
-	binaries, err := b.qs.GetAllBinaries(ctx, user)
+func (s *BinaryService) GetAll(ctx context.Context, user string) ([]server.BinaryData, error) {
+	binaries, err := s.qs.GetAllBinaries(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -100,15 +102,20 @@ func (b *BinaryService) GetAll(ctx context.Context, user string) ([]server.Binar
 	return result, nil
 }
 
-func (b *BinaryService) Remove(ctx context.Context, name string, user string) error {
-	n, err := b.qs.RemoveBinary(ctx, name)
+func (s *BinaryService) Update(ctx context.Context, data server.BinaryDataUpdate, user string) error {
+	// TODO: implement
+	panic("implement me")
+}
+
+func (s *BinaryService) Remove(ctx context.Context, name string, user string) error {
+	n, err := s.qs.RemoveBinary(ctx, name)
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}
 	if n == 0 {
 		return server.ErrDataNotFound
 	}
-	path := filepath.Join(b.binariesFolder, fmt.Sprintf("%s__%s", user, name))
+	path := filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, name))
 	if err = os.Remove(path); err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

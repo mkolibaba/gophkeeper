@@ -17,8 +17,8 @@ func NewNoteService(queries *sqlc.Queries) *NoteService {
 	}
 }
 
-func (n *NoteService) Save(ctx context.Context, data server.NoteData, user string) error {
-	err := n.qs.SaveNote(ctx, sqlc.SaveNoteParams{
+func (s *NoteService) Save(ctx context.Context, data server.NoteData, user string) error {
+	err := s.qs.SaveNote(ctx, sqlc.SaveNoteParams{
 		Name: data.Name,
 		Text: stringOrNull(data.Text),
 		User: user,
@@ -27,8 +27,8 @@ func (n *NoteService) Save(ctx context.Context, data server.NoteData, user strin
 	return tryUnwrapSaveError(err)
 }
 
-func (n *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteData, error) {
-	notes, err := n.qs.GetAllNotes(ctx, user)
+func (s *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteData, error) {
+	notes, err := s.qs.GetAllNotes(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -44,8 +44,13 @@ func (n *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteDat
 	return result, nil
 }
 
-func (n *NoteService) Remove(ctx context.Context, name string, user string) error {
-	cnt, err := n.qs.RemoveNote(ctx, name)
+func (s *NoteService) Update(ctx context.Context, data server.NoteDataUpdate, user string) error {
+	// TODO: implement
+	panic("implement me")
+}
+
+func (s *NoteService) Remove(ctx context.Context, name string, user string) error {
+	cnt, err := s.qs.RemoveNote(ctx, name)
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}

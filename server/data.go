@@ -15,73 +15,93 @@ var (
 	ErrUserNotFound      = errors.New("user not found")
 )
 
-type (
-	Data interface {
-		LoginData | NoteData | BinaryData | CardData
-	}
+// TODO(critical): поменять идентификатор name на id
+type LoginData struct {
+	Name     string `validate:"required"`
+	Login    string `validate:"required"`
+	Password string
+	Website  string
+	Notes    string
+}
 
-	LoginData struct {
-		Name     string `validate:"required"`
-		Login    string `validate:"required"`
-		Password string
-		Website  string
-		Notes    string
-	}
+type LoginDataUpdate struct {
+	Name     *string
+	Login    *string
+	Password *string
+	Website  *string
+	Notes    *string
+}
 
-	NoteData struct {
-		Name string `validate:"required"`
-		Text string
-	}
+type LoginService interface {
+	Save(ctx context.Context, data LoginData, user string) error
+	GetAll(ctx context.Context, user string) ([]LoginData, error)
+	Update(ctx context.Context, data LoginDataUpdate, user string) error
+	Remove(ctx context.Context, name string, user string) error
+}
 
-	BinaryData struct {
-		Name       string `validate:"required"`
-		Filename   string
-		Size       int64
-		DataReader io.ReadCloser // TODO: этот reader должен быть только у реквеста
-		Notes      string
-	}
+type NoteData struct {
+	Name string `validate:"required"`
+	Text string
+}
 
-	CardData struct {
-		Name       string `validate:"required"`
-		Number     string `validate:"required,credit_card"`
-		ExpDate    string `validate:"required,exp_date"`
-		CVV        string `validate:"required,len=3"`
-		Cardholder string `validate:"required"`
-		Notes      string
-	}
+type NoteDataUpdate struct {
+	Text *string
+}
 
-	TypedDataService[T Data] interface {
-		Save(ctx context.Context, data T, user string) error
-		GetAll(ctx context.Context, user string) ([]T, error)
-		// TODO: update method
+type NoteService interface {
+	Save(ctx context.Context, data NoteData, user string) error
+	GetAll(ctx context.Context, user string) ([]NoteData, error)
+	Update(ctx context.Context, data NoteDataUpdate, user string) error
+	Remove(ctx context.Context, name string, user string) error
+}
 
-		// TODO: тут нужен user? возможно, да, но только для валидации
-		Remove(ctx context.Context, name string, user string) error
-	}
+type BinaryData struct {
+	Name     string `validate:"required"`
+	Filename string `validate:"required"`
+	Size     int64
+	Notes    string
+}
 
-	LoginService TypedDataService[LoginData]
+type ReadableBinaryData struct {
+	BinaryData
+	DataReader io.ReadCloser
+}
 
-	NoteService TypedDataService[NoteData]
+type BinaryDataUpdate struct {
+	Notes *string
+}
 
-	BinaryService interface {
-		TypedDataService[BinaryData]
-		Get(ctx context.Context, name string, user string) (BinaryData, error)
-	}
+type BinaryService interface {
+	Save(ctx context.Context, data ReadableBinaryData, user string) error
+	Get(ctx context.Context, name string, user string) (*ReadableBinaryData, error)
+	GetAll(ctx context.Context, user string) ([]BinaryData, error)
+	Update(ctx context.Context, data BinaryDataUpdate, user string) error
+	Remove(ctx context.Context, name string, user string) error
+}
 
-	CardService TypedDataService[CardData]
-)
+type CardData struct {
+	Name       string `validate:"required"`
+	Number     string `validate:"required,credit_card"`
+	ExpDate    string `validate:"required,exp_date"`
+	CVV        string `validate:"required,len=3"`
+	Cardholder string `validate:"required"`
+	Notes      string
+}
 
-// TODO: нужно ли разделить data validator и user validator? либо нормально их объединить?
-func NewDataValidator() (*validator.Validate, error) {
+type CardService interface {
+	Save(ctx context.Context, data CardData, user string) error
+	GetAll(ctx context.Context, user string) ([]CardData, error)
+	Update(ctx context.Context, data CardData, user string) error
+	Remove(ctx context.Context, name string, user string) error
+}
+
+func RegisterDataValidationRules(validate *validator.Validate) error {
 	expDateRegexp, err := regexp.Compile(`^\d{2}/\d{2}$`)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	v := validator.New()
-	err = v.RegisterValidation("exp_date", func(fl validator.FieldLevel) bool {
+	return validate.RegisterValidation("exp_date", func(fl validator.FieldLevel) bool {
 		return expDateRegexp.MatchString(fl.Field().String())
 	})
-
-	return v, err
 }
