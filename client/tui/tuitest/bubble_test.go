@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/exp/teatest"
+	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/inmem"
 	"github.com/mkolibaba/gophkeeper/client/mock"
 	"github.com/mkolibaba/gophkeeper/client/tui"
@@ -26,8 +27,11 @@ func TestAuthorizationView(t *testing.T) {
 			return "", fmt.Errorf("some error")
 		},
 	}
+	var config client.Config
+	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
 		AuthorizationView: authorization.New(authorization.Params{
 			AuthorizationService: authMock,
 			UserService:          userService,
@@ -68,6 +72,7 @@ func TestAuthorizationView(t *testing.T) {
 	authMock.AuthorizeFunc = func(ctx context.Context, login string, password string) (string, error) {
 		return "super token", nil
 	}
+	userService.SetInfo("foo", "super token") // TODO: выглядит неправильно
 	tm.Type("foo")
 	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
 	tm.Type("bar")
