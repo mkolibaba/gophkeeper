@@ -8,7 +8,6 @@ package gophkeeperv1
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -28,8 +27,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
-	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error)
-	Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	Authorize(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*TokenResponse, error)
+	Register(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*TokenResponse, error)
 }
 
 type authorizationServiceClient struct {
@@ -40,9 +39,9 @@ func NewAuthorizationServiceClient(cc grpc.ClientConnInterface) AuthorizationSer
 	return &authorizationServiceClient{cc}
 }
 
-func (c *authorizationServiceClient) Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error) {
+func (c *authorizationServiceClient) Authorize(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*TokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AuthorizationResponse)
+	out := new(TokenResponse)
 	err := c.cc.Invoke(ctx, AuthorizationService_Authorize_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -50,9 +49,9 @@ func (c *authorizationServiceClient) Authorize(ctx context.Context, in *Authoriz
 	return out, nil
 }
 
-func (c *authorizationServiceClient) Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *authorizationServiceClient) Register(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*TokenResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(empty.Empty)
+	out := new(TokenResponse)
 	err := c.cc.Invoke(ctx, AuthorizationService_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -64,8 +63,8 @@ func (c *authorizationServiceClient) Register(ctx context.Context, in *Authoriza
 // All implementations must embed UnimplementedAuthorizationServiceServer
 // for forward compatibility.
 type AuthorizationServiceServer interface {
-	Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error)
-	Register(context.Context, *AuthorizationRequest) (*empty.Empty, error)
+	Authorize(context.Context, *UserCredentials) (*TokenResponse, error)
+	Register(context.Context, *UserCredentials) (*TokenResponse, error)
 	mustEmbedUnimplementedAuthorizationServiceServer()
 }
 
@@ -76,10 +75,10 @@ type AuthorizationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthorizationServiceServer struct{}
 
-func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error) {
+func (UnimplementedAuthorizationServiceServer) Authorize(context.Context, *UserCredentials) (*TokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authorize not implemented")
 }
-func (UnimplementedAuthorizationServiceServer) Register(context.Context, *AuthorizationRequest) (*empty.Empty, error) {
+func (UnimplementedAuthorizationServiceServer) Register(context.Context, *UserCredentials) (*TokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
 func (UnimplementedAuthorizationServiceServer) mustEmbedUnimplementedAuthorizationServiceServer() {}
@@ -104,7 +103,7 @@ func RegisterAuthorizationServiceServer(s grpc.ServiceRegistrar, srv Authorizati
 }
 
 func _AuthorizationService_Authorize_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthorizationRequest)
+	in := new(UserCredentials)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -116,13 +115,13 @@ func _AuthorizationService_Authorize_Handler(srv interface{}, ctx context.Contex
 		FullMethod: AuthorizationService_Authorize_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).Authorize(ctx, req.(*AuthorizationRequest))
+		return srv.(AuthorizationServiceServer).Authorize(ctx, req.(*UserCredentials))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthorizationService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuthorizationRequest)
+	in := new(UserCredentials)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -134,7 +133,7 @@ func _AuthorizationService_Register_Handler(srv interface{}, ctx context.Context
 		FullMethod: AuthorizationService_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServiceServer).Register(ctx, req.(*AuthorizationRequest))
+		return srv.(AuthorizationServiceServer).Register(ctx, req.(*UserCredentials))
 	}
 	return interceptor(ctx, in, info, handler)
 }

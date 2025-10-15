@@ -34,7 +34,7 @@ func Run() error {
 
 // Runs go test in verbose mode and prettifies the output
 func Test() error {
-	output, err := run("go", []string{"test", "-v", "./..."}, map[string]string{})
+	output, err := sh.Output("go", "test", "./...")
 	for _, line := range strings.Split(output, "\n") {
 		if strings.Contains(line, "[no test files]") {
 			continue
@@ -85,8 +85,11 @@ func Gen() {
 }
 
 // Generate mocks
-func GenMock() {
+func GenMock() error {
 	mg.Deps(installMoq)
+
+	color.HiGreen("Generating mocks")
+	return sh.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/client")
 }
 
 func installMoq() error {

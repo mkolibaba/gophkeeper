@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/grpc"
+	"github.com/mkolibaba/gophkeeper/server/jwt"
 	"github.com/mkolibaba/gophkeeper/server/sqlite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -22,5 +23,8 @@ func createApp() fx.Option {
 		server.Module,
 		sqlite.Module,
 		grpc.Module,
+		fx.Provide(
+			fx.Annotate(jwt.NewAuthorizationService, fx.As(new(server.AuthorizationService))),
+		),
 	)
 }

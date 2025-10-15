@@ -1,10 +1,8 @@
-//go:build mage
-// +build mage
-
 package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"os"
@@ -17,25 +15,25 @@ var modules = []string{
 	"server",
 }
 
-// Run gen for all modules
-func Gen() {
+// Run gen target for given module (running for all in none specified)
+func Gen(module string) {
 	forEachModule(func() {
 		sh.RunV("mage", "gen")
-	})
+	}, module)
 }
 
-// Run tests for all modules
-func Test() {
+// Run test for given module (running for all in none specified)
+func Test(module string) {
 	forEachModule(func() {
-		sh.RunV("go", "test", "./...")
-	})
+		sh.RunV("mage", "test")
+	}, module)
 }
 
-// Run 'go mod tidy' for all modules
-func Tidy() {
+// Run 'go mod tidy' for given module (running for all in none specified)
+func Tidy(module string) {
 	forEachModule(func() {
 		sh.RunV("go", "mod", "tidy")
-	})
+	}, module)
 }
 
 // Install mage
@@ -44,9 +42,13 @@ func EnsureMage() error {
 	return exec.Command("go", "install", "github.com/magefile/mage@latest").Run()
 }
 
-func forEachModule(executor func()) {
-	for _, module := range modules {
-		fmt.Println("󰠱 " + module)
+func forEachModule(executor func(), ms ...string) {
+	if len(ms) == 0 {
+		ms = modules
+	}
+
+	for _, module := range ms {
+		color.HiMagenta("󰠱 " + module)
 		os.Chdir(module)
 		executor()
 		os.Chdir("..")

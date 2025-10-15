@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 var (
@@ -40,7 +42,20 @@ func Run() error {
 
 // Run tests
 func Test() error {
-	return sh.RunV("go", "test", "./...")
+	output, err := sh.Output("go", "test", "./...")
+	for _, line := range strings.Split(output, "\n") {
+		if strings.Contains(line, "[no test files]") {
+			continue
+		}
+		if strings.HasPrefix(line, "ok") {
+			color.HiGreen(line)
+		} else if strings.Contains(line, "FAIL") {
+			color.HiRed(line)
+		} else {
+			color.New().Println(line)
+		}
+	}
+	return err
 }
 
 // Run server in watch mode (requires watchexec)

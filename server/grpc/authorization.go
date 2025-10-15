@@ -3,32 +3,26 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
+
+var ErrInvalidCredentials = status.Error(codes.InvalidArgument, "invalid login or password")
 
 type AuthorizationServiceServer struct {
 	gophkeeperv1.UnimplementedAuthorizationServiceServer
-	userService   server.UserService
-	authService   *server.AuthService
-	dataValidator *validator.Validate
-
-	jwtSecret string
-	jwtTTL    time.Duration
+	userService          server.UserService
+	authorizationService server.AuthorizationService
+	dataValidator        *validator.Validate
 }
 
 func NewAuthorizationServiceServer(
 	userService server.UserService,
-	authService *server.AuthService,
+	authorizationService server.AuthorizationService,
 	dataValidator *validator.Validate,
-	config *server.Config,
 ) *AuthorizationServiceServer {
 	// TODO: стоит разделить
 	rules := map[string]string{
@@ -36,40 +30,52 @@ func NewAuthorizationServiceServer(
 		"password": "required",
 	}
 
-	dataValidator.RegisterStructValidationMapRules(rules, gophkeeperv1.AuthorizationRequest{})
+	dataValidator.RegisterStructValidationMapRules(rules, gophkeeperv1.UserCredentials{})
 
 	return &AuthorizationServiceServer{
-		userService:   userService,
-		authService:   authService,
-		dataValidator: dataValidator,
-		jwtSecret:     config.JWT.Secret,
-		jwtTTL:        config.JWT.TTL,
+		userService:          userService,
+		authorizationService: authorizationService,
+		dataValidator:        dataValidator,
 	}
 }
 
-// TODO: можно убрать токен и просто отправлять статус ок/не ок
-func (s *AuthorizationServiceServer) Authorize(ctx context.Context, in *gophkeeperv1.AuthorizationRequest) (*gophkeeperv1.AuthorizationResponse, error) {
+func (s *AuthorizationServiceServer) Authorize(
+	ctx context.Context,
+	in *gophkeeperv1.UserCredentials,
+) (*gophkeeperv1.TokenResponse, error) {
 	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.authService.Authorize(ctx, in.GetLogin(), in.GetPassword()); err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
+	user, err := s.userService.Get(ctx, in.GetLogin())
+	if errors.Is(err, server.ErrUserNotFound) {
+		return nil, ErrInvalidCredentials
 	}
-
-	token, err := s.newJWT(in.GetLogin())
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var out gophkeeperv1.AuthorizationResponse
+	// TODO: заменить на хеши
+	if user.Password != in.GetPassword() {
+		return nil, ErrInvalidCredentials
+	}
+
+	token, err := s.authorizationService.Authorize(ctx, in.GetLogin())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	var out gophkeeperv1.TokenResponse
 	out.SetToken(token)
 	return &out, nil
 }
 
-func (s *AuthorizationServiceServer) Register(ctx context.Context, in *gophkeeperv1.AuthorizationRequest) (*empty.Empty, error) {
+func (s *AuthorizationServiceServer) Register(
+	ctx context.Context,
+	in *gophkeeperv1.UserCredentials,
+) (*gophkeeperv1.TokenResponse, error) {
 	if err := s.dataValidator.StructCtx(ctx, in); err != nil {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintf("invalid request: %v", err.Error()))
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	err := s.userService.Save(ctx, server.User{
@@ -77,20 +83,20 @@ func (s *AuthorizationServiceServer) Register(ctx context.Context, in *gophkeepe
 		Password: in.GetPassword(),
 	})
 	if errors.Is(err, server.ErrUserAlreadyExists) {
-		return nil, status.Error(codes.Unauthenticated, "invalid login or password")
+		// Здесь можно было бы возвращать ошибку "Такой пользователь уже существует",
+		// но в рамках безопасности лучше не сообщать какие пользователи есть в системе.
+		return nil, ErrInvalidCredentials
 	}
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, err.Error()) // TODO: человеческая ошибка
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &empty.Empty{}, nil
-}
+	token, err := s.authorizationService.Authorize(ctx, in.GetLogin())
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-func (s *AuthorizationServiceServer) newJWT(login string) (string, error) {
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   login,
-		Issuer:    "gophkeeper",
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(s.jwtTTL)),
-	}).SignedString([]byte(s.jwtSecret))
+	var out gophkeeperv1.TokenResponse
+	out.SetToken(token)
+	return &out, nil
 }

@@ -1,12 +1,7 @@
 package inmem
 
-import (
-	"github.com/mkolibaba/gophkeeper/client"
-)
-
 type UserService struct {
-	user  *client.User
-	login *string
+	login *string // TODO: доставать логин из токена
 	token *string
 }
 

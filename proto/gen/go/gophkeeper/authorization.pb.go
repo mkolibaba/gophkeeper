@@ -7,7 +7,6 @@
 package gophkeeperv1
 
 import (
-	empty "github.com/golang/protobuf/ptypes/empty"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -21,8 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// TODO: переименовать
-type AuthorizationRequest struct {
+type UserCredentials struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Login       *string                `protobuf:"bytes,1,opt,name=login"`
 	xxx_hidden_Password    *string                `protobuf:"bytes,2,opt,name=password"`
@@ -32,20 +30,20 @@ type AuthorizationRequest struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *AuthorizationRequest) Reset() {
-	*x = AuthorizationRequest{}
+func (x *UserCredentials) Reset() {
+	*x = UserCredentials{}
 	mi := &file_authorization_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthorizationRequest) String() string {
+func (x *UserCredentials) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthorizationRequest) ProtoMessage() {}
+func (*UserCredentials) ProtoMessage() {}
 
-func (x *AuthorizationRequest) ProtoReflect() protoreflect.Message {
+func (x *UserCredentials) ProtoReflect() protoreflect.Message {
 	mi := &file_authorization_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,7 +55,7 @@ func (x *AuthorizationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *AuthorizationRequest) GetLogin() string {
+func (x *UserCredentials) GetLogin() string {
 	if x != nil {
 		if x.xxx_hidden_Login != nil {
 			return *x.xxx_hidden_Login
@@ -67,7 +65,7 @@ func (x *AuthorizationRequest) GetLogin() string {
 	return ""
 }
 
-func (x *AuthorizationRequest) GetPassword() string {
+func (x *UserCredentials) GetPassword() string {
 	if x != nil {
 		if x.xxx_hidden_Password != nil {
 			return *x.xxx_hidden_Password
@@ -77,49 +75,49 @@ func (x *AuthorizationRequest) GetPassword() string {
 	return ""
 }
 
-func (x *AuthorizationRequest) SetLogin(v string) {
+func (x *UserCredentials) SetLogin(v string) {
 	x.xxx_hidden_Login = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
 }
 
-func (x *AuthorizationRequest) SetPassword(v string) {
+func (x *UserCredentials) SetPassword(v string) {
 	x.xxx_hidden_Password = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
-func (x *AuthorizationRequest) HasLogin() bool {
+func (x *UserCredentials) HasLogin() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *AuthorizationRequest) HasPassword() bool {
+func (x *UserCredentials) HasPassword() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *AuthorizationRequest) ClearLogin() {
+func (x *UserCredentials) ClearLogin() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Login = nil
 }
 
-func (x *AuthorizationRequest) ClearPassword() {
+func (x *UserCredentials) ClearPassword() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Password = nil
 }
 
-type AuthorizationRequest_builder struct {
+type UserCredentials_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Login    *string
 	Password *string
 }
 
-func (b0 AuthorizationRequest_builder) Build() *AuthorizationRequest {
-	m0 := &AuthorizationRequest{}
+func (b0 UserCredentials_builder) Build() *UserCredentials {
+	m0 := &UserCredentials{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Login != nil {
@@ -133,7 +131,7 @@ func (b0 AuthorizationRequest_builder) Build() *AuthorizationRequest {
 	return m0
 }
 
-type AuthorizationResponse struct {
+type TokenResponse struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Token       *string                `protobuf:"bytes,1,opt,name=token"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
@@ -142,20 +140,20 @@ type AuthorizationResponse struct {
 	sizeCache              protoimpl.SizeCache
 }
 
-func (x *AuthorizationResponse) Reset() {
-	*x = AuthorizationResponse{}
+func (x *TokenResponse) Reset() {
+	*x = TokenResponse{}
 	mi := &file_authorization_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthorizationResponse) String() string {
+func (x *TokenResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthorizationResponse) ProtoMessage() {}
+func (*TokenResponse) ProtoMessage() {}
 
-func (x *AuthorizationResponse) ProtoReflect() protoreflect.Message {
+func (x *TokenResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_authorization_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -167,7 +165,7 @@ func (x *AuthorizationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *AuthorizationResponse) GetToken() string {
+func (x *TokenResponse) GetToken() string {
 	if x != nil {
 		if x.xxx_hidden_Token != nil {
 			return *x.xxx_hidden_Token
@@ -177,31 +175,31 @@ func (x *AuthorizationResponse) GetToken() string {
 	return ""
 }
 
-func (x *AuthorizationResponse) SetToken(v string) {
+func (x *TokenResponse) SetToken(v string) {
 	x.xxx_hidden_Token = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
-func (x *AuthorizationResponse) HasToken() bool {
+func (x *TokenResponse) HasToken() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *AuthorizationResponse) ClearToken() {
+func (x *TokenResponse) ClearToken() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Token = nil
 }
 
-type AuthorizationResponse_builder struct {
+type TokenResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Token *string
 }
 
-func (b0 AuthorizationResponse_builder) Build() *AuthorizationResponse {
-	m0 := &AuthorizationResponse{}
+func (b0 TokenResponse_builder) Build() *TokenResponse {
+	m0 := &TokenResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Token != nil {
@@ -216,27 +214,26 @@ var File_authorization_proto protoreflect.FileDescriptor
 const file_authorization_proto_rawDesc = "" +
 	"\n" +
 	"\x13authorization.proto\x12\n" +
-	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\"H\n" +
-	"\x14AuthorizationRequest\x12\x14\n" +
+	"gophkeeper\"C\n" +
+	"\x0fUserCredentials\x12\x14\n" +
 	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
-	"\x15AuthorizationResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token2\xae\x01\n" +
-	"\x14AuthorizationService\x12P\n" +
-	"\tAuthorize\x12 .gophkeeper.AuthorizationRequest\x1a!.gophkeeper.AuthorizationResponse\x12D\n" +
-	"\bRegister\x12 .gophkeeper.AuthorizationRequest\x1a\x16.google.protobuf.EmptyB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
+	"\rTokenResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token2\x9f\x01\n" +
+	"\x14AuthorizationService\x12C\n" +
+	"\tAuthorize\x12\x1b.gophkeeper.UserCredentials\x1a\x19.gophkeeper.TokenResponse\x12B\n" +
+	"\bRegister\x12\x1b.gophkeeper.UserCredentials\x1a\x19.gophkeeper.TokenResponseB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
 
 var file_authorization_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_authorization_proto_goTypes = []any{
-	(*AuthorizationRequest)(nil),  // 0: gophkeeper.AuthorizationRequest
-	(*AuthorizationResponse)(nil), // 1: gophkeeper.AuthorizationResponse
-	(*empty.Empty)(nil),           // 2: google.protobuf.Empty
+	(*UserCredentials)(nil), // 0: gophkeeper.UserCredentials
+	(*TokenResponse)(nil),   // 1: gophkeeper.TokenResponse
 }
 var file_authorization_proto_depIdxs = []int32{
-	0, // 0: gophkeeper.AuthorizationService.Authorize:input_type -> gophkeeper.AuthorizationRequest
-	0, // 1: gophkeeper.AuthorizationService.Register:input_type -> gophkeeper.AuthorizationRequest
-	1, // 2: gophkeeper.AuthorizationService.Authorize:output_type -> gophkeeper.AuthorizationResponse
-	2, // 3: gophkeeper.AuthorizationService.Register:output_type -> google.protobuf.Empty
+	0, // 0: gophkeeper.AuthorizationService.Authorize:input_type -> gophkeeper.UserCredentials
+	0, // 1: gophkeeper.AuthorizationService.Register:input_type -> gophkeeper.UserCredentials
+	1, // 2: gophkeeper.AuthorizationService.Authorize:output_type -> gophkeeper.TokenResponse
+	1, // 3: gophkeeper.AuthorizationService.Register:output_type -> gophkeeper.TokenResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

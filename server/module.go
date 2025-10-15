@@ -11,7 +11,6 @@ var Module = fx.Module(
 	fx.Provide(
 		newLogger,
 		NewDataValidator,
-		NewAuthService,
 		NewConfig,
 	),
 )
