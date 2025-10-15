@@ -15,25 +15,25 @@ var modules = []string{
 	"server",
 }
 
-// Run gen target for given module (running for all in none specified)
-func Gen(module string) {
+// Run gen target for all modules
+func Gen() {
 	forEachModule(func() {
 		sh.RunV("mage", "gen")
-	}, module)
+	})
 }
 
-// Run test for given module (running for all in none specified)
-func Test(module string) {
+// Run test for all modules
+func Test() {
 	forEachModule(func() {
 		sh.RunV("mage", "test")
-	}, module)
+	})
 }
 
-// Run 'go mod tidy' for given module (running for all in none specified)
-func Tidy(module string) {
+// Run 'go mod tidy' for all modules
+func Tidy() {
 	forEachModule(func() {
 		sh.RunV("go", "mod", "tidy")
-	}, module)
+	})
 }
 
 // Install mage
