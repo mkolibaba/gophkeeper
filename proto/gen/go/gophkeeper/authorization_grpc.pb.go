@@ -28,7 +28,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationServiceClient interface {
-	// TODO: для авторизации в принципе можно тоже креды в метадате передавать
 	Authorize(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*AuthorizationResponse, error)
 	Register(ctx context.Context, in *AuthorizationRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
@@ -65,7 +64,6 @@ func (c *authorizationServiceClient) Register(ctx context.Context, in *Authoriza
 // All implementations must embed UnimplementedAuthorizationServiceServer
 // for forward compatibility.
 type AuthorizationServiceServer interface {
-	// TODO: для авторизации в принципе можно тоже креды в метадате передавать
 	Authorize(context.Context, *AuthorizationRequest) (*AuthorizationResponse, error)
 	Register(context.Context, *AuthorizationRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAuthorizationServiceServer()
