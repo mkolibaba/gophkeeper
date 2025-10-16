@@ -10,6 +10,10 @@ type User struct {
 }
 
 type UserService interface {
-	Get(ctx context.Context, login string) (User, error)
+	Get(ctx context.Context, login string) (*User, error)
 	Save(ctx context.Context, user User) error
+}
+
+func IsCurrentUser(ctx context.Context, user string) bool {
+	return UserFromContext(ctx) == user
 }

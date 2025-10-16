@@ -1,70 +1,135 @@
--- name: GetUserForLogin :one
+-- name: SelectUser :one
 SELECT *
 FROM user
 WHERE login = ?;
 
--- name: SaveUser :exec
+-- name: InsertUser :exec
 INSERT INTO user (login, password)
 VALUES (?, ?);
 
--- name: SaveLogin :exec
+-- name: InsertLogin :exec
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES (?, ?, ?, ?, ?, ?);
 
--- name: GetAllLogins :many
+-- name: UpdateLogin :execrows
+UPDATE login
+SET name     = ?,
+    login    = ?,
+    password = ?,
+    website  = ?,
+    notes    = ?
+WHERE id = ?;
+
+-- name: SelectLogin :one
+SELECT *
+FROM login
+WHERE id = ?;
+
+-- name: SelectLoginUser :one
+SELECT user
+FROM login
+WHERE id = ?;
+
+-- name: SelectLogins :many
 SELECT *
 FROM login
 WHERE user = ?;
 
--- name: RemoveLogin :execrows
+-- name: DeleteLogin :execrows
 DELETE
 FROM login
-WHERE name = ?;
+WHERE id = ?;
 
--- name: SaveNote :exec
+-- name: InsertNote :exec
 INSERT INTO note (name, text, user)
 VALUES (?, ?, ?);
 
--- name: GetAllNotes :many
+-- name: UpdateNote :execrows
+UPDATE note
+SET name = ?,
+    text = ?
+WHERE id = ?;
+
+-- name: SelectNote :one
+SELECT *
+FROM note
+WHERE id = ?;
+
+-- name: SelectNoteUser :one
+SELECT user
+FROM note
+WHERE id = ?;
+
+-- name: SelectNotes :many
 SELECT *
 FROM note
 WHERE user = ?;
 
--- name: RemoveNote :execrows
+-- name: DeleteNote :execrows
 DELETE
 FROM note
-WHERE name = ?;
+WHERE id = ?;
 
--- name: SaveBinary :exec
+-- name: InsertBinary :one
 INSERT INTO binary (name, filename, size, notes, user)
-VALUES (?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?)
+RETURNING id;
 
--- name: GetBinary :one
+-- name: UpdateBinary :execrows
+UPDATE binary
+SET notes = ?
+WHERE id = ?;
+
+-- name: SelectBinary :one
 SELECT *
 FROM binary
-WHERE name = ?
-  AND user = ?;
+WHERE id = ?;
 
--- name: GetAllBinaries :many
+-- name: SelectBinaryUser :one
+SELECT user
+FROM binary
+WHERE id = ?;
+
+-- name: SelectBinaries :many
 SELECT *
 FROM binary
 WHERE user = ?;
 
--- name: RemoveBinary :execrows
+-- name: DeleteBinary :execrows
 DELETE
 FROM binary
-WHERE name = ?;
+WHERE id = ?;
 
--- name: SaveCard :exec
+-- name: InsertCard :exec
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
--- name: GetAllCards :many
+-- name: UpdateCard :execrows
+UPDATE card
+SET name       = ?,
+    number     = ?,
+    exp_date   = ?,
+    cvv        = ?,
+    cardholder = ?,
+    notes      = ?
+WHERE id = ?;
+
+-- name: SelectCard :one
+SELECT *
+FROM card
+WHERE id = ?;
+
+-- name: SelectCardUser :one
+SELECT user
+FROM card
+WHERE id = ?;
+
+-- name: SelectCards :many
 SELECT *
 FROM card
 WHERE user = ?;
 
--- name: RemoveCard :execrows
+-- name: DeleteCard :execrows
 DELETE
 FROM card
-WHERE name = ?;
+WHERE id = ?;

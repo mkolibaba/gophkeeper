@@ -23,10 +23,11 @@ const (
 
 type Binary struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_Filename    *string                `protobuf:"bytes,2,opt,name=filename"`
-	xxx_hidden_Size        int64                  `protobuf:"varint,3,opt,name=size"`
-	xxx_hidden_Notes       *string                `protobuf:"bytes,4,opt,name=notes"`
+	xxx_hidden_Id          int64                  `protobuf:"varint,1,opt,name=id"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Filename    *string                `protobuf:"bytes,3,opt,name=filename"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,4,opt,name=size"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,5,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -56,6 +57,13 @@ func (x *Binary) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *Binary) GetId() int64 {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return 0
 }
 
 func (x *Binary) GetName() string {
@@ -95,77 +103,95 @@ func (x *Binary) GetNotes() string {
 	return ""
 }
 
+func (x *Binary) SetId(v int64) {
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+}
+
 func (x *Binary) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *Binary) SetFilename(v string) {
 	x.xxx_hidden_Filename = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
 func (x *Binary) SetSize(v int64) {
 	x.xxx_hidden_Size = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
 }
 
 func (x *Binary) SetNotes(v string) {
 	x.xxx_hidden_Notes = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
 }
 
-func (x *Binary) HasName() bool {
+func (x *Binary) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *Binary) HasFilename() bool {
+func (x *Binary) HasName() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *Binary) HasSize() bool {
+func (x *Binary) HasFilename() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *Binary) HasNotes() bool {
+func (x *Binary) HasSize() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *Binary) ClearName() {
+func (x *Binary) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *Binary) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = 0
+}
+
+func (x *Binary) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Name = nil
 }
 
 func (x *Binary) ClearFilename() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Filename = nil
 }
 
 func (x *Binary) ClearSize() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Size = 0
 }
 
 func (x *Binary) ClearNotes() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_Notes = nil
 }
 
 type Binary_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Id       *int64
 	Name     *string
 	Filename *string
 	Size     *int64
@@ -176,20 +202,24 @@ func (b0 Binary_builder) Build() *Binary {
 	m0 := &Binary{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		x.xxx_hidden_Id = *b.Id
+	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Filename != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Filename = b.Filename
 	}
 	if b.Size != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
 		x.xxx_hidden_Size = *b.Size
 	}
 	if b.Notes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
 		x.xxx_hidden_Notes = b.Notes
 	}
 	return m0
@@ -504,7 +534,7 @@ func (b0 SaveBinaryRequest_builder) Build() *SaveBinaryRequest {
 
 type DownloadBinaryRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Id          int64                  `protobuf:"varint,1,opt,name=id"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -536,46 +566,43 @@ func (x *DownloadBinaryRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *DownloadBinaryRequest) GetName() string {
+func (x *DownloadBinaryRequest) GetId() int64 {
 	if x != nil {
-		if x.xxx_hidden_Name != nil {
-			return *x.xxx_hidden_Name
-		}
-		return ""
+		return x.xxx_hidden_Id
 	}
-	return ""
+	return 0
 }
 
-func (x *DownloadBinaryRequest) SetName(v string) {
-	x.xxx_hidden_Name = &v
+func (x *DownloadBinaryRequest) SetId(v int64) {
+	x.xxx_hidden_Id = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
-func (x *DownloadBinaryRequest) HasName() bool {
+func (x *DownloadBinaryRequest) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *DownloadBinaryRequest) ClearName() {
+func (x *DownloadBinaryRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Name = nil
+	x.xxx_hidden_Id = 0
 }
 
 type DownloadBinaryRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name *string
+	Id *int64
 }
 
 func (b0 DownloadBinaryRequest_builder) Build() *DownloadBinaryRequest {
 	m0 := &DownloadBinaryRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	if b.Name != nil {
+	if b.Id != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_Name = b.Name
+		x.xxx_hidden_Id = *b.Id
 	}
 	return m0
 }
@@ -811,12 +838,13 @@ const file_binary_proto_rawDesc = "" +
 	"\n" +
 	"\fbinary.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"b\n" +
-	"\x06Binary\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
-	"\bfilename\x18\x02 \x01(\tR\bfilename\x12\x12\n" +
-	"\x04size\x18\x03 \x01(\x03R\x04size\x12\x14\n" +
-	"\x05notes\x18\x04 \x01(\tR\x05notes\"5\n" +
+	"data.proto\"r\n" +
+	"\x06Binary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bfilename\x18\x03 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x03R\x04size\x12\x14\n" +
+	"\x05notes\x18\x05 \x01(\tR\x05notes\"5\n" +
 	"\tFileChunk\x12\x12\n" +
 	"\x04data\x18\x01 \x01(\fR\x04data\x12\x14\n" +
 	"\x05index\x18\x02 \x01(\x05R\x05index\"\x9a\x01\n" +
@@ -825,9 +853,9 @@ const file_binary_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bfilename\x18\x03 \x01(\tR\bfilename\x12\x12\n" +
 	"\x04size\x18\x04 \x01(\x03R\x04size\x12\x14\n" +
-	"\x05notes\x18\x05 \x01(\tR\x05notes\"+\n" +
-	"\x15DownloadBinaryRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x89\x01\n" +
+	"\x05notes\x18\x05 \x01(\tR\x05notes\"'\n" +
+	"\x15DownloadBinaryRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\x89\x01\n" +
 	"\x16DownloadBinaryResponse\x12+\n" +
 	"\x05chunk\x18\x01 \x01(\v2\x15.gophkeeper.FileChunkR\x05chunk\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +

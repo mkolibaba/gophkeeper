@@ -6,7 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
-	"github.com/mkolibaba/gophkeeper/server/grpc/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -47,7 +46,7 @@ func (i *AuthInterceptor) Unary(
 		return nil, status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	userCtx := utils.NewContextWithUser(ctx, sub)
+	userCtx := server.NewContextWithUser(ctx, sub)
 	return handler(userCtx, req)
 }
 
@@ -70,7 +69,7 @@ func (i *AuthInterceptor) Stream(srv any, ss grpc.ServerStream, info *grpc.Strea
 		return status.Error(codes.Unauthenticated, err.Error())
 	}
 
-	userCtx := utils.NewContextWithUser(ss.Context(), sub)
+	userCtx := server.NewContextWithUser(ss.Context(), sub)
 	wss := &wrappedServerStream{ServerStream: ss, ctx: userCtx}
 
 	return handler(srv, wss)

@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
-	"github.com/mkolibaba/gophkeeper/server/grpc/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,7 +35,8 @@ func NewBinaryServiceServer(
 }
 
 func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeeperv1.SaveBinaryRequest, empty.Empty]) error {
-	user := utils.UserFromContext(stream.Context())
+	// TODO: хорошей практикой было бы сначала проверить, что такой сущности
+	//  нет, а потом сохранять чанки
 
 	file, err := os.CreateTemp("", "*.tmp")
 	if err != nil {
@@ -82,7 +82,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 		return status.Error(codes.Internal, err.Error())
 	}
 
-	err = s.binaryService.Save(stream.Context(), server.ReadableBinaryData{
+	err = s.binaryService.Create(stream.Context(), server.ReadableBinaryData{
 		BinaryData: server.BinaryData{
 			Name:     name,
 			Filename: filename,
@@ -90,7 +90,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 			Notes:    notes,
 		},
 		DataReader: file,
-	}, user)
+	})
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
@@ -99,9 +99,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 }
 
 func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllBinariesResponse, error) {
-	user := utils.UserFromContext(ctx)
-
-	binaries, err := s.binaryService.GetAll(ctx, user)
+	binaries, err := s.binaryService.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("failed to retrieve binary data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
@@ -124,15 +122,11 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*goph
 }
 
 func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
-	user := utils.UserFromContext(ctx)
-
-	if in.GetName() == "" {
-		return nil, status.Error(codes.InvalidArgument, "name is required")
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
 	}
 
-	// TODO: удалить файл тоже
-
-	if err := s.binaryService.Remove(ctx, in.GetName(), user); err != nil {
+	if err := s.binaryService.Remove(ctx, in.GetId()); err != nil {
 		if errors.Is(err, server.ErrDataNotFound) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}
@@ -144,9 +138,7 @@ func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.Remov
 }
 
 func (s *BinaryServiceServer) Download(in *gophkeeperv1.DownloadBinaryRequest, stream grpc.ServerStreamingServer[gophkeeperv1.DownloadBinaryResponse]) error {
-	user := utils.UserFromContext(stream.Context())
-
-	binary, err := s.binaryService.Get(stream.Context(), in.GetName(), user)
+	binary, err := s.binaryService.Get(stream.Context(), in.GetId())
 	if err != nil {
 		if errors.Is(err, server.ErrDataNotFound) {
 			return status.Error(codes.NotFound, "data not found")

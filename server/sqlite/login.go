@@ -17,21 +17,22 @@ func NewLoginService(queries *sqlc.Queries) *LoginService {
 	}
 }
 
-func (s *LoginService) Save(ctx context.Context, data server.LoginData, user string) error {
-	err := s.qs.SaveLogin(ctx, sqlc.SaveLoginParams{
+func (s *LoginService) Create(ctx context.Context, data server.LoginData) error {
+	err := s.qs.InsertLogin(ctx, sqlc.InsertLoginParams{
 		Name:     data.Name,
 		Login:    data.Login,
 		Password: stringOrNull(data.Password),
 		Website:  stringOrNull(data.Website),
 		Notes:    stringOrNull(data.Notes),
-		User:     user,
+		User:     server.UserFromContext(ctx),
 	})
-
-	return tryUnwrapSaveError(err)
+	return unwrapInsertError(err)
 }
 
-func (s *LoginService) GetAll(ctx context.Context, user string) ([]server.LoginData, error) {
-	logins, err := s.qs.GetAllLogins(ctx, user)
+func (s *LoginService) GetAll(ctx context.Context) ([]server.LoginData, error) {
+	user := server.UserFromContext(ctx)
+
+	logins, err := s.qs.SelectLogins(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -39,29 +40,64 @@ func (s *LoginService) GetAll(ctx context.Context, user string) ([]server.LoginD
 	var result []server.LoginData
 	for _, login := range logins {
 		result = append(result, server.LoginData{
+			ID:       login.ID,
 			Name:     login.Name,
 			Login:    login.Login,
 			Password: stringOrEmpty(login.Password),
 			Website:  stringOrEmpty(login.Website),
 			Notes:    stringOrEmpty(login.Notes),
+			User:     user,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *LoginService) Update(ctx context.Context, data server.LoginDataUpdate, user string) error {
-	// TODO: implement
-	panic("implement me")
-}
-
-func (s *LoginService) Remove(ctx context.Context, name string, user string) error {
-	n, err := s.qs.RemoveLogin(ctx, name)
+func (s *LoginService) Update(ctx context.Context, id int64, data server.LoginDataUpdate) error {
+	login, err := s.qs.SelectLogin(ctx, id)
 	if err != nil {
-		return fmt.Errorf("remove: %w", err)
+		return fmt.Errorf("update: %w", err)
+	}
+
+	if err := server.VerifyCanEditData(ctx, login); err != nil {
+		return err
+	}
+
+	params := sqlc.UpdateLoginParams{
+		ID:       login.ID,
+		Name:     login.Name,
+		Login:    login.Login,
+		Password: login.Password,
+		Website:  login.Website,
+		Notes:    login.Notes,
+	}
+
+	if data.Name != nil {
+		params.Name = *data.Name
+	}
+	if data.Login != nil {
+		params.Login = *data.Login
+	}
+	if data.Password != nil {
+		params.Password = data.Password
+	}
+	if data.Website != nil {
+		params.Website = data.Website
+	}
+	if data.Notes != nil {
+		params.Notes = data.Notes
+	}
+
+	n, err := s.qs.UpdateLogin(ctx, params)
+	if err != nil {
+		return fmt.Errorf("update: %w", err)
 	}
 	if n == 0 {
-		return server.ErrDataNotFound
+		return fmt.Errorf("update: no rows")
 	}
 	return nil
+}
+
+func (s *LoginService) Remove(ctx context.Context, id int64) error {
+	return removeData(ctx, s.qs.SelectLoginUser, s.qs.DeleteLogin, id)
 }

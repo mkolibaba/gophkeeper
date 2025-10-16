@@ -75,5 +75,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/sh/v3 v3.7.0 // indirect
 )
-
-replace github.com/mkolibaba/gophkeeper/proto => ../proto

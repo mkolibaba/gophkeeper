@@ -6,7 +6,8 @@ CREATE TABLE user
 
 CREATE TABLE login
 (
-    name     TEXT PRIMARY KEY,
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name     TEXT NOT NULL,
     login    TEXT NOT NULL,
     password TEXT,
     website  TEXT,
@@ -17,7 +18,8 @@ CREATE TABLE login
 
 CREATE TABLE note
 (
-    name TEXT PRIMARY KEY,
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     text TEXT,
     user TEXT NOT NULL,
     FOREIGN KEY (user) REFERENCES user (login)
@@ -25,7 +27,8 @@ CREATE TABLE note
 
 CREATE TABLE binary
 (
-    name     TEXT PRIMARY KEY,
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name     TEXT NOT NULL,
     filename TEXT    NOT NULL,
     size     INTEGER NOT NULL,
     notes    TEXT,
@@ -35,7 +38,8 @@ CREATE TABLE binary
 
 CREATE TABLE card
 (
-    name       TEXT PRIMARY KEY,
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
     number     TEXT NOT NULL,
     exp_date   TEXT NOT NULL,
     cvv        TEXT NOT NULL,

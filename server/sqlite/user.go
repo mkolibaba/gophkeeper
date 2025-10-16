@@ -21,23 +21,23 @@ func NewUserService(queries *sqlc.Queries) *UserService {
 	}
 }
 
-func (s *UserService) Get(ctx context.Context, login string) (server.User, error) {
-	u, err := s.qs.GetUserForLogin(ctx, login)
+func (s *UserService) Get(ctx context.Context, login string) (*server.User, error) {
+	u, err := s.qs.SelectUser(ctx, login)
 	if stderrors.Is(err, sql.ErrNoRows) {
-		return server.User{}, server.ErrUserNotFound
+		return nil, server.ErrUserNotFound
 	}
 	if err != nil {
-		return server.User{}, fmt.Errorf("get: %w", err)
+		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	return server.User{
+	return &server.User{
 		Login:    u.Login,
 		Password: u.Password,
 	}, nil
 }
 
 func (s *UserService) Save(ctx context.Context, user server.User) error {
-	err := s.qs.SaveUser(ctx, user.Login, user.Password)
+	err := s.qs.InsertUser(ctx, user.Login, user.Password)
 
 	if se, ok := asType[*sqlite.Error](err); ok && se.Code() == sqlite3.SQLITE_CONSTRAINT_PRIMARYKEY {
 		return server.ErrUserAlreadyExists

@@ -23,6 +23,7 @@ func Gen() {
 
 // Generate sqlc
 func GenSqlc() error {
+	color.HiGreen("Running sqlc generation")
 	return sh.RunV("go", "run", sqlcRepository, "generate", "-f", sqlcConfig)
 }
 

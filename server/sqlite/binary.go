@@ -24,40 +24,35 @@ func NewBinaryService(queries *sqlc.Queries, db *DB) *BinaryService {
 	}
 }
 
-func (s *BinaryService) Save(ctx context.Context, data server.ReadableBinaryData, user string) error {
-	// TODO: тут лучше проверить, что такой записи и такого файла нет
-
-	err := s.qs.SaveBinary(ctx, sqlc.SaveBinaryParams{
+func (s *BinaryService) Create(ctx context.Context, data server.ReadableBinaryData) error {
+	id, err := s.qs.InsertBinary(ctx, sqlc.InsertBinaryParams{
 		Name:     data.Name,
 		Filename: data.Filename,
 		Size:     data.Size,
 		Notes:    stringOrNull(data.Notes),
-		User:     user,
+		User:     server.UserFromContext(ctx),
 	})
 
 	if err != nil {
-		return tryUnwrapSaveError(err)
+		return unwrapInsertError(err)
 	}
 
-	dest, err := os.Create(filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, data.Name)))
+	asset, err := os.Create(s.getBinaryAssetPath(id))
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
 	}
-	defer dest.Close()
+	defer asset.Close()
 
-	buf := make([]byte, 1024*1024) // 1 MB
-	_, err = io.CopyBuffer(dest, data.DataReader, buf)
-
-	if err != nil {
-		os.Remove(dest.Name())
+	if _, err = io.CopyBuffer(asset, data.DataReader, make([]byte, 1024*1024)); err != nil {
+		os.Remove(asset.Name())
 		return fmt.Errorf("save: %w", err)
 	}
 
 	return nil
 }
 
-func (s *BinaryService) Get(ctx context.Context, name string, user string) (*server.ReadableBinaryData, error) {
-	binary, err := s.qs.GetBinary(ctx, name, user)
+func (s *BinaryService) Get(ctx context.Context, id int64) (*server.ReadableBinaryData, error) {
+	binary, err := s.qs.SelectBinary(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, server.ErrDataNotFound
@@ -65,26 +60,32 @@ func (s *BinaryService) Get(ctx context.Context, name string, user string) (*ser
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
-	path := filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, binary.Name))
+	if err := server.VerifyCanEditData(ctx, binary); err != nil {
+		return nil, err
+	}
 
-	file, err := os.Open(path)
+	file, err := os.Open(s.getBinaryAssetPath(id))
 	if err != nil {
 		return nil, fmt.Errorf("get: %w", err)
 	}
 
 	return &server.ReadableBinaryData{
 		BinaryData: server.BinaryData{
+			ID:       binary.ID,
 			Name:     binary.Name,
-			Notes:    stringOrEmpty(binary.Notes),
 			Filename: binary.Filename,
+			Notes:    stringOrEmpty(binary.Notes),
 			Size:     binary.Size,
+			User:     binary.User,
 		},
 		DataReader: file,
 	}, nil
 }
 
-func (s *BinaryService) GetAll(ctx context.Context, user string) ([]server.BinaryData, error) {
-	binaries, err := s.qs.GetAllBinaries(ctx, user)
+func (s *BinaryService) GetAll(ctx context.Context) ([]server.BinaryData, error) {
+	user := server.UserFromContext(ctx)
+
+	binaries, err := s.qs.SelectBinaries(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -92,32 +93,54 @@ func (s *BinaryService) GetAll(ctx context.Context, user string) ([]server.Binar
 	var result []server.BinaryData
 	for _, binary := range binaries {
 		result = append(result, server.BinaryData{
+			ID:       binary.ID,
 			Name:     binary.Name,
 			Filename: binary.Filename,
 			Size:     binary.Size,
 			Notes:    stringOrEmpty(binary.Notes),
+			User:     user,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *BinaryService) Update(ctx context.Context, data server.BinaryDataUpdate, user string) error {
-	// TODO: implement
-	panic("implement me")
-}
-
-func (s *BinaryService) Remove(ctx context.Context, name string, user string) error {
-	n, err := s.qs.RemoveBinary(ctx, name)
+func (s *BinaryService) Update(ctx context.Context, id int64, data server.BinaryDataUpdate) error {
+	binary, err := s.qs.SelectBinary(ctx, id)
 	if err != nil {
-		return fmt.Errorf("remove: %w", err)
+		return fmt.Errorf("update: %w", err)
+	}
+
+	if err := server.VerifyCanEditData(ctx, binary); err != nil {
+		return err
+	}
+
+	if data.Notes == nil {
+		return nil
+	}
+
+	n, err := s.qs.UpdateBinary(ctx, data.Notes, id)
+	if err != nil {
+		return fmt.Errorf("update: %w", err)
 	}
 	if n == 0 {
-		return server.ErrDataNotFound
-	}
-	path := filepath.Join(s.binariesFolder, fmt.Sprintf("%s__%s", user, name))
-	if err = os.Remove(path); err != nil {
-		return fmt.Errorf("remove: %w", err)
+		return fmt.Errorf("update: no rows")
 	}
 	return nil
+}
+
+func (s *BinaryService) Remove(ctx context.Context, id int64) error {
+	if err := removeData(ctx, s.qs.SelectBinaryUser, s.qs.DeleteBinary, id); err != nil {
+		return err
+	}
+
+	if err := os.Remove(s.getBinaryAssetPath(id)); err != nil {
+		return fmt.Errorf("remove: %w", err)
+	}
+
+	return nil
+}
+
+func (s *BinaryService) getBinaryAssetPath(id int64) string {
+	return filepath.Join(s.binariesFolder, fmt.Sprintf("%d", id))
 }

@@ -17,18 +17,19 @@ func NewNoteService(queries *sqlc.Queries) *NoteService {
 	}
 }
 
-func (s *NoteService) Save(ctx context.Context, data server.NoteData, user string) error {
-	err := s.qs.SaveNote(ctx, sqlc.SaveNoteParams{
+func (s *NoteService) Create(ctx context.Context, data server.NoteData) error {
+	err := s.qs.InsertNote(ctx, sqlc.InsertNoteParams{
 		Name: data.Name,
 		Text: stringOrNull(data.Text),
-		User: user,
+		User: server.UserFromContext(ctx),
 	})
-
-	return tryUnwrapSaveError(err)
+	return unwrapInsertError(err)
 }
 
-func (s *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteData, error) {
-	notes, err := s.qs.GetAllNotes(ctx, user)
+func (s *NoteService) GetAll(ctx context.Context) ([]server.NoteData, error) {
+	user := server.UserFromContext(ctx)
+
+	notes, err := s.qs.SelectNotes(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -38,24 +39,43 @@ func (s *NoteService) GetAll(ctx context.Context, user string) ([]server.NoteDat
 		result = append(result, server.NoteData{
 			Name: note.Name,
 			Text: stringOrEmpty(note.Text),
+			ID:   note.ID,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *NoteService) Update(ctx context.Context, data server.NoteDataUpdate, user string) error {
-	// TODO: implement
-	panic("implement me")
-}
-
-func (s *NoteService) Remove(ctx context.Context, name string, user string) error {
-	cnt, err := s.qs.RemoveNote(ctx, name)
+func (s *NoteService) Update(ctx context.Context, id int64, data server.NoteDataUpdate) error {
+	note, err := s.qs.SelectNote(ctx, id)
 	if err != nil {
-		return fmt.Errorf("remove: %w", err)
+		return fmt.Errorf("update: %w", err)
 	}
-	if cnt == 0 {
-		return server.ErrDataNotFound
+
+	if err := server.VerifyCanEditData(ctx, note); err != nil {
+		return err
+	}
+
+	params := sqlc.UpdateNoteParams{
+		Name: note.Name,
+		Text: note.Text,
+		ID:   note.ID,
+	}
+
+	if data.Text != nil {
+		params.Text = data.Text
+	}
+
+	n, err := s.qs.UpdateNote(ctx, params)
+	if err != nil {
+		return fmt.Errorf("update: %w", err)
+	}
+	if n == 0 {
+		return fmt.Errorf("update: no rows")
 	}
 	return nil
+}
+
+func (s *NoteService) Remove(ctx context.Context, id int64) error {
+	return removeData(ctx, s.qs.SelectNoteUser, s.qs.DeleteNote, id)
 }

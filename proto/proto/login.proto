@@ -8,11 +8,12 @@ package gophkeeper;
 option go_package = "gophkeeper.v1;gophkeeperv1";
 
 message Login {
-  string name = 1;
-  string login = 2;
-  string password = 3;
-  string website = 4;
-  string notes = 5;
+  int64 id = 1;
+  string name = 2;
+  string login = 3;
+  string password = 4;
+  string website = 5;
+  string notes = 6;
 }
 
 message GetAllLoginsResponse {

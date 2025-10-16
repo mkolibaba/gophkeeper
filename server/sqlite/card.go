@@ -17,22 +17,23 @@ func NewCardService(queries *sqlc.Queries) *CardService {
 	}
 }
 
-func (s *CardService) Save(ctx context.Context, data server.CardData, user string) error {
-	err := s.qs.SaveCard(ctx, sqlc.SaveCardParams{
+func (s *CardService) Create(ctx context.Context, data server.CardData) error {
+	err := s.qs.InsertCard(ctx, sqlc.InsertCardParams{
 		Name:       data.Name,
 		Number:     data.Number,
 		ExpDate:    data.ExpDate,
 		Cvv:        data.CVV,
 		Cardholder: data.Cardholder,
 		Notes:      stringOrNull(data.Notes),
-		User:       user,
+		User:       server.UserFromContext(ctx),
 	})
-
-	return tryUnwrapSaveError(err)
+	return unwrapInsertError(err)
 }
 
-func (s *CardService) GetAll(ctx context.Context, user string) ([]server.CardData, error) {
-	cards, err := s.qs.GetAllCards(ctx, user)
+func (s *CardService) GetAll(ctx context.Context) ([]server.CardData, error) {
+	user := server.UserFromContext(ctx)
+
+	cards, err := s.qs.SelectCards(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("get all: %w", err)
 	}
@@ -40,30 +41,68 @@ func (s *CardService) GetAll(ctx context.Context, user string) ([]server.CardDat
 	var result []server.CardData
 	for _, card := range cards {
 		result = append(result, server.CardData{
+			ID:         card.ID,
 			Name:       card.Name,
 			Number:     card.Number,
-			ExpDate:    card.ExpDate,
-			CVV:        card.Cvv,
+			ExpDate:    card.Cvv,
 			Cardholder: card.Cardholder,
 			Notes:      stringOrEmpty(card.Notes),
+			User:       card.User,
 		})
 	}
 
 	return result, nil
 }
 
-func (s *CardService) Update(ctx context.Context, data server.CardData, user string) error {
-	// TODO: implement
-	panic("implement me")
-}
-
-func (s *CardService) Remove(ctx context.Context, name string, user string) error {
-	n, err := s.qs.RemoveCard(ctx, name)
+func (s *CardService) Update(ctx context.Context, id int64, data server.CardDataUpdate) error {
+	card, err := s.qs.SelectCard(ctx, id)
 	if err != nil {
-		return fmt.Errorf("remove: %w", err)
+		return fmt.Errorf("update: %w", err)
+	}
+
+	if err := server.VerifyCanEditData(ctx, card); err != nil {
+		return err
+	}
+
+	params := sqlc.UpdateCardParams{
+		Name:       card.Name,
+		Number:     card.Number,
+		ExpDate:    card.ExpDate,
+		Cvv:        card.Cvv,
+		Cardholder: card.Cardholder,
+		Notes:      card.Notes,
+		ID:         card.ID,
+	}
+
+	if data.Name != nil {
+		params.Name = *data.Name
+	}
+	if data.Number != nil {
+		params.Number = *data.Number
+	}
+	if data.ExpDate != nil {
+		params.ExpDate = *data.ExpDate
+	}
+	if data.CVV != nil {
+		params.Cvv = *data.CVV
+	}
+	if data.Cardholder != nil {
+		params.Cardholder = *data.Cardholder
+	}
+	if data.Notes != nil {
+		params.Notes = data.Notes
+	}
+
+	n, err := s.qs.UpdateCard(ctx, params)
+	if err != nil {
+		return fmt.Errorf("update: %w", err)
 	}
 	if n == 0 {
-		return server.ErrDataNotFound
+		return fmt.Errorf("update: no rows")
 	}
 	return nil
+}
+
+func (s *CardService) Remove(ctx context.Context, id int64) error {
+	return removeData(ctx, s.qs.SelectCardUser, s.qs.DeleteCard, id)
 }

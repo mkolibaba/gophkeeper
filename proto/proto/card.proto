@@ -8,12 +8,13 @@ package gophkeeper;
 option go_package = "gophkeeper.v1;gophkeeperv1";
 
 message Card {
-  string name = 1;
-  string number = 2;
-  string exp_date = 3;
-  string cvv = 4;
-  string cardholder = 5;
-  string notes = 6;
+  int64 id = 1;
+  string name = 2;
+  string number = 3;
+  string exp_date = 4;
+  string cvv = 5;
+  string cardholder = 6;
+  string notes = 7;
 }
 
 message GetAllCardsResponse {

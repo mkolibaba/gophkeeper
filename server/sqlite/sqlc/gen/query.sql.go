@@ -9,14 +9,177 @@ import (
 	"context"
 )
 
-const getAllBinaries = `-- name: GetAllBinaries :many
-SELECT name, filename, size, notes, user
+const deleteBinary = `-- name: DeleteBinary :execrows
+DELETE
+FROM binary
+WHERE id = ?
+`
+
+func (q *Queries) DeleteBinary(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteBinary, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const deleteCard = `-- name: DeleteCard :execrows
+DELETE
+FROM card
+WHERE id = ?
+`
+
+func (q *Queries) DeleteCard(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteCard, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const deleteLogin = `-- name: DeleteLogin :execrows
+DELETE
+FROM login
+WHERE id = ?
+`
+
+func (q *Queries) DeleteLogin(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteLogin, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const deleteNote = `-- name: DeleteNote :execrows
+DELETE
+FROM note
+WHERE id = ?
+`
+
+func (q *Queries) DeleteNote(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteNote, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
+const insertBinary = `-- name: InsertBinary :one
+INSERT INTO binary (name, filename, size, notes, user)
+VALUES (?, ?, ?, ?, ?)
+RETURNING id
+`
+
+type InsertBinaryParams struct {
+	Name     string
+	Filename string
+	Size     int64
+	Notes    *string
+	User     string
+}
+
+func (q *Queries) InsertBinary(ctx context.Context, arg InsertBinaryParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, insertBinary,
+		arg.Name,
+		arg.Filename,
+		arg.Size,
+		arg.Notes,
+		arg.User,
+	)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
+const insertCard = `-- name: InsertCard :exec
+INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
+VALUES (?, ?, ?, ?, ?, ?, ?)
+`
+
+type InsertCardParams struct {
+	Name       string
+	Number     string
+	ExpDate    string
+	Cvv        string
+	Cardholder string
+	Notes      *string
+	User       string
+}
+
+func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) error {
+	_, err := q.db.ExecContext(ctx, insertCard,
+		arg.Name,
+		arg.Number,
+		arg.ExpDate,
+		arg.Cvv,
+		arg.Cardholder,
+		arg.Notes,
+		arg.User,
+	)
+	return err
+}
+
+const insertLogin = `-- name: InsertLogin :exec
+INSERT INTO login (name, login, password, website, notes, user)
+VALUES (?, ?, ?, ?, ?, ?)
+`
+
+type InsertLoginParams struct {
+	Name     string
+	Login    string
+	Password *string
+	Website  *string
+	Notes    *string
+	User     string
+}
+
+func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) error {
+	_, err := q.db.ExecContext(ctx, insertLogin,
+		arg.Name,
+		arg.Login,
+		arg.Password,
+		arg.Website,
+		arg.Notes,
+		arg.User,
+	)
+	return err
+}
+
+const insertNote = `-- name: InsertNote :exec
+INSERT INTO note (name, text, user)
+VALUES (?, ?, ?)
+`
+
+type InsertNoteParams struct {
+	Name string
+	Text *string
+	User string
+}
+
+func (q *Queries) InsertNote(ctx context.Context, arg InsertNoteParams) error {
+	_, err := q.db.ExecContext(ctx, insertNote, arg.Name, arg.Text, arg.User)
+	return err
+}
+
+const insertUser = `-- name: InsertUser :exec
+INSERT INTO user (login, password)
+VALUES (?, ?)
+`
+
+func (q *Queries) InsertUser(ctx context.Context, login string, password string) error {
+	_, err := q.db.ExecContext(ctx, insertUser, login, password)
+	return err
+}
+
+const selectBinaries = `-- name: SelectBinaries :many
+SELECT id, name, filename, size, notes, user
 FROM binary
 WHERE user = ?
 `
 
-func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, error) {
-	rows, err := q.db.QueryContext(ctx, getAllBinaries, user)
+func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]*Binary, error) {
+	rows, err := q.db.QueryContext(ctx, selectBinaries, user)
 	if err != nil {
 		return nil, err
 	}
@@ -25,6 +188,7 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 	for rows.Next() {
 		var i Binary
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
 			&i.Filename,
 			&i.Size,
@@ -44,14 +208,82 @@ func (q *Queries) GetAllBinaries(ctx context.Context, user string) ([]*Binary, e
 	return items, nil
 }
 
-const getAllCards = `-- name: GetAllCards :many
-SELECT name, number, exp_date, cvv, cardholder, notes, user
+const selectBinary = `-- name: SelectBinary :one
+SELECT id, name, filename, size, notes, user
+FROM binary
+WHERE id = ?
+`
+
+func (q *Queries) SelectBinary(ctx context.Context, id int64) (*Binary, error) {
+	row := q.db.QueryRowContext(ctx, selectBinary, id)
+	var i Binary
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Filename,
+		&i.Size,
+		&i.Notes,
+		&i.User,
+	)
+	return &i, err
+}
+
+const selectBinaryUser = `-- name: SelectBinaryUser :one
+SELECT user
+FROM binary
+WHERE id = ?
+`
+
+func (q *Queries) SelectBinaryUser(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, selectBinaryUser, id)
+	var user string
+	err := row.Scan(&user)
+	return user, err
+}
+
+const selectCard = `-- name: SelectCard :one
+SELECT id, name, number, exp_date, cvv, cardholder, notes, user
+FROM card
+WHERE id = ?
+`
+
+func (q *Queries) SelectCard(ctx context.Context, id int64) (*Card, error) {
+	row := q.db.QueryRowContext(ctx, selectCard, id)
+	var i Card
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Number,
+		&i.ExpDate,
+		&i.Cvv,
+		&i.Cardholder,
+		&i.Notes,
+		&i.User,
+	)
+	return &i, err
+}
+
+const selectCardUser = `-- name: SelectCardUser :one
+SELECT user
+FROM card
+WHERE id = ?
+`
+
+func (q *Queries) SelectCardUser(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, selectCardUser, id)
+	var user string
+	err := row.Scan(&user)
+	return user, err
+}
+
+const selectCards = `-- name: SelectCards :many
+SELECT id, name, number, exp_date, cvv, cardholder, notes, user
 FROM card
 WHERE user = ?
 `
 
-func (q *Queries) GetAllCards(ctx context.Context, user string) ([]*Card, error) {
-	rows, err := q.db.QueryContext(ctx, getAllCards, user)
+func (q *Queries) SelectCards(ctx context.Context, user string) ([]*Card, error) {
+	rows, err := q.db.QueryContext(ctx, selectCards, user)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +292,7 @@ func (q *Queries) GetAllCards(ctx context.Context, user string) ([]*Card, error)
 	for rows.Next() {
 		var i Card
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
 			&i.Number,
 			&i.ExpDate,
@@ -81,14 +314,48 @@ func (q *Queries) GetAllCards(ctx context.Context, user string) ([]*Card, error)
 	return items, nil
 }
 
-const getAllLogins = `-- name: GetAllLogins :many
-SELECT name, login, password, website, notes, user
+const selectLogin = `-- name: SelectLogin :one
+SELECT id, name, login, password, website, notes, user
+FROM login
+WHERE id = ?
+`
+
+func (q *Queries) SelectLogin(ctx context.Context, id int64) (*Login, error) {
+	row := q.db.QueryRowContext(ctx, selectLogin, id)
+	var i Login
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Login,
+		&i.Password,
+		&i.Website,
+		&i.Notes,
+		&i.User,
+	)
+	return &i, err
+}
+
+const selectLoginUser = `-- name: SelectLoginUser :one
+SELECT user
+FROM login
+WHERE id = ?
+`
+
+func (q *Queries) SelectLoginUser(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, selectLoginUser, id)
+	var user string
+	err := row.Scan(&user)
+	return user, err
+}
+
+const selectLogins = `-- name: SelectLogins :many
+SELECT id, name, login, password, website, notes, user
 FROM login
 WHERE user = ?
 `
 
-func (q *Queries) GetAllLogins(ctx context.Context, user string) ([]*Login, error) {
-	rows, err := q.db.QueryContext(ctx, getAllLogins, user)
+func (q *Queries) SelectLogins(ctx context.Context, user string) ([]*Login, error) {
+	rows, err := q.db.QueryContext(ctx, selectLogins, user)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +364,7 @@ func (q *Queries) GetAllLogins(ctx context.Context, user string) ([]*Login, erro
 	for rows.Next() {
 		var i Login
 		if err := rows.Scan(
+			&i.ID,
 			&i.Name,
 			&i.Login,
 			&i.Password,
@@ -117,14 +385,45 @@ func (q *Queries) GetAllLogins(ctx context.Context, user string) ([]*Login, erro
 	return items, nil
 }
 
-const getAllNotes = `-- name: GetAllNotes :many
-SELECT name, text, user
+const selectNote = `-- name: SelectNote :one
+SELECT id, name, text, user
+FROM note
+WHERE id = ?
+`
+
+func (q *Queries) SelectNote(ctx context.Context, id int64) (*Note, error) {
+	row := q.db.QueryRowContext(ctx, selectNote, id)
+	var i Note
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Text,
+		&i.User,
+	)
+	return &i, err
+}
+
+const selectNoteUser = `-- name: SelectNoteUser :one
+SELECT user
+FROM note
+WHERE id = ?
+`
+
+func (q *Queries) SelectNoteUser(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, selectNoteUser, id)
+	var user string
+	err := row.Scan(&user)
+	return user, err
+}
+
+const selectNotes = `-- name: SelectNotes :many
+SELECT id, name, text, user
 FROM note
 WHERE user = ?
 `
 
-func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error) {
-	rows, err := q.db.QueryContext(ctx, getAllNotes, user)
+func (q *Queries) SelectNotes(ctx context.Context, user string) ([]*Note, error) {
+	rows, err := q.db.QueryContext(ctx, selectNotes, user)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +431,12 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 	var items []*Note
 	for rows.Next() {
 		var i Note
-		if err := rows.Scan(&i.Name, &i.Text, &i.User); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Text,
+			&i.User,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, &i)
@@ -146,195 +450,121 @@ func (q *Queries) GetAllNotes(ctx context.Context, user string) ([]*Note, error)
 	return items, nil
 }
 
-const getBinary = `-- name: GetBinary :one
-SELECT name, filename, size, notes, user
-FROM binary
-WHERE name = ?
-  AND user = ?
-`
-
-func (q *Queries) GetBinary(ctx context.Context, name string, user string) (*Binary, error) {
-	row := q.db.QueryRowContext(ctx, getBinary, name, user)
-	var i Binary
-	err := row.Scan(
-		&i.Name,
-		&i.Filename,
-		&i.Size,
-		&i.Notes,
-		&i.User,
-	)
-	return &i, err
-}
-
-const getUserForLogin = `-- name: GetUserForLogin :one
+const selectUser = `-- name: SelectUser :one
 SELECT login, password
 FROM user
 WHERE login = ?
 `
 
-func (q *Queries) GetUserForLogin(ctx context.Context, login string) (*User, error) {
-	row := q.db.QueryRowContext(ctx, getUserForLogin, login)
+func (q *Queries) SelectUser(ctx context.Context, login string) (*User, error) {
+	row := q.db.QueryRowContext(ctx, selectUser, login)
 	var i User
 	err := row.Scan(&i.Login, &i.Password)
 	return &i, err
 }
 
-const removeBinary = `-- name: RemoveBinary :execrows
-DELETE
-FROM binary
-WHERE name = ?
+const updateBinary = `-- name: UpdateBinary :execrows
+UPDATE binary
+SET notes = ?
+WHERE id = ?
 `
 
-func (q *Queries) RemoveBinary(ctx context.Context, name string) (int64, error) {
-	result, err := q.db.ExecContext(ctx, removeBinary, name)
+func (q *Queries) UpdateBinary(ctx context.Context, notes *string, iD int64) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateBinary, notes, iD)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected()
 }
 
-const removeCard = `-- name: RemoveCard :execrows
-DELETE
-FROM card
-WHERE name = ?
+const updateCard = `-- name: UpdateCard :execrows
+UPDATE card
+SET name       = ?,
+    number     = ?,
+    exp_date   = ?,
+    cvv        = ?,
+    cardholder = ?,
+    notes      = ?
+WHERE id = ?
 `
 
-func (q *Queries) RemoveCard(ctx context.Context, name string) (int64, error) {
-	result, err := q.db.ExecContext(ctx, removeCard, name)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-const removeLogin = `-- name: RemoveLogin :execrows
-DELETE
-FROM login
-WHERE name = ?
-`
-
-func (q *Queries) RemoveLogin(ctx context.Context, name string) (int64, error) {
-	result, err := q.db.ExecContext(ctx, removeLogin, name)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-const removeNote = `-- name: RemoveNote :execrows
-DELETE
-FROM note
-WHERE name = ?
-`
-
-func (q *Queries) RemoveNote(ctx context.Context, name string) (int64, error) {
-	result, err := q.db.ExecContext(ctx, removeNote, name)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
-const saveBinary = `-- name: SaveBinary :exec
-INSERT INTO binary (name, filename, size, notes, user)
-VALUES (?, ?, ?, ?, ?)
-`
-
-type SaveBinaryParams struct {
-	Name     string
-	Filename string
-	Size     int64
-	Notes    *string
-	User     string
-}
-
-func (q *Queries) SaveBinary(ctx context.Context, arg SaveBinaryParams) error {
-	_, err := q.db.ExecContext(ctx, saveBinary,
-		arg.Name,
-		arg.Filename,
-		arg.Size,
-		arg.Notes,
-		arg.User,
-	)
-	return err
-}
-
-const saveCard = `-- name: SaveCard :exec
-INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
-VALUES (?, ?, ?, ?, ?, ?, ?)
-`
-
-type SaveCardParams struct {
+type UpdateCardParams struct {
 	Name       string
 	Number     string
 	ExpDate    string
 	Cvv        string
 	Cardholder string
 	Notes      *string
-	User       string
+	ID         int64
 }
 
-func (q *Queries) SaveCard(ctx context.Context, arg SaveCardParams) error {
-	_, err := q.db.ExecContext(ctx, saveCard,
+func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateCard,
 		arg.Name,
 		arg.Number,
 		arg.ExpDate,
 		arg.Cvv,
 		arg.Cardholder,
 		arg.Notes,
-		arg.User,
+		arg.ID,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
-const saveLogin = `-- name: SaveLogin :exec
-INSERT INTO login (name, login, password, website, notes, user)
-VALUES (?, ?, ?, ?, ?, ?)
+const updateLogin = `-- name: UpdateLogin :execrows
+UPDATE login
+SET name     = ?,
+    login    = ?,
+    password = ?,
+    website  = ?,
+    notes    = ?
+WHERE id = ?
 `
 
-type SaveLoginParams struct {
+type UpdateLoginParams struct {
 	Name     string
 	Login    string
 	Password *string
 	Website  *string
 	Notes    *string
-	User     string
+	ID       int64
 }
 
-func (q *Queries) SaveLogin(ctx context.Context, arg SaveLoginParams) error {
-	_, err := q.db.ExecContext(ctx, saveLogin,
+func (q *Queries) UpdateLogin(ctx context.Context, arg UpdateLoginParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateLogin,
 		arg.Name,
 		arg.Login,
 		arg.Password,
 		arg.Website,
 		arg.Notes,
-		arg.User,
+		arg.ID,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
 
-const saveNote = `-- name: SaveNote :exec
-INSERT INTO note (name, text, user)
-VALUES (?, ?, ?)
+const updateNote = `-- name: UpdateNote :execrows
+UPDATE note
+SET name = ?,
+    text = ?
+WHERE id = ?
 `
 
-type SaveNoteParams struct {
+type UpdateNoteParams struct {
 	Name string
 	Text *string
-	User string
+	ID   int64
 }
 
-func (q *Queries) SaveNote(ctx context.Context, arg SaveNoteParams) error {
-	_, err := q.db.ExecContext(ctx, saveNote, arg.Name, arg.Text, arg.User)
-	return err
-}
-
-const saveUser = `-- name: SaveUser :exec
-INSERT INTO user (login, password)
-VALUES (?, ?)
-`
-
-func (q *Queries) SaveUser(ctx context.Context, login string, password string) error {
-	_, err := q.db.ExecContext(ctx, saveUser, login, password)
-	return err
+func (q *Queries) UpdateNote(ctx context.Context, arg UpdateNoteParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateNote, arg.Name, arg.Text, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

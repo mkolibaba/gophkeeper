@@ -8,10 +8,11 @@ package gophkeeper;
 option go_package = "gophkeeper.v1;gophkeeperv1";
 
 message Binary {
-  string name = 1;
-  string filename = 2;
-  int64 size = 3;
-  string notes = 4;
+  int64 id = 1;
+  string name = 2;
+  string filename = 3;
+  int64 size = 4;
+  string notes = 5;
 }
 
 message FileChunk {
@@ -28,7 +29,7 @@ message SaveBinaryRequest {
 }
 
 message DownloadBinaryRequest {
-  string name = 1;
+  int64 id = 1;
 }
 
 message DownloadBinaryResponse {

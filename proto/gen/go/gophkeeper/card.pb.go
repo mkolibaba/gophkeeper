@@ -23,12 +23,13 @@ const (
 
 type Card struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_Number      *string                `protobuf:"bytes,2,opt,name=number"`
-	xxx_hidden_ExpDate     *string                `protobuf:"bytes,3,opt,name=exp_date,json=expDate"`
-	xxx_hidden_Cvv         *string                `protobuf:"bytes,4,opt,name=cvv"`
-	xxx_hidden_Cardholder  *string                `protobuf:"bytes,5,opt,name=cardholder"`
-	xxx_hidden_Notes       *string                `protobuf:"bytes,6,opt,name=notes"`
+	xxx_hidden_Id          int64                  `protobuf:"varint,1,opt,name=id"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Number      *string                `protobuf:"bytes,3,opt,name=number"`
+	xxx_hidden_ExpDate     *string                `protobuf:"bytes,4,opt,name=exp_date,json=expDate"`
+	xxx_hidden_Cvv         *string                `protobuf:"bytes,5,opt,name=cvv"`
+	xxx_hidden_Cardholder  *string                `protobuf:"bytes,6,opt,name=cardholder"`
+	xxx_hidden_Notes       *string                `protobuf:"bytes,7,opt,name=notes"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -58,6 +59,13 @@ func (x *Card) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *Card) GetId() int64 {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return 0
 }
 
 func (x *Card) GetName() string {
@@ -120,111 +128,129 @@ func (x *Card) GetNotes() string {
 	return ""
 }
 
+func (x *Card) SetId(v int64) {
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
+}
+
 func (x *Card) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *Card) SetNumber(v string) {
 	x.xxx_hidden_Number = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *Card) SetExpDate(v string) {
 	x.xxx_hidden_ExpDate = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *Card) SetCvv(v string) {
 	x.xxx_hidden_Cvv = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
 }
 
 func (x *Card) SetCardholder(v string) {
 	x.xxx_hidden_Cardholder = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
 }
 
 func (x *Card) SetNotes(v string) {
 	x.xxx_hidden_Notes = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
-func (x *Card) HasName() bool {
+func (x *Card) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *Card) HasNumber() bool {
+func (x *Card) HasName() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *Card) HasExpDate() bool {
+func (x *Card) HasNumber() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *Card) HasCvv() bool {
+func (x *Card) HasExpDate() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
-func (x *Card) HasCardholder() bool {
+func (x *Card) HasCvv() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *Card) HasNotes() bool {
+func (x *Card) HasCardholder() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *Card) ClearName() {
+func (x *Card) HasNotes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *Card) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = 0
+}
+
+func (x *Card) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Name = nil
 }
 
 func (x *Card) ClearNumber() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Number = nil
 }
 
 func (x *Card) ClearExpDate() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_ExpDate = nil
 }
 
 func (x *Card) ClearCvv() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_Cvv = nil
 }
 
 func (x *Card) ClearCardholder() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_Cardholder = nil
 }
 
 func (x *Card) ClearNotes() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_Notes = nil
 }
 
 type Card_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Id         *int64
 	Name       *string
 	Number     *string
 	ExpDate    *string
@@ -237,28 +263,32 @@ func (b0 Card_builder) Build() *Card {
 	m0 := &Card{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
+		x.xxx_hidden_Id = *b.Id
+	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Number != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Number = b.Number
 	}
 	if b.ExpDate != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_ExpDate = b.ExpDate
 	}
 	if b.Cvv != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
 		x.xxx_hidden_Cvv = b.Cvv
 	}
 	if b.Cardholder != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
 		x.xxx_hidden_Cardholder = b.Cardholder
 	}
 	if b.Notes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
 		x.xxx_hidden_Notes = b.Notes
 	}
 	return m0
@@ -330,16 +360,17 @@ const file_card_proto_rawDesc = "" +
 	"\n" +
 	"card.proto\x12\n" +
 	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\n" +
-	"data.proto\"\x95\x01\n" +
-	"\x04Card\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
-	"\x06number\x18\x02 \x01(\tR\x06number\x12\x19\n" +
-	"\bexp_date\x18\x03 \x01(\tR\aexpDate\x12\x10\n" +
-	"\x03cvv\x18\x04 \x01(\tR\x03cvv\x12\x1e\n" +
+	"data.proto\"\xa5\x01\n" +
+	"\x04Card\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06number\x18\x03 \x01(\tR\x06number\x12\x19\n" +
+	"\bexp_date\x18\x04 \x01(\tR\aexpDate\x12\x10\n" +
+	"\x03cvv\x18\x05 \x01(\tR\x03cvv\x12\x1e\n" +
 	"\n" +
-	"cardholder\x18\x05 \x01(\tR\n" +
+	"cardholder\x18\x06 \x01(\tR\n" +
 	"cardholder\x12\x14\n" +
-	"\x05notes\x18\x06 \x01(\tR\x05notes\"?\n" +
+	"\x05notes\x18\a \x01(\tR\x05notes\"?\n" +
 	"\x13GetAllCardsResponse\x12(\n" +
 	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xc3\x01\n" +
 	"\vCardService\x120\n" +

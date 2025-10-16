@@ -8,7 +8,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
-	"github.com/mkolibaba/gophkeeper/server/grpc/utils"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -33,8 +32,6 @@ func NewCardServiceServer(
 }
 
 func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*empty.Empty, error) {
-	user := utils.UserFromContext(ctx)
-
 	data := server.CardData{
 		Name:       in.GetName(),
 		Number:     in.GetNumber(),
@@ -48,7 +45,7 @@ func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*e
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if err := s.cardService.Save(ctx, data, user); err != nil {
+	if err := s.cardService.Create(ctx, data); err != nil {
 		if errors.Is(err, server.ErrDataAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
 		}
@@ -60,9 +57,7 @@ func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*e
 }
 
 func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllCardsResponse, error) {
-	user := utils.UserFromContext(ctx)
-
-	cards, err := s.cardService.GetAll(ctx, user)
+	cards, err := s.cardService.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("failed to retrieve card data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
@@ -87,13 +82,11 @@ func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 }
 
 func (s *CardServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
-	user := utils.UserFromContext(ctx)
-
-	if in.GetName() == "" {
-		return nil, status.Error(codes.InvalidArgument, "name is required")
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
 	}
 
-	if err := s.cardService.Remove(ctx, in.GetName(), user); err != nil {
+	if err := s.cardService.Remove(ctx, in.GetId()); err != nil {
 		if errors.Is(err, server.ErrDataNotFound) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}

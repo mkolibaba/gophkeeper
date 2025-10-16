@@ -36,6 +36,18 @@ func Tidy() {
 	})
 }
 
+// Starts client or server
+func Run(module string) error {
+	if module != "client" && module != "server" {
+		return fmt.Errorf("module must be either 'client' or 'server'")
+	}
+
+	os.Chdir(module)
+	defer os.Chdir("..")
+
+	return sh.RunV("mage", "run")
+}
+
 // Install mage
 func EnsureMage() error {
 	fmt.Println("Installing Mage")

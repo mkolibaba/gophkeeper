@@ -22,7 +22,7 @@ const (
 
 type RemoveDataRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Id          int64                  `protobuf:"varint,1,opt,name=id"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -54,46 +54,43 @@ func (x *RemoveDataRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *RemoveDataRequest) GetName() string {
+func (x *RemoveDataRequest) GetId() int64 {
 	if x != nil {
-		if x.xxx_hidden_Name != nil {
-			return *x.xxx_hidden_Name
-		}
-		return ""
+		return x.xxx_hidden_Id
 	}
-	return ""
+	return 0
 }
 
-func (x *RemoveDataRequest) SetName(v string) {
-	x.xxx_hidden_Name = &v
+func (x *RemoveDataRequest) SetId(v int64) {
+	x.xxx_hidden_Id = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
-func (x *RemoveDataRequest) HasName() bool {
+func (x *RemoveDataRequest) HasId() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *RemoveDataRequest) ClearName() {
+func (x *RemoveDataRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Name = nil
+	x.xxx_hidden_Id = 0
 }
 
 type RemoveDataRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name *string
+	Id *int64
 }
 
 func (b0 RemoveDataRequest_builder) Build() *RemoveDataRequest {
 	m0 := &RemoveDataRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	if b.Name != nil {
+	if b.Id != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
-		x.xxx_hidden_Name = b.Name
+		x.xxx_hidden_Id = *b.Id
 	}
 	return m0
 }
@@ -104,9 +101,9 @@ const file_data_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
 	"data.proto\x12\n" +
-	"gophkeeper\"'\n" +
-	"\x11RemoveDataRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04nameB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
+	"gophkeeper\"#\n" +
+	"\x11RemoveDataRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02idB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
 
 var file_data_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_data_proto_goTypes = []any{
