@@ -84,6 +84,7 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	var binaries []client.BinaryData
 	for _, b := range result.GetResult() {
 		binaries = append(binaries, client.BinaryData{
+			ID:       b.GetId(),
 			Name:     b.GetName(),
 			Filename: b.GetFilename(),
 			Size:     b.GetSize(),
@@ -93,9 +94,9 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	return binaries, nil
 }
 
-func (b *BinaryService) Download(ctx context.Context, name string) error {
+func (b *BinaryService) Download(ctx context.Context, id int64) error {
 	var in gophkeeperv1.DownloadBinaryRequest
-	in.SetName(name)
+	in.SetId(id)
 
 	stream, err := b.client.Download(ctx, &in)
 	if err != nil {
@@ -140,9 +141,9 @@ func (b *BinaryService) Download(ctx context.Context, name string) error {
 	return nil
 }
 
-func (b *BinaryService) Remove(ctx context.Context, name string) error {
+func (b *BinaryService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
-	in.SetName(name)
+	in.SetId(id)
 
 	_, err := b.client.Remove(ctx, &in)
 	return err

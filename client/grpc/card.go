@@ -40,6 +40,7 @@ func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
 	var cards []client.CardData
 	for _, data := range result.GetResult() {
 		cards = append(cards, client.CardData{
+			ID:         data.GetId(),
 			Name:       data.GetName(),
 			Number:     data.GetNumber(),
 			ExpDate:    data.GetExpDate(),
@@ -51,9 +52,9 @@ func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
 	return cards, nil
 }
 
-func (c *CardService) Remove(ctx context.Context, name string) error {
+func (c *CardService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
-	in.SetName(name)
+	in.SetId(id)
 
 	_, err := c.client.Remove(ctx, &in)
 	return err

@@ -39,6 +39,7 @@ func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
 	var logins []client.LoginData
 	for _, data := range result.GetResult() {
 		logins = append(logins, client.LoginData{
+			ID:       data.GetId(),
 			Name:     data.GetName(),
 			Login:    data.GetLogin(),
 			Password: data.GetPassword(),
@@ -50,9 +51,9 @@ func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
 	return logins, nil
 }
 
-func (l *LoginService) Remove(ctx context.Context, name string) error {
+func (l *LoginService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
-	in.SetName(name)
+	in.SetId(id)
 
 	_, err := l.client.Remove(ctx, &in)
 	return err

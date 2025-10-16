@@ -36,6 +36,7 @@ func (n *NoteService) GetAll(ctx context.Context) ([]client.NoteData, error) {
 	var notes []client.NoteData
 	for _, data := range result.GetResult() {
 		notes = append(notes, client.NoteData{
+			ID:   data.GetId(),
 			Name: data.GetName(),
 			Text: data.GetText(),
 		})
@@ -43,9 +44,9 @@ func (n *NoteService) GetAll(ctx context.Context) ([]client.NoteData, error) {
 	return notes, nil
 }
 
-func (n *NoteService) Remove(ctx context.Context, name string) error {
+func (n *NoteService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
-	in.SetName(name)
+	in.SetId(id)
 
 	_, err := n.client.Remove(ctx, &in)
 	return err

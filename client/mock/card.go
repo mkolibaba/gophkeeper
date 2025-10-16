@@ -22,7 +22,7 @@ var _ client.CardService = &CardServiceMock{}
 //			GetAllFunc: func(ctx context.Context) ([]client.CardData, error) {
 //				panic("mock out the GetAll method")
 //			},
-//			RemoveFunc: func(ctx context.Context, name string) error {
+//			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
 //			SaveFunc: func(ctx context.Context, data client.CardData) error {
@@ -39,7 +39,7 @@ type CardServiceMock struct {
 	GetAllFunc func(ctx context.Context) ([]client.CardData, error)
 
 	// RemoveFunc mocks the Remove method.
-	RemoveFunc func(ctx context.Context, name string) error
+	RemoveFunc func(ctx context.Context, id int64) error
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(ctx context.Context, data client.CardData) error
@@ -55,8 +55,8 @@ type CardServiceMock struct {
 		Remove []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Name is the name argument value.
-			Name string
+			// ID is the id argument value.
+			ID int64
 		}
 		// Save holds details about calls to the Save method.
 		Save []struct {
@@ -108,13 +108,13 @@ func (mock *CardServiceMock) GetAllCalls() []struct {
 }
 
 // Remove calls RemoveFunc.
-func (mock *CardServiceMock) Remove(ctx context.Context, name string) error {
+func (mock *CardServiceMock) Remove(ctx context.Context, id int64) error {
 	callInfo := struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}{
-		Ctx:  ctx,
-		Name: name,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockRemove.Lock()
 	mock.calls.Remove = append(mock.calls.Remove, callInfo)
@@ -125,7 +125,7 @@ func (mock *CardServiceMock) Remove(ctx context.Context, name string) error {
 		)
 		return errOut
 	}
-	return mock.RemoveFunc(ctx, name)
+	return mock.RemoveFunc(ctx, id)
 }
 
 // RemoveCalls gets all the calls that were made to Remove.
@@ -133,12 +133,12 @@ func (mock *CardServiceMock) Remove(ctx context.Context, name string) error {
 //
 //	len(mockedCardService.RemoveCalls())
 func (mock *CardServiceMock) RemoveCalls() []struct {
-	Ctx  context.Context
-	Name string
+	Ctx context.Context
+	ID  int64
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}
 	mock.lockRemove.RLock()
 	calls = mock.calls.Remove

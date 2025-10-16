@@ -321,7 +321,7 @@ func (m *Model) NotifyError(format string, a ...any) tea.Cmd {
 
 func (m *Model) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	return func() tea.Msg {
-		err := m.binaryService.Download(context.Background(), data.Name)
+		err := m.binaryService.Download(context.Background(), data.ID)
 		if err != nil {
 			return m.statusBar.NotifyError(fmt.Sprintf("Download %s failed: %v", data.Name, err))
 		}
@@ -339,13 +339,13 @@ func (m *Model) removeData(data client.Data) tea.Cmd {
 
 		switch data := data.(type) {
 		case client.LoginData:
-			err = m.loginService.Remove(ctx, data.Name)
+			err = m.loginService.Remove(ctx, data.ID)
 		case client.NoteData:
-			err = m.noteService.Remove(ctx, data.Name)
+			err = m.noteService.Remove(ctx, data.ID)
 		case client.BinaryData:
-			err = m.binaryService.Remove(ctx, data.Name)
+			err = m.binaryService.Remove(ctx, data.ID)
 		case client.CardData:
-			err = m.cardService.Remove(ctx, data.Name)
+			err = m.cardService.Remove(ctx, data.ID)
 		}
 
 		if err != nil {

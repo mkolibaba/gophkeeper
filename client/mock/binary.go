@@ -19,13 +19,13 @@ var _ client.BinaryService = &BinaryServiceMock{}
 //
 //		// make and configure a mocked client.BinaryService
 //		mockedBinaryService := &BinaryServiceMock{
-//			DownloadFunc: func(ctx context.Context, name string) error {
+//			DownloadFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Download method")
 //			},
 //			GetAllFunc: func(ctx context.Context) ([]client.BinaryData, error) {
 //				panic("mock out the GetAll method")
 //			},
-//			RemoveFunc: func(ctx context.Context, name string) error {
+//			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
 //			SaveFunc: func(ctx context.Context, data client.BinaryData) error {
@@ -39,13 +39,13 @@ var _ client.BinaryService = &BinaryServiceMock{}
 //	}
 type BinaryServiceMock struct {
 	// DownloadFunc mocks the Download method.
-	DownloadFunc func(ctx context.Context, name string) error
+	DownloadFunc func(ctx context.Context, id int64) error
 
 	// GetAllFunc mocks the GetAll method.
 	GetAllFunc func(ctx context.Context) ([]client.BinaryData, error)
 
 	// RemoveFunc mocks the Remove method.
-	RemoveFunc func(ctx context.Context, name string) error
+	RemoveFunc func(ctx context.Context, id int64) error
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(ctx context.Context, data client.BinaryData) error
@@ -56,8 +56,8 @@ type BinaryServiceMock struct {
 		Download []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Name is the name argument value.
-			Name string
+			// ID is the id argument value.
+			ID int64
 		}
 		// GetAll holds details about calls to the GetAll method.
 		GetAll []struct {
@@ -68,8 +68,8 @@ type BinaryServiceMock struct {
 		Remove []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
-			// Name is the name argument value.
-			Name string
+			// ID is the id argument value.
+			ID int64
 		}
 		// Save holds details about calls to the Save method.
 		Save []struct {
@@ -86,13 +86,13 @@ type BinaryServiceMock struct {
 }
 
 // Download calls DownloadFunc.
-func (mock *BinaryServiceMock) Download(ctx context.Context, name string) error {
+func (mock *BinaryServiceMock) Download(ctx context.Context, id int64) error {
 	callInfo := struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}{
-		Ctx:  ctx,
-		Name: name,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockDownload.Lock()
 	mock.calls.Download = append(mock.calls.Download, callInfo)
@@ -103,7 +103,7 @@ func (mock *BinaryServiceMock) Download(ctx context.Context, name string) error 
 		)
 		return errOut
 	}
-	return mock.DownloadFunc(ctx, name)
+	return mock.DownloadFunc(ctx, id)
 }
 
 // DownloadCalls gets all the calls that were made to Download.
@@ -111,12 +111,12 @@ func (mock *BinaryServiceMock) Download(ctx context.Context, name string) error 
 //
 //	len(mockedBinaryService.DownloadCalls())
 func (mock *BinaryServiceMock) DownloadCalls() []struct {
-	Ctx  context.Context
-	Name string
+	Ctx context.Context
+	ID  int64
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}
 	mock.lockDownload.RLock()
 	calls = mock.calls.Download
@@ -161,13 +161,13 @@ func (mock *BinaryServiceMock) GetAllCalls() []struct {
 }
 
 // Remove calls RemoveFunc.
-func (mock *BinaryServiceMock) Remove(ctx context.Context, name string) error {
+func (mock *BinaryServiceMock) Remove(ctx context.Context, id int64) error {
 	callInfo := struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}{
-		Ctx:  ctx,
-		Name: name,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockRemove.Lock()
 	mock.calls.Remove = append(mock.calls.Remove, callInfo)
@@ -178,7 +178,7 @@ func (mock *BinaryServiceMock) Remove(ctx context.Context, name string) error {
 		)
 		return errOut
 	}
-	return mock.RemoveFunc(ctx, name)
+	return mock.RemoveFunc(ctx, id)
 }
 
 // RemoveCalls gets all the calls that were made to Remove.
@@ -186,12 +186,12 @@ func (mock *BinaryServiceMock) Remove(ctx context.Context, name string) error {
 //
 //	len(mockedBinaryService.RemoveCalls())
 func (mock *BinaryServiceMock) RemoveCalls() []struct {
-	Ctx  context.Context
-	Name string
+	Ctx context.Context
+	ID  int64
 } {
 	var calls []struct {
-		Ctx  context.Context
-		Name string
+		Ctx context.Context
+		ID  int64
 	}
 	mock.lockRemove.RLock()
 	calls = mock.calls.Remove

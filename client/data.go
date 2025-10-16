@@ -6,82 +6,103 @@ import (
 	"regexp"
 )
 
-//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
-//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
-//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
-//go:generate moq -stub -pkg mock -out mock/card.go . CardService
-type (
-	Data interface {
-		GetName() string
-	}
+type Data interface {
+	GetID() int64
+	GetName() string
+}
 
-	LoginData struct {
-		Name     string `validate:"required"`
-		Login    string `validate:"required"`
-		Password string
-		Website  string
-		Notes    string
-	}
+type LoginData struct {
+	ID       int64
+	Name     string `validate:"required"`
+	Login    string `validate:"required"`
+	Password string
+	Website  string
+	Notes    string
+}
 
-	NoteData struct {
-		Name string `validate:"required"`
-		Text string
-	}
-
-	BinaryData struct {
-		Name     string `validate:"required"`
-		Filename string `validate:"required"`
-		Size     int64
-		Notes    string
-	}
-
-	CardData struct {
-		Name       string `validate:"required"`
-		Number     string `validate:"required,credit_card"`
-		ExpDate    string `validate:"required,exp_date"`
-		CVV        string `validate:"required,len=3"`
-		Cardholder string `validate:"required"`
-		Notes      string
-	}
-
-	BaseDataService[T Data] interface {
-		Save(ctx context.Context, data T) error
-		GetAll(ctx context.Context) ([]T, error)
-		Remove(ctx context.Context, name string) error
-	}
-
-	LoginService interface {
-		BaseDataService[LoginData]
-	}
-
-	NoteService interface {
-		BaseDataService[NoteData]
-	}
-
-	BinaryService interface {
-		BaseDataService[BinaryData]
-		Download(ctx context.Context, name string) error
-	}
-
-	CardService interface {
-		BaseDataService[CardData]
-	}
-)
+func (d LoginData) GetID() int64 {
+	return d.ID
+}
 
 func (d LoginData) GetName() string {
 	return d.Name
+}
+
+//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
+type LoginService interface {
+	Save(ctx context.Context, data LoginData) error
+	GetAll(ctx context.Context) ([]LoginData, error)
+	Remove(ctx context.Context, id int64) error
+}
+
+type NoteData struct {
+	ID   int64
+	Name string `validate:"required"`
+	Text string
+}
+
+func (d NoteData) GetID() int64 {
+	return d.ID
 }
 
 func (d NoteData) GetName() string {
 	return d.Name
 }
 
+//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
+type NoteService interface {
+	Save(ctx context.Context, data NoteData) error
+	GetAll(ctx context.Context) ([]NoteData, error)
+	Remove(ctx context.Context, id int64) error
+}
+
+type BinaryData struct {
+	ID       int64
+	Name     string `validate:"required"`
+	Filename string `validate:"required"`
+	Size     int64
+	Notes    string
+}
+
+func (d BinaryData) GetID() int64 {
+	return d.ID
+}
+
 func (d BinaryData) GetName() string {
 	return d.Name
 }
 
+//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
+type BinaryService interface {
+	Save(ctx context.Context, data BinaryData) error
+	GetAll(ctx context.Context) ([]BinaryData, error)
+	Remove(ctx context.Context, id int64) error
+	Download(ctx context.Context, id int64) error
+}
+
+type CardData struct {
+	ID         int64
+	Name       string `validate:"required"`
+	Number     string `validate:"required,credit_card"`
+	ExpDate    string `validate:"required,exp_date"`
+	CVV        string `validate:"required,len=3"`
+	Cardholder string `validate:"required"`
+	Notes      string
+}
+
+func (d CardData) GetID() int64 {
+	return d.ID
+}
+
 func (d CardData) GetName() string {
 	return d.Name
+}
+
+//go:generate moq -stub -pkg mock -out mock/card.go . CardService
+type CardService interface {
+	Save(ctx context.Context, data CardData) error
+	GetAll(ctx context.Context) ([]CardData, error)
+	Remove(ctx context.Context, id int64) error
 }
 
 func NewDataValidator() (*validator.Validate, error) {
