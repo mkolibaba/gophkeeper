@@ -234,10 +234,11 @@ const file_note_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04text\x18\x03 \x01(\tR\x04text\"?\n" +
 	"\x13GetAllNotesResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result2\xc3\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result2\xf7\x01\n" +
 	"\vNoteService\x120\n" +
 	"\x04Save\x12\x10.gophkeeper.Note\x1a\x16.google.protobuf.Empty\x12A\n" +
-	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllNotesResponse\x12?\n" +
+	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllNotesResponse\x122\n" +
+	"\x06Update\x12\x10.gophkeeper.Note\x1a\x16.google.protobuf.Empty\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
 
 var file_note_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
@@ -251,12 +252,14 @@ var file_note_proto_depIdxs = []int32{
 	0, // 0: gophkeeper.GetAllNotesResponse.result:type_name -> gophkeeper.Note
 	0, // 1: gophkeeper.NoteService.Save:input_type -> gophkeeper.Note
 	2, // 2: gophkeeper.NoteService.GetAll:input_type -> google.protobuf.Empty
-	3, // 3: gophkeeper.NoteService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	2, // 4: gophkeeper.NoteService.Save:output_type -> google.protobuf.Empty
-	1, // 5: gophkeeper.NoteService.GetAll:output_type -> gophkeeper.GetAllNotesResponse
-	2, // 6: gophkeeper.NoteService.Remove:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	0, // 3: gophkeeper.NoteService.Update:input_type -> gophkeeper.Note
+	3, // 4: gophkeeper.NoteService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 5: gophkeeper.NoteService.Save:output_type -> google.protobuf.Empty
+	1, // 6: gophkeeper.NoteService.GetAll:output_type -> gophkeeper.GetAllNotesResponse
+	2, // 7: gophkeeper.NoteService.Update:output_type -> google.protobuf.Empty
+	2, // 8: gophkeeper.NoteService.Remove:output_type -> google.protobuf.Empty
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name

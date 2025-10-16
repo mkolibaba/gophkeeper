@@ -335,10 +335,11 @@ const file_login_proto_rawDesc = "" +
 	"\awebsite\x18\x05 \x01(\tR\awebsite\x12\x14\n" +
 	"\x05notes\x18\x06 \x01(\tR\x05notes\"A\n" +
 	"\x14GetAllLoginsResponse\x12)\n" +
-	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result2\xc6\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result2\xfb\x01\n" +
 	"\fLoginService\x121\n" +
 	"\x04Save\x12\x11.gophkeeper.Login\x1a\x16.google.protobuf.Empty\x12B\n" +
-	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a .gophkeeper.GetAllLoginsResponse\x12?\n" +
+	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a .gophkeeper.GetAllLoginsResponse\x123\n" +
+	"\x06Update\x12\x11.gophkeeper.Login\x1a\x16.google.protobuf.Empty\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
 
 var file_login_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
@@ -352,12 +353,14 @@ var file_login_proto_depIdxs = []int32{
 	0, // 0: gophkeeper.GetAllLoginsResponse.result:type_name -> gophkeeper.Login
 	0, // 1: gophkeeper.LoginService.Save:input_type -> gophkeeper.Login
 	2, // 2: gophkeeper.LoginService.GetAll:input_type -> google.protobuf.Empty
-	3, // 3: gophkeeper.LoginService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	2, // 4: gophkeeper.LoginService.Save:output_type -> google.protobuf.Empty
-	1, // 5: gophkeeper.LoginService.GetAll:output_type -> gophkeeper.GetAllLoginsResponse
-	2, // 6: gophkeeper.LoginService.Remove:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	0, // 3: gophkeeper.LoginService.Update:input_type -> gophkeeper.Login
+	3, // 4: gophkeeper.LoginService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 5: gophkeeper.LoginService.Save:output_type -> google.protobuf.Empty
+	1, // 6: gophkeeper.LoginService.GetAll:output_type -> gophkeeper.GetAllLoginsResponse
+	2, // 7: gophkeeper.LoginService.Update:output_type -> google.protobuf.Empty
+	2, // 8: gophkeeper.LoginService.Remove:output_type -> google.protobuf.Empty
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name

@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	NoteService_Save_FullMethodName   = "/gophkeeper.NoteService/Save"
 	NoteService_GetAll_FullMethodName = "/gophkeeper.NoteService/GetAll"
+	NoteService_Update_FullMethodName = "/gophkeeper.NoteService/Update"
 	NoteService_Remove_FullMethodName = "/gophkeeper.NoteService/Remove"
 )
 
@@ -31,6 +32,7 @@ const (
 type NoteServiceClient interface {
 	Save(ctx context.Context, in *Note, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllNotesResponse, error)
+	Update(ctx context.Context, in *Note, opts ...grpc.CallOption) (*empty.Empty, error)
 	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -62,6 +64,16 @@ func (c *noteServiceClient) GetAll(ctx context.Context, in *empty.Empty, opts ..
 	return out, nil
 }
 
+func (c *noteServiceClient) Update(ctx context.Context, in *Note, opts ...grpc.CallOption) (*empty.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, NoteService_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *noteServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(empty.Empty)
@@ -78,6 +90,7 @@ func (c *noteServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, o
 type NoteServiceServer interface {
 	Save(context.Context, *Note) (*empty.Empty, error)
 	GetAll(context.Context, *empty.Empty) (*GetAllNotesResponse, error)
+	Update(context.Context, *Note) (*empty.Empty, error)
 	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedNoteServiceServer()
 }
@@ -94,6 +107,9 @@ func (UnimplementedNoteServiceServer) Save(context.Context, *Note) (*empty.Empty
 }
 func (UnimplementedNoteServiceServer) GetAll(context.Context, *empty.Empty) (*GetAllNotesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedNoteServiceServer) Update(context.Context, *Note) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedNoteServiceServer) Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
@@ -155,6 +171,24 @@ func _NoteService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NoteService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Note)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NoteServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NoteService_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NoteServiceServer).Update(ctx, req.(*Note))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _NoteService_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveDataRequest)
 	if err := dec(in); err != nil {
@@ -187,6 +221,10 @@ var NoteService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAll",
 			Handler:    _NoteService_GetAll_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _NoteService_Update_Handler,
 		},
 		{
 			MethodName: "Remove",

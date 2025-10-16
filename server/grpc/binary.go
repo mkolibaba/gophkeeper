@@ -121,6 +121,32 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*goph
 	return &out, nil
 }
 
+func (s *BinaryServiceServer) Update(ctx context.Context, in *gophkeeperv1.UpdateBinaryRequest) (*empty.Empty, error) {
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	var data server.BinaryDataUpdate
+	if in.HasName() {
+		name := in.GetName()
+		data.Name = &name
+	}
+	if in.HasNotes() {
+		notes := in.GetNotes()
+		data.Notes = &notes
+	}
+
+	if err := s.binaryService.Update(ctx, in.GetId(), data); err != nil {
+		if errors.Is(err, server.ErrPermissionDenied) {
+			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
+		}
+		s.logger.Error("failed to remove data", "err", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
+
 func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")

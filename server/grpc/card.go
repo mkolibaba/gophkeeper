@@ -81,6 +81,48 @@ func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	return &out, nil
 }
 
+func (s *CardServiceServer) Update(ctx context.Context, in *gophkeeperv1.Card) (*empty.Empty, error) {
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	var data server.CardDataUpdate
+	if in.HasName() {
+		name := in.GetName()
+		data.Name = &name
+	}
+	if in.HasNumber() {
+		number := in.GetNumber()
+		data.Number = &number
+	}
+	if in.HasExpDate() {
+		expDate := in.GetExpDate()
+		data.ExpDate = &expDate
+	}
+	if in.HasCvv() {
+		cvv := in.GetCvv()
+		data.CVV = &cvv
+	}
+	if in.HasCardholder() {
+		cardholder := in.GetCardholder()
+		data.Cardholder = &cardholder
+	}
+	if in.HasNotes() {
+		notes := in.GetNotes()
+		data.Notes = &notes
+	}
+
+	if err := s.cardService.Update(ctx, in.GetId(), data); err != nil {
+		if errors.Is(err, server.ErrPermissionDenied) {
+			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
+		}
+		s.logger.Error("failed to remove data", "err", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
+
 func (s *CardServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")

@@ -62,6 +62,9 @@ func (s *NoteService) Update(ctx context.Context, id int64, data server.NoteData
 		ID:   note.ID,
 	}
 
+	if data.Name != nil {
+		params.Name = *data.Name
+	}
 	if data.Text != nil {
 		params.Text = data.Text
 	}

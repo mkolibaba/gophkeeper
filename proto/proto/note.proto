@@ -20,5 +20,6 @@ message GetAllNotesResponse {
 service NoteService {
   rpc Save(Note) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllNotesResponse);
+  rpc Update(Note) returns (google.protobuf.Empty);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
 }

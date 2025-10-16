@@ -24,7 +24,7 @@ func (l *LoginService) Save(ctx context.Context, data client.LoginData) error {
 	login.SetLogin(data.Login)
 	login.SetPassword(data.Password)
 	login.SetWebsite(data.Website)
-	login.SetWebsite(data.Notes)
+	login.SetNotes(data.Notes)
 
 	_, err := l.client.Save(ctx, &login)
 	return err

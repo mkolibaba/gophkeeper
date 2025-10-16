@@ -67,6 +67,7 @@ func (n NoteData) GetUser() string {
 }
 
 type NoteDataUpdate struct {
+	Name *string
 	Text *string
 }
 
@@ -109,6 +110,7 @@ type ReadableBinaryData struct {
 }
 
 type BinaryDataUpdate struct {
+	Name  *string
 	Notes *string
 }
 

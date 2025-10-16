@@ -74,6 +74,32 @@ func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	return &out, nil
 }
 
+func (s *NoteServiceServer) Update(ctx context.Context, in *gophkeeperv1.Note) (*empty.Empty, error) {
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	var data server.NoteDataUpdate
+	if in.HasName() {
+		name := in.GetName()
+		data.Name = &name
+	}
+	if in.HasText() {
+		text := in.GetText()
+		data.Text = &text
+	}
+
+	if err := s.noteService.Update(ctx, in.GetId(), data); err != nil {
+		if errors.Is(err, server.ErrPermissionDenied) {
+			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
+		}
+		s.logger.Error("failed to remove data", "err", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
+
 func (s *NoteServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")

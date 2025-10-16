@@ -24,5 +24,6 @@ message GetAllCardsResponse {
 service CardService {
   rpc Save(Card) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllCardsResponse);
+  rpc Update(Card) returns (google.protobuf.Empty);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
 }

@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	CardService_Save_FullMethodName   = "/gophkeeper.CardService/Save"
 	CardService_GetAll_FullMethodName = "/gophkeeper.CardService/GetAll"
+	CardService_Update_FullMethodName = "/gophkeeper.CardService/Update"
 	CardService_Remove_FullMethodName = "/gophkeeper.CardService/Remove"
 )
 
@@ -31,6 +32,7 @@ const (
 type CardServiceClient interface {
 	Save(ctx context.Context, in *Card, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllCardsResponse, error)
+	Update(ctx context.Context, in *Card, opts ...grpc.CallOption) (*empty.Empty, error)
 	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -62,6 +64,16 @@ func (c *cardServiceClient) GetAll(ctx context.Context, in *empty.Empty, opts ..
 	return out, nil
 }
 
+func (c *cardServiceClient) Update(ctx context.Context, in *Card, opts ...grpc.CallOption) (*empty.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, CardService_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cardServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(empty.Empty)
@@ -78,6 +90,7 @@ func (c *cardServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, o
 type CardServiceServer interface {
 	Save(context.Context, *Card) (*empty.Empty, error)
 	GetAll(context.Context, *empty.Empty) (*GetAllCardsResponse, error)
+	Update(context.Context, *Card) (*empty.Empty, error)
 	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedCardServiceServer()
 }
@@ -94,6 +107,9 @@ func (UnimplementedCardServiceServer) Save(context.Context, *Card) (*empty.Empty
 }
 func (UnimplementedCardServiceServer) GetAll(context.Context, *empty.Empty) (*GetAllCardsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedCardServiceServer) Update(context.Context, *Card) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedCardServiceServer) Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
@@ -155,6 +171,24 @@ func _CardService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CardService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Card)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CardServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CardService_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CardServiceServer).Update(ctx, req.(*Card))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CardService_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveDataRequest)
 	if err := dec(in); err != nil {
@@ -187,6 +221,10 @@ var CardService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAll",
 			Handler:    _CardService_GetAll_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _CardService_Update_Handler,
 		},
 		{
 			MethodName: "Remove",

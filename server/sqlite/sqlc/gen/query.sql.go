@@ -465,12 +465,19 @@ func (q *Queries) SelectUser(ctx context.Context, login string) (*User, error) {
 
 const updateBinary = `-- name: UpdateBinary :execrows
 UPDATE binary
-SET notes = ?
+SET name  = ?,
+    notes = ?
 WHERE id = ?
 `
 
-func (q *Queries) UpdateBinary(ctx context.Context, notes *string, iD int64) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateBinary, notes, iD)
+type UpdateBinaryParams struct {
+	Name  string
+	Notes *string
+	ID    int64
+}
+
+func (q *Queries) UpdateBinary(ctx context.Context, arg UpdateBinaryParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateBinary, arg.Name, arg.Notes, arg.ID)
 	if err != nil {
 		return 0, err
 	}

@@ -77,7 +77,8 @@ RETURNING id;
 
 -- name: UpdateBinary :execrows
 UPDATE binary
-SET notes = ?
+SET name  = ?,
+    notes = ?
 WHERE id = ?;
 
 -- name: SelectBinary :one

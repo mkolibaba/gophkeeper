@@ -372,10 +372,11 @@ const file_card_proto_rawDesc = "" +
 	"cardholder\x12\x14\n" +
 	"\x05notes\x18\a \x01(\tR\x05notes\"?\n" +
 	"\x13GetAllCardsResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xc3\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xf7\x01\n" +
 	"\vCardService\x120\n" +
 	"\x04Save\x12\x10.gophkeeper.Card\x1a\x16.google.protobuf.Empty\x12A\n" +
-	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllCardsResponse\x12?\n" +
+	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllCardsResponse\x122\n" +
+	"\x06Update\x12\x10.gophkeeper.Card\x1a\x16.google.protobuf.Empty\x12?\n" +
 	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyB\x1cZ\x1agophkeeper.v1;gophkeeperv1b\beditionsp\xe8\a"
 
 var file_card_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
@@ -389,12 +390,14 @@ var file_card_proto_depIdxs = []int32{
 	0, // 0: gophkeeper.GetAllCardsResponse.result:type_name -> gophkeeper.Card
 	0, // 1: gophkeeper.CardService.Save:input_type -> gophkeeper.Card
 	2, // 2: gophkeeper.CardService.GetAll:input_type -> google.protobuf.Empty
-	3, // 3: gophkeeper.CardService.Remove:input_type -> gophkeeper.RemoveDataRequest
-	2, // 4: gophkeeper.CardService.Save:output_type -> google.protobuf.Empty
-	1, // 5: gophkeeper.CardService.GetAll:output_type -> gophkeeper.GetAllCardsResponse
-	2, // 6: gophkeeper.CardService.Remove:output_type -> google.protobuf.Empty
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	0, // 3: gophkeeper.CardService.Update:input_type -> gophkeeper.Card
+	3, // 4: gophkeeper.CardService.Remove:input_type -> gophkeeper.RemoveDataRequest
+	2, // 5: gophkeeper.CardService.Save:output_type -> google.protobuf.Empty
+	1, // 6: gophkeeper.CardService.GetAll:output_type -> gophkeeper.GetAllCardsResponse
+	2, // 7: gophkeeper.CardService.Update:output_type -> google.protobuf.Empty
+	2, // 8: gophkeeper.CardService.Remove:output_type -> google.protobuf.Empty
+	5, // [5:9] is the sub-list for method output_type
+	1, // [1:5] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name

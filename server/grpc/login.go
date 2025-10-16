@@ -79,6 +79,44 @@ func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophk
 	return &out, nil
 }
 
+func (s *LoginServiceServer) Update(ctx context.Context, in *gophkeeperv1.Login) (*empty.Empty, error) {
+	if !in.HasId() {
+		return nil, status.Error(codes.InvalidArgument, "id is required")
+	}
+
+	var data server.LoginDataUpdate
+	if in.HasName() {
+		name := in.GetName()
+		data.Name = &name
+	}
+	if in.HasLogin() {
+		login := in.GetLogin()
+		data.Login = &login
+	}
+	if in.HasPassword() {
+		password := in.GetPassword()
+		data.Password = &password
+	}
+	if in.HasWebsite() {
+		website := in.GetWebsite()
+		data.Website = &website
+	}
+	if in.HasNotes() {
+		notes := in.GetNotes()
+		data.Notes = &notes
+	}
+
+	if err := s.loginService.Update(ctx, in.GetId(), data); err != nil {
+		if errors.Is(err, server.ErrPermissionDenied) {
+			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
+		}
+		s.logger.Error("failed to remove data", "err", err)
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &empty.Empty{}, nil
+}
+
 func (s *LoginServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")

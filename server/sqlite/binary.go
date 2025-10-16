@@ -115,11 +115,20 @@ func (s *BinaryService) Update(ctx context.Context, id int64, data server.Binary
 		return err
 	}
 
-	if data.Notes == nil {
-		return nil
+	params := sqlc.UpdateBinaryParams{
+		Name:  binary.Name,
+		Notes: binary.Notes,
+		ID:    id,
 	}
 
-	n, err := s.qs.UpdateBinary(ctx, data.Notes, id)
+	if data.Name != nil {
+		params.Name = *data.Name
+	}
+	if data.Notes == nil {
+		params.Notes = data.Notes
+	}
+
+	n, err := s.qs.UpdateBinary(ctx, params)
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
 	}

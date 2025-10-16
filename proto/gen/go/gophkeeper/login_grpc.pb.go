@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	LoginService_Save_FullMethodName   = "/gophkeeper.LoginService/Save"
 	LoginService_GetAll_FullMethodName = "/gophkeeper.LoginService/GetAll"
+	LoginService_Update_FullMethodName = "/gophkeeper.LoginService/Update"
 	LoginService_Remove_FullMethodName = "/gophkeeper.LoginService/Remove"
 )
 
@@ -31,6 +32,7 @@ const (
 type LoginServiceClient interface {
 	Save(ctx context.Context, in *Login, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetAll(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetAllLoginsResponse, error)
+	Update(ctx context.Context, in *Login, opts ...grpc.CallOption) (*empty.Empty, error)
 	Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -62,6 +64,16 @@ func (c *loginServiceClient) GetAll(ctx context.Context, in *empty.Empty, opts .
 	return out, nil
 }
 
+func (c *loginServiceClient) Update(ctx context.Context, in *Login, opts ...grpc.CallOption) (*empty.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, LoginService_Update_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *loginServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(empty.Empty)
@@ -78,6 +90,7 @@ func (c *loginServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, 
 type LoginServiceServer interface {
 	Save(context.Context, *Login) (*empty.Empty, error)
 	GetAll(context.Context, *empty.Empty) (*GetAllLoginsResponse, error)
+	Update(context.Context, *Login) (*empty.Empty, error)
 	Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
@@ -94,6 +107,9 @@ func (UnimplementedLoginServiceServer) Save(context.Context, *Login) (*empty.Emp
 }
 func (UnimplementedLoginServiceServer) GetAll(context.Context, *empty.Empty) (*GetAllLoginsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedLoginServiceServer) Update(context.Context, *Login) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
 func (UnimplementedLoginServiceServer) Remove(context.Context, *RemoveDataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
@@ -155,6 +171,24 @@ func _LoginService_GetAll_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Login)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_Update_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).Update(ctx, req.(*Login))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LoginService_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveDataRequest)
 	if err := dec(in); err != nil {
@@ -187,6 +221,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAll",
 			Handler:    _LoginService_GetAll_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _LoginService_Update_Handler,
 		},
 		{
 			MethodName: "Remove",

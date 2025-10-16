@@ -23,5 +23,6 @@ message GetAllLoginsResponse {
 service LoginService {
   rpc Save(Login) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllLoginsResponse);
+  rpc Update(Login) returns (google.protobuf.Empty);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
 }
