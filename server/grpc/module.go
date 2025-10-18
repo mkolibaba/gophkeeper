@@ -11,6 +11,7 @@ var Module = fx.Module(
 	"grpc",
 	fx.Provide(
 		interceptors.NewAuthInterceptor,
+		interceptors.NewLoggerInterceptor,
 		NewAuthorizationServiceServer,
 		NewLoginServiceServer,
 		NewNoteServiceServer,

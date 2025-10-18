@@ -8,6 +8,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
 	"github.com/mkolibaba/gophkeeper/server"
+	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -75,43 +76,11 @@ func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 }
 
 func (s *NoteServiceServer) Update(ctx context.Context, in *gophkeeperv1.Note) (*empty.Empty, error) {
-	if !in.HasId() {
-		return nil, status.Error(codes.InvalidArgument, "id is required")
-	}
-
-	var data server.NoteDataUpdate
-	if in.HasName() {
-		name := in.GetName()
-		data.Name = &name
-	}
-	if in.HasText() {
-		text := in.GetText()
-		data.Text = &text
-	}
-
-	if err := s.noteService.Update(ctx, in.GetId(), data); err != nil {
-		if errors.Is(err, server.ErrPermissionDenied) {
-			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
-		}
-		s.logger.Error("failed to remove data", "err", err)
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &empty.Empty{}, nil
+	return updateData(ctx, in, func(i *gophkeeperv1.Note) server.NoteDataUpdate {
+		return grpcgen.MapNoteDataUpdate(i)
+	}, s.noteService.Update, s.logger)
 }
 
 func (s *NoteServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
-	if !in.HasId() {
-		return nil, status.Error(codes.InvalidArgument, "id is required")
-	}
-
-	if err := s.noteService.Remove(ctx, in.GetId()); err != nil {
-		if errors.Is(err, server.ErrDataNotFound) {
-			return nil, status.Error(codes.NotFound, "data not found")
-		}
-		s.logger.Error("failed to remove data", "err", err)
-		return nil, status.Error(codes.Internal, "internal server error")
-	}
-
-	return &empty.Empty{}, nil
+	return removeData(ctx, in, s.noteService.Remove, s.logger)
 }

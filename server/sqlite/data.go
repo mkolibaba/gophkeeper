@@ -20,6 +20,18 @@ func unwrapInsertError(err error) error {
 	return err
 }
 
+func getAllData[S any, R any](
+	ctx context.Context,
+	getter func(context.Context, string) ([]S, error),
+	mapper func([]S) []R,
+) ([]R, error) {
+	sources, err := getter(ctx, server.UserFromContext(ctx))
+	if err != nil {
+		return nil, fmt.Errorf("get all: %w", err)
+	}
+	return mapper(sources), nil
+}
+
 type anyData struct {
 	user string
 }

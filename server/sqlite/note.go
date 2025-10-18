@@ -4,46 +4,29 @@ import (
 	"context"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
+	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
 
 type NoteService struct {
-	qs *sqlc.Queries
+	qs        *sqlc.Queries
+	converter converter.DataConverter
 }
 
-func NewNoteService(queries *sqlc.Queries) *NoteService {
+func NewNoteService(queries *sqlc.Queries, converter converter.DataConverter) *NoteService {
 	return &NoteService{
-		qs: queries,
+		qs:        queries,
+		converter: converter,
 	}
 }
 
 func (s *NoteService) Create(ctx context.Context, data server.NoteData) error {
-	err := s.qs.InsertNote(ctx, sqlc.InsertNoteParams{
-		Name: data.Name,
-		Text: stringOrNull(data.Text),
-		User: server.UserFromContext(ctx),
-	})
+	err := s.qs.InsertNote(ctx, s.converter.ConvertToInsertNote(ctx, data))
 	return unwrapInsertError(err)
 }
 
 func (s *NoteService) GetAll(ctx context.Context) ([]server.NoteData, error) {
-	user := server.UserFromContext(ctx)
-
-	notes, err := s.qs.SelectNotes(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("get all: %w", err)
-	}
-
-	var result []server.NoteData
-	for _, note := range notes {
-		result = append(result, server.NoteData{
-			Name: note.Name,
-			Text: stringOrEmpty(note.Text),
-			ID:   note.ID,
-		})
-	}
-
-	return result, nil
+	return getAllData(ctx, s.qs.SelectNotes, s.converter.ConvertToNoteDataSlice)
 }
 
 func (s *NoteService) Update(ctx context.Context, id int64, data server.NoteDataUpdate) error {
@@ -56,18 +39,8 @@ func (s *NoteService) Update(ctx context.Context, id int64, data server.NoteData
 		return err
 	}
 
-	params := sqlc.UpdateNoteParams{
-		Name: note.Name,
-		Text: note.Text,
-		ID:   note.ID,
-	}
-
-	if data.Name != nil {
-		params.Name = *data.Name
-	}
-	if data.Text != nil {
-		params.Text = data.Text
-	}
+	params := s.converter.ConvertToUpdateNote(note)
+	s.converter.ConvertToUpdateNoteUpdate(data, &params)
 
 	n, err := s.qs.UpdateNote(ctx, params)
 	if err != nil {

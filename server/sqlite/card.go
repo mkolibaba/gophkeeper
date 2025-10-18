@@ -4,54 +4,29 @@ import (
 	"context"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
+	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
 
 type CardService struct {
-	qs *sqlc.Queries
+	qs        *sqlc.Queries
+	converter converter.DataConverter
 }
 
-func NewCardService(queries *sqlc.Queries) *CardService {
+func NewCardService(queries *sqlc.Queries, converter converter.DataConverter) *CardService {
 	return &CardService{
-		qs: queries,
+		qs:        queries,
+		converter: converter,
 	}
 }
 
 func (s *CardService) Create(ctx context.Context, data server.CardData) error {
-	err := s.qs.InsertCard(ctx, sqlc.InsertCardParams{
-		Name:       data.Name,
-		Number:     data.Number,
-		ExpDate:    data.ExpDate,
-		Cvv:        data.CVV,
-		Cardholder: data.Cardholder,
-		Notes:      stringOrNull(data.Notes),
-		User:       server.UserFromContext(ctx),
-	})
+	err := s.qs.InsertCard(ctx, s.converter.ConvertToInsertCard(ctx, data))
 	return unwrapInsertError(err)
 }
 
 func (s *CardService) GetAll(ctx context.Context) ([]server.CardData, error) {
-	user := server.UserFromContext(ctx)
-
-	cards, err := s.qs.SelectCards(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("get all: %w", err)
-	}
-
-	var result []server.CardData
-	for _, card := range cards {
-		result = append(result, server.CardData{
-			ID:         card.ID,
-			Name:       card.Name,
-			Number:     card.Number,
-			ExpDate:    card.Cvv,
-			Cardholder: card.Cardholder,
-			Notes:      stringOrEmpty(card.Notes),
-			User:       card.User,
-		})
-	}
-
-	return result, nil
+	return getAllData(ctx, s.qs.SelectCards, s.converter.ConvertToCardDataSlice)
 }
 
 func (s *CardService) Update(ctx context.Context, id int64, data server.CardDataUpdate) error {
@@ -64,34 +39,8 @@ func (s *CardService) Update(ctx context.Context, id int64, data server.CardData
 		return err
 	}
 
-	params := sqlc.UpdateCardParams{
-		Name:       card.Name,
-		Number:     card.Number,
-		ExpDate:    card.ExpDate,
-		Cvv:        card.Cvv,
-		Cardholder: card.Cardholder,
-		Notes:      card.Notes,
-		ID:         card.ID,
-	}
-
-	if data.Name != nil {
-		params.Name = *data.Name
-	}
-	if data.Number != nil {
-		params.Number = *data.Number
-	}
-	if data.ExpDate != nil {
-		params.ExpDate = *data.ExpDate
-	}
-	if data.CVV != nil {
-		params.Cvv = *data.CVV
-	}
-	if data.Cardholder != nil {
-		params.Cardholder = *data.Cardholder
-	}
-	if data.Notes != nil {
-		params.Notes = data.Notes
-	}
+	params := s.converter.ConvertToUpdateCard(card)
+	s.converter.ConvertToUpdateCardUpdate(data, &params)
 
 	n, err := s.qs.UpdateCard(ctx, params)
 	if err != nil {

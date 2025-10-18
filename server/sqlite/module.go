@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"github.com/mkolibaba/gophkeeper/server"
+	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
+	convertergen "github.com/mkolibaba/gophkeeper/server/sqlite/converter/gen"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 	"go.uber.org/fx"
 )
@@ -11,6 +13,7 @@ var Module = fx.Module(
 	fx.Provide(
 		NewDB,
 		NewQueries,
+		NewDataConverter,
 		fx.Annotate(NewUserService, fx.As(new(server.UserService))),
 		fx.Annotate(NewLoginService, fx.As(new(server.LoginService))),
 		fx.Annotate(NewNoteService, fx.As(new(server.NoteService))),
@@ -24,6 +27,10 @@ var Module = fx.Module(
 
 func NewQueries(db *DB) *sqlc.Queries {
 	return sqlc.New(db.db)
+}
+
+func NewDataConverter() converter.DataConverter {
+	return &convertergen.DataConverterImpl{}
 }
 
 func OpenDB(db *DB) error {

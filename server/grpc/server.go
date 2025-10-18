@@ -24,6 +24,7 @@ type ServerParams struct {
 
 	Lifecycle                  fx.Lifecycle
 	AuthInterceptor            *interceptors.AuthInterceptor
+	LoggerInterceptor          *interceptors.LoggerInterceptor
 	AuthorizationServiceServer *AuthorizationServiceServer
 	LoginServiceServer         *LoginServiceServer
 	NoteServiceServer          *NoteServiceServer
@@ -36,11 +37,11 @@ type ServerParams struct {
 func NewServer(p ServerParams) *Server {
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			interceptors.UnaryLogger(p.Logger),
+			p.LoggerInterceptor.Unary,
 			p.AuthInterceptor.Unary,
 		),
 		grpc.ChainStreamInterceptor(
-			interceptors.StreamLogger(p.Logger),
+			p.LoggerInterceptor.Stream,
 			p.AuthInterceptor.Stream,
 		),
 	)

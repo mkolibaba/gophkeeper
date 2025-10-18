@@ -178,13 +178,13 @@ FROM binary
 WHERE user = ?
 `
 
-func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]*Binary, error) {
+func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]Binary, error) {
 	rows, err := q.db.QueryContext(ctx, selectBinaries, user)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Binary
+	var items []Binary
 	for rows.Next() {
 		var i Binary
 		if err := rows.Scan(
@@ -197,7 +197,7 @@ func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]*Binary, e
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, &i)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -214,7 +214,7 @@ FROM binary
 WHERE id = ?
 `
 
-func (q *Queries) SelectBinary(ctx context.Context, id int64) (*Binary, error) {
+func (q *Queries) SelectBinary(ctx context.Context, id int64) (Binary, error) {
 	row := q.db.QueryRowContext(ctx, selectBinary, id)
 	var i Binary
 	err := row.Scan(
@@ -225,7 +225,7 @@ func (q *Queries) SelectBinary(ctx context.Context, id int64) (*Binary, error) {
 		&i.Notes,
 		&i.User,
 	)
-	return &i, err
+	return i, err
 }
 
 const selectBinaryUser = `-- name: SelectBinaryUser :one
@@ -247,7 +247,7 @@ FROM card
 WHERE id = ?
 `
 
-func (q *Queries) SelectCard(ctx context.Context, id int64) (*Card, error) {
+func (q *Queries) SelectCard(ctx context.Context, id int64) (Card, error) {
 	row := q.db.QueryRowContext(ctx, selectCard, id)
 	var i Card
 	err := row.Scan(
@@ -260,7 +260,7 @@ func (q *Queries) SelectCard(ctx context.Context, id int64) (*Card, error) {
 		&i.Notes,
 		&i.User,
 	)
-	return &i, err
+	return i, err
 }
 
 const selectCardUser = `-- name: SelectCardUser :one
@@ -282,13 +282,13 @@ FROM card
 WHERE user = ?
 `
 
-func (q *Queries) SelectCards(ctx context.Context, user string) ([]*Card, error) {
+func (q *Queries) SelectCards(ctx context.Context, user string) ([]Card, error) {
 	rows, err := q.db.QueryContext(ctx, selectCards, user)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Card
+	var items []Card
 	for rows.Next() {
 		var i Card
 		if err := rows.Scan(
@@ -303,7 +303,7 @@ func (q *Queries) SelectCards(ctx context.Context, user string) ([]*Card, error)
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, &i)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -320,7 +320,7 @@ FROM login
 WHERE id = ?
 `
 
-func (q *Queries) SelectLogin(ctx context.Context, id int64) (*Login, error) {
+func (q *Queries) SelectLogin(ctx context.Context, id int64) (Login, error) {
 	row := q.db.QueryRowContext(ctx, selectLogin, id)
 	var i Login
 	err := row.Scan(
@@ -332,7 +332,7 @@ func (q *Queries) SelectLogin(ctx context.Context, id int64) (*Login, error) {
 		&i.Notes,
 		&i.User,
 	)
-	return &i, err
+	return i, err
 }
 
 const selectLoginUser = `-- name: SelectLoginUser :one
@@ -354,13 +354,13 @@ FROM login
 WHERE user = ?
 `
 
-func (q *Queries) SelectLogins(ctx context.Context, user string) ([]*Login, error) {
+func (q *Queries) SelectLogins(ctx context.Context, user string) ([]Login, error) {
 	rows, err := q.db.QueryContext(ctx, selectLogins, user)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Login
+	var items []Login
 	for rows.Next() {
 		var i Login
 		if err := rows.Scan(
@@ -374,7 +374,7 @@ func (q *Queries) SelectLogins(ctx context.Context, user string) ([]*Login, erro
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, &i)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -391,7 +391,7 @@ FROM note
 WHERE id = ?
 `
 
-func (q *Queries) SelectNote(ctx context.Context, id int64) (*Note, error) {
+func (q *Queries) SelectNote(ctx context.Context, id int64) (Note, error) {
 	row := q.db.QueryRowContext(ctx, selectNote, id)
 	var i Note
 	err := row.Scan(
@@ -400,7 +400,7 @@ func (q *Queries) SelectNote(ctx context.Context, id int64) (*Note, error) {
 		&i.Text,
 		&i.User,
 	)
-	return &i, err
+	return i, err
 }
 
 const selectNoteUser = `-- name: SelectNoteUser :one
@@ -422,13 +422,13 @@ FROM note
 WHERE user = ?
 `
 
-func (q *Queries) SelectNotes(ctx context.Context, user string) ([]*Note, error) {
+func (q *Queries) SelectNotes(ctx context.Context, user string) ([]Note, error) {
 	rows, err := q.db.QueryContext(ctx, selectNotes, user)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []*Note
+	var items []Note
 	for rows.Next() {
 		var i Note
 		if err := rows.Scan(
@@ -439,7 +439,7 @@ func (q *Queries) SelectNotes(ctx context.Context, user string) ([]*Note, error)
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, &i)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
@@ -456,11 +456,11 @@ FROM user
 WHERE login = ?
 `
 
-func (q *Queries) SelectUser(ctx context.Context, login string) (*User, error) {
+func (q *Queries) SelectUser(ctx context.Context, login string) (User, error) {
 	row := q.db.QueryRowContext(ctx, selectUser, login)
 	var i User
 	err := row.Scan(&i.Login, &i.Password)
-	return &i, err
+	return i, err
 }
 
 const updateBinary = `-- name: UpdateBinary :execrows

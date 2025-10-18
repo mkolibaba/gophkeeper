@@ -11,117 +11,119 @@ import (
 	"time"
 )
 
-func UnaryLogger(logger *log.Logger) grpc.UnaryServerInterceptor {
-	return func(
-		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (interface{}, error) {
-		start := time.Now()
-
-		// Извлекаем дополнительную информацию из контекста
-		clientIP := getClientIP(ctx)
-		userAgent := getUserAgent(ctx)
-		requestID := getRequestID(ctx)
-
-		// Логируем начало запроса
-		logger.Debug("gRPC request started",
-			"method", info.FullMethod,
-			"client_ip", clientIP,
-			"user_agent", userAgent,
-			"request_id", requestID,
-			"start_time", start,
-		)
-
-		// Вызываем обработчик
-		resp, err := handler(ctx, req)
-
-		// Подготовка полей для логирования
-		duration := time.Since(start)
-		statusCode := status.Code(err)
-
-		fields := []any{
-			"method", info.FullMethod,
-			"client_ip", clientIP,
-			"user_agent", userAgent,
-			"request_id", requestID,
-			"duration", duration.String(),
-			"duration_ms", duration,
-			"status", statusCode.String(),
-			"status_code", int32(statusCode),
-			"start_time", start,
-			"end_time", time.Now(),
-		}
-
-		if err != nil {
-			fields = append(fields,
-				"err", err,
-				"error_details", err.Error(),
-			)
-		}
-
-		logger.Log(getLogLevel(statusCode), "gRPC request completed", fields...)
-
-		return resp, err
-	}
+type LoggerInterceptor struct {
+	logger *log.Logger
 }
 
-// StreamInterceptor для streaming RPC
-func StreamLogger(logger *log.Logger) grpc.StreamServerInterceptor {
-	return func(
-		srv interface{},
-		stream grpc.ServerStream,
-		info *grpc.StreamServerInfo,
-		handler grpc.StreamHandler,
-	) error {
-		start := time.Now()
-
-		ctx := stream.Context()
-		clientIP := getClientIP(ctx)
-		userAgent := getUserAgent(ctx)
-		requestID := getRequestID(ctx)
-
-		logger.Debug("gRPC stream started",
-			"method", info.FullMethod,
-			"client_ip", clientIP,
-			"user_agent", userAgent,
-			"request_id", requestID,
-			"is_client_stream", info.IsClientStream,
-			"is_server_stream", info.IsServerStream,
-			"start_time", start,
-		)
-
-		err := handler(srv, stream)
-		duration := time.Since(start)
-		statusCode := status.Code(err)
-
-		fields := []any{
-			"method", info.FullMethod,
-			"client_ip", clientIP,
-			"user_agent", userAgent,
-			"request_id", requestID,
-			"is_client_stream", info.IsClientStream,
-			"is_server_stream", info.IsServerStream,
-			"duration", duration.String(),
-			"duration_ms", duration,
-			"status", statusCode.String(),
-			"status_code", int32(statusCode),
-			"start_time", start,
-			"end_time", time.Now(),
-		}
-
-		if err != nil {
-			fields = append(fields, "err", err)
-		}
-
-		logger.Log(getLogLevel(statusCode), "gRPC stream completed", fields...)
-
-		return err
-	}
+func NewLoggerInterceptor(logger *log.Logger) *LoggerInterceptor {
+	return &LoggerInterceptor{logger: logger}
 }
 
-// Вспомогательные функции
+func (i *LoggerInterceptor) Unary(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (interface{}, error) {
+	start := time.Now()
+
+	// Извлекаем дополнительную информацию из контекста.
+	clientIP := getClientIP(ctx)
+	userAgent := getUserAgent(ctx)
+	requestID := getRequestID(ctx)
+
+	// Логируем начало запроса.
+	i.logger.Debug("gRPC request started",
+		"method", info.FullMethod,
+		"client_ip", clientIP,
+		"user_agent", userAgent,
+		"request_id", requestID,
+		"start_time", start,
+	)
+
+	// Вызываем обработчик.
+	resp, err := handler(ctx, req)
+
+	// Подготовка полей для логирования.
+	duration := time.Since(start)
+	statusCode := status.Code(err)
+	fields := []any{
+		"method", info.FullMethod,
+		"client_ip", clientIP,
+		"user_agent", userAgent,
+		"request_id", requestID,
+		"duration", duration.String(),
+		"duration_ms", duration,
+		"status", statusCode.String(),
+		"status_code", int32(statusCode),
+		"start_time", start,
+		"end_time", time.Now(),
+	}
+
+	if err != nil {
+		fields = append(fields,
+			"err", err,
+			"error_details", err.Error(),
+		)
+	}
+
+	// Логируем результат запроса.
+	i.logger.Log(getLogLevel(statusCode), "gRPC request completed", fields...)
+
+	return resp, err
+}
+
+func (i *LoggerInterceptor) Stream(
+	srv interface{},
+	stream grpc.ServerStream,
+	info *grpc.StreamServerInfo,
+	handler grpc.StreamHandler,
+) error {
+	start := time.Now()
+
+	ctx := stream.Context()
+	clientIP := getClientIP(ctx)
+	userAgent := getUserAgent(ctx)
+	requestID := getRequestID(ctx)
+
+	i.logger.Debug("gRPC stream started",
+		"method", info.FullMethod,
+		"client_ip", clientIP,
+		"user_agent", userAgent,
+		"request_id", requestID,
+		"is_client_stream", info.IsClientStream,
+		"is_server_stream", info.IsServerStream,
+		"start_time", start,
+	)
+
+	err := handler(srv, stream)
+	duration := time.Since(start)
+	statusCode := status.Code(err)
+
+	fields := []any{
+		"method", info.FullMethod,
+		"client_ip", clientIP,
+		"user_agent", userAgent,
+		"request_id", requestID,
+		"is_client_stream", info.IsClientStream,
+		"is_server_stream", info.IsServerStream,
+		"duration", duration.String(),
+		"duration_ms", duration,
+		"status", statusCode.String(),
+		"status_code", int32(statusCode),
+		"start_time", start,
+		"end_time", time.Now(),
+	}
+
+	if err != nil {
+		fields = append(fields, "err", err)
+	}
+
+	i.logger.Log(getLogLevel(statusCode), "gRPC stream completed", fields...)
+
+	return err
+}
+
 func getClientIP(ctx context.Context) string {
 	if p, ok := peer.FromContext(ctx); ok {
 		return p.Addr.String()

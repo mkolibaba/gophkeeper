@@ -7,6 +7,5 @@ sql:
       go:
         package: "sqlc"
         out: "gen"
-        emit_result_struct_pointers: true
         emit_pointers_for_null_types: true
         query_parameter_limit: 2

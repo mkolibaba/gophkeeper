@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
+	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 	"io"
 	"os"
@@ -14,25 +15,20 @@ import (
 
 type BinaryService struct {
 	qs             *sqlc.Queries
+	converter      converter.DataConverter
 	binariesFolder string
 }
 
-func NewBinaryService(queries *sqlc.Queries, db *DB) *BinaryService {
+func NewBinaryService(queries *sqlc.Queries, db *DB, converter converter.DataConverter) *BinaryService {
 	return &BinaryService{
 		qs:             queries,
+		converter:      converter,
 		binariesFolder: db.binariesFolder,
 	}
 }
 
 func (s *BinaryService) Create(ctx context.Context, data server.ReadableBinaryData) error {
-	id, err := s.qs.InsertBinary(ctx, sqlc.InsertBinaryParams{
-		Name:     data.Name,
-		Filename: data.Filename,
-		Size:     data.Size,
-		Notes:    stringOrNull(data.Notes),
-		User:     server.UserFromContext(ctx),
-	})
-
+	id, err := s.qs.InsertBinary(ctx, s.converter.ConvertToInsertBinary(ctx, data))
 	if err != nil {
 		return unwrapInsertError(err)
 	}
@@ -70,39 +66,13 @@ func (s *BinaryService) Get(ctx context.Context, id int64) (*server.ReadableBina
 	}
 
 	return &server.ReadableBinaryData{
-		BinaryData: server.BinaryData{
-			ID:       binary.ID,
-			Name:     binary.Name,
-			Filename: binary.Filename,
-			Notes:    stringOrEmpty(binary.Notes),
-			Size:     binary.Size,
-			User:     binary.User,
-		},
+		BinaryData: s.converter.ConvertToBinaryData(binary),
 		DataReader: file,
 	}, nil
 }
 
 func (s *BinaryService) GetAll(ctx context.Context) ([]server.BinaryData, error) {
-	user := server.UserFromContext(ctx)
-
-	binaries, err := s.qs.SelectBinaries(ctx, user)
-	if err != nil {
-		return nil, fmt.Errorf("get all: %w", err)
-	}
-
-	var result []server.BinaryData
-	for _, binary := range binaries {
-		result = append(result, server.BinaryData{
-			ID:       binary.ID,
-			Name:     binary.Name,
-			Filename: binary.Filename,
-			Size:     binary.Size,
-			Notes:    stringOrEmpty(binary.Notes),
-			User:     user,
-		})
-	}
-
-	return result, nil
+	return getAllData(ctx, s.qs.SelectBinaries, s.converter.ConvertToBinaryDataSlice)
 }
 
 func (s *BinaryService) Update(ctx context.Context, id int64, data server.BinaryDataUpdate) error {
@@ -115,18 +85,8 @@ func (s *BinaryService) Update(ctx context.Context, id int64, data server.Binary
 		return err
 	}
 
-	params := sqlc.UpdateBinaryParams{
-		Name:  binary.Name,
-		Notes: binary.Notes,
-		ID:    id,
-	}
-
-	if data.Name != nil {
-		params.Name = *data.Name
-	}
-	if data.Notes == nil {
-		params.Notes = data.Notes
-	}
+	params := s.converter.ConvertToUpdateBinary(binary)
+	s.converter.ConvertToUpdateBinaryUpdate(data, &params)
 
 	n, err := s.qs.UpdateBinary(ctx, params)
 	if err != nil {
