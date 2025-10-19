@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"github.com/go-playground/validator/v10"
-	gophkeeperv1 "github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server/grpc/interceptors"
 	"go.uber.org/fx"
 )

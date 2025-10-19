@@ -67,7 +67,7 @@ func (i *LoggerInterceptor) Unary(
 		)
 	}
 
-	// Логируем результат запроса.
+	// Логируем весь запрос.
 	i.logger.Log(getLogLevel(statusCode), "gRPC request completed", fields...)
 
 	return resp, err

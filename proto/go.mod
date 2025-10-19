@@ -10,8 +10,10 @@ require (
 )
 
 require (
+	github.com/frankban/quicktest v1.14.6 // indirect
 	github.com/itchyny/gojq v0.12.13 // indirect
 	github.com/itchyny/timefmt-go v0.1.5 // indirect
+	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	golang.org/x/net v0.42.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.28.0 // indirect

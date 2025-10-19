@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/client"
-	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"google.golang.org/grpc"
 	"io"
 	"os"

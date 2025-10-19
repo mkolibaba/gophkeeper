@@ -1,3 +1,8 @@
+//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/login_mapping.go . LoginDataUpdate
+//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/note_mapping.go . NoteDataUpdate
+//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/binary_mapping.go . BinaryDataUpdate
+//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/card_mapping.go -mappings CVV:Cvv . CardDataUpdate
+
 package server
 
 import (
@@ -30,7 +35,6 @@ func (l LoginData) GetUser() string {
 	return l.User
 }
 
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/login_mapping.go . LoginDataUpdate
 type LoginDataUpdate struct {
 	Name     *string
 	Login    *string
@@ -67,7 +71,6 @@ func (n NoteData) GetUser() string {
 	return n.User
 }
 
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/note_mapping.go . NoteDataUpdate
 type NoteDataUpdate struct {
 	Name *string
 	Text *string
@@ -111,7 +114,6 @@ type ReadableBinaryData struct {
 	DataReader io.ReadCloser
 }
 
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/binary_mapping.go . BinaryDataUpdate
 type BinaryDataUpdate struct {
 	Name  *string
 	Notes *string
@@ -152,7 +154,6 @@ func (c CardData) GetUser() string {
 	return c.User
 }
 
-//go:generate go run cmd/opaquemapper/main.go -mappings CVV:Cvv -pkg grpcgen -out grpc/gen/card_mapping.go . CardDataUpdate
 type CardDataUpdate struct {
 	Name       *string
 	Number     *string

@@ -16,3 +16,9 @@ func TestConfig(t *testing.T) {
 	require.Equal(t, "8080", config.GRPC.Port)
 	require.Equal(t, 20*time.Minute, config.JWT.TTL)
 }
+
+func TestInvalidConfig(t *testing.T) {
+	t.Setenv("JWT_TTL", "heh")
+	_, err := NewConfig()
+	require.Error(t, err)
+}

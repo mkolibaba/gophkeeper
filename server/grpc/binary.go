@@ -6,7 +6,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
 	"google.golang.org/grpc"

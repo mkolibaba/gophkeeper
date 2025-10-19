@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -87,7 +87,7 @@ func (i *AuthInterceptor) getSub(ctx context.Context) (string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("jwt: unexpected signing method")
 		}
-		return i.config.JWT.Secret, nil
+		return []byte(i.config.JWT.Secret), nil
 	})
 	if err != nil {
 		return "", fmt.Errorf("bearer token: %w", err)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/carolynvs/magex/shx"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -14,6 +15,7 @@ import (
 var (
 	outPath        = "bin/gophkeeper-server"
 	sqlcConfigPath = "sqlite/sqlc/sqlc.yml"
+	must           = shx.CommandBuilder{StopOnError: true}
 )
 
 // Build server binary
@@ -54,6 +56,21 @@ func Test() error {
 		}
 	}
 	return err
+}
+
+func TestCoverage() {
+	installTool("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
+
+	color.HiYellow("[testcoverage] Running tests...")
+	must.RunV("go", "test", "./...", "-coverprofile=./cover.out", "-covermode=atomic", "-coverpkg=./...")
+
+	color.HiYellow("[testcoverage] Creating html coverage file...")
+	must.RunV("go", "tool", "cover", "-html", "cover.out", "-o", "cover.html")
+
+	color.HiYellow("[testcoverage] Running go-test-coverage...")
+	must.RunV("go-test-coverage", "--config=./.testcoverage.yml", "--badge-file-name=./coverage.svg")
+
+	color.HiGreen("[testcoverage] Done")
 }
 
 // Run server in watch mode (requires watchexec)
@@ -172,20 +189,20 @@ func GenOpaqueMapper() error {
 	return nil
 }
 
-func installGoverter() error {
-	return installTool("goverter", "github.com/jmattheis/goverter/cmd/goverter@v1.9.1")
+func installGoverter() {
+	installTool("goverter", "github.com/jmattheis/goverter/cmd/goverter@v1.9.1")
 }
 
-func installSqlc() error {
-	return installTool("sqlc", "github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0")
+func installSqlc() {
+	installTool("sqlc", "github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0")
 }
 
-func installTool(tool, link string) error {
+func installTool(tool, link string) {
 	if _, err := exec.LookPath(tool); err == nil {
-		return nil
+		return
 	}
 	color.HiYellow(fmt.Sprintf("%s not found, installing...", tool))
-	return sh.RunV("go", "install", link)
+	must.RunV("go", "install", link)
 }
 
 func binaryPath() string {

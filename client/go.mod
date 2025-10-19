@@ -14,7 +14,6 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/protobuf v1.5.4
 	github.com/magefile/mage v1.15.0
-	github.com/mkolibaba/gophkeeper/proto v0.0.0-00010101000000-000000000000
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/fx v1.24.0
@@ -46,6 +45,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
+	github.com/mkolibaba/gophkeeper/proto v0.0.0-20251018161913-25abf9c25887 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect

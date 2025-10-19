@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/go-playground/validator/v10"
-	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

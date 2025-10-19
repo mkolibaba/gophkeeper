@@ -27,9 +27,9 @@ func Gen() error {
 	// (просто указать последним аргументом proto/*.proto не получится, т.к. "* is a shell thing")
 	_, err = script.Slice(files).
 		ExecForEach("protoc -I=proto " +
-			"--go_out=gen/go/gophkeeper " +
+			"--go_out=gen/go/gophkeeperv1 " +
 			"--go_opt=paths=source_relative " +
-			"--go-grpc_out=gen/go/gophkeeper " +
+			"--go-grpc_out=gen/go/gophkeeperv1 " +
 			"--go-grpc_opt=paths=source_relative " +
 			"--go_opt=default_api_level=API_OPAQUE {{.}}").
 		Stdout()

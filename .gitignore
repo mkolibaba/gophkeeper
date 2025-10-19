@@ -26,3 +26,5 @@ Thumbs.db
 .task
 bin
 server/data
+cover.out
+cover.html

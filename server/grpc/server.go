@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/charmbracelet/log"
-	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeper"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/grpc/interceptors"
 	"go.uber.org/fx"
