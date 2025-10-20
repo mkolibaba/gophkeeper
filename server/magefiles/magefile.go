@@ -19,30 +19,28 @@ var (
 )
 
 // Build server binary
-func Build() error {
+func Build() {
 	mg.Deps(Gen)
-	color.HiYellow("[build] Building server binary")
-	if err := sh.RunV("go", "build",
-		"-ldflags", "-s -w",
-		"-o", binaryPath(),
-		"cmd/server/main.go"); err != nil {
-		return err
-	}
+
+	color.HiYellow("[build] Building server binary...")
+	must.RunV("go", "build", "-ldflags", "-s -w", "-o", binaryPath(), "cmd/server/main.go")
+
 	color.HiGreen("[build] Done")
-	return nil
 }
 
-// Run server
-func Run() error {
+// Build and run server
+func Run() {
 	mg.Deps(Build)
+
 	color.HiGreen("Starting server...")
-	return sh.RunV("./" + binaryPath())
+	must.RunV("./" + binaryPath())
 }
 
-// Runs go test in verbose mode and prettifies the output
+// Run tests and prettify the output
 func Test() error {
 	color.HiGreen("Running tests...")
-	output, err := sh.Output("go", "test", "./...")
+
+	output, err := shx.Output("go", "test", "./...")
 	for _, line := range strings.Split(output, "\n") {
 		if strings.Contains(line, "[no test files]") {
 			continue
@@ -55,9 +53,11 @@ func Test() error {
 			color.New().Println(line)
 		}
 	}
+
 	return err
 }
 
+// Run tests with coverage
 func TestCoverage() {
 	installTool("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
 
