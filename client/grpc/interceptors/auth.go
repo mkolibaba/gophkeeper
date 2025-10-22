@@ -27,9 +27,11 @@ func UnaryAuth(userService client.UserService) grpc.UnaryClientInterceptor {
 			return invoker(ctx, method, req, reply, cc, opts...)
 		}
 
-		if err := addBearerAccess(userService, opts); err != nil {
+		baOpt, err := newBearerAccessOption(userService)
+		if err != nil {
 			return fmt.Errorf("auth interceptor: %w", err)
 		}
+		opts = append(opts, baOpt)
 
 		return invoker(ctx, method, req, reply, cc, opts...)
 	}
@@ -48,23 +50,22 @@ func StreamAuth(userService client.UserService) grpc.StreamClientInterceptor {
 			return streamer(ctx, desc, cc, method, opts...)
 		}
 
-		if err := addBearerAccess(userService, opts); err != nil {
+		baOpt, err := newBearerAccessOption(userService)
+		if err != nil {
 			return nil, fmt.Errorf("auth interceptor: %w", err)
 		}
+		opts = append(opts, baOpt)
 
 		return streamer(ctx, desc, cc, method, opts...)
 	}
 }
 
-func addBearerAccess(userService client.UserService, opts []grpc.CallOption) error {
+func newBearerAccessOption(userService client.UserService) (grpc.CallOption, error) {
 	token := userService.GetBearerToken()
 	if token == nil {
-		return fmt.Errorf("bearer token not found in session")
+		return nil, fmt.Errorf("bearer token not found in session")
 	}
-
-	opts = append(opts, grpc.PerRPCCredentials(bearerAccess{*token}))
-
-	return nil
+	return grpc.PerRPCCredentials(bearerAccess{*token}), nil
 }
 
 type bearerAccess struct {

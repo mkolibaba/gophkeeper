@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"github.com/charmbracelet/log"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
@@ -10,15 +11,18 @@ import (
 
 type AuthorizationService struct {
 	client gophkeeperv1.AuthorizationServiceClient
+	logger *log.Logger
 }
 
-func NewAuthorizationService(conn *grpc.ClientConn) *AuthorizationService {
+func NewAuthorizationService(conn *grpc.ClientConn, logger *log.Logger) *AuthorizationService {
 	return &AuthorizationService{
 		client: gophkeeperv1.NewAuthorizationServiceClient(conn),
+		logger: logger,
 	}
 }
 
 func (s *AuthorizationService) Authorize(ctx context.Context, login string, password string) (string, error) {
+	s.logger.Debug("trying to authorize", "login", login, "password", password)
 	return s.send(ctx, s.client.Authorize, login, password)
 }
 
