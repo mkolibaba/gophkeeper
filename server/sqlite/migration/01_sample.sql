@@ -1,6 +1,5 @@
 INSERT INTO user (login, password)
-VALUES ('demo', 'demo');
--- TODO: не хранить пароли в открытом доступе
+VALUES ('demo', '$2a$10$Kxn.379HFtAZrwv6SD7uXelbllGVXh3bcxfJ4HRraN8P0IaaedRri');
 
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES ('Google', 'iivanov', '123456', 'google.com', 'Мой основной аккаунт', 'demo'),

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
+	"golang.org/x/crypto/bcrypt"
 	"modernc.org/sqlite"
 	sqlite3 "modernc.org/sqlite/lib"
 )
@@ -37,7 +38,12 @@ func (s *UserService) Get(ctx context.Context, login string) (*server.User, erro
 }
 
 func (s *UserService) Save(ctx context.Context, user server.User) error {
-	err := s.qs.InsertUser(ctx, user.Login, user.Password)
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
+
+	err = s.qs.InsertUser(ctx, user.Login, string(passwordHash))
 
 	if se, ok := asType[*sqlite.Error](err); ok && se.Code() == sqlite3.SQLITE_CONSTRAINT_PRIMARYKEY {
 		return server.ErrUserAlreadyExists

@@ -6,7 +6,7 @@ import (
 
 type User struct {
 	Login    string
-	Password string // TODO: hash
+	Password string
 }
 
 type UserService interface {

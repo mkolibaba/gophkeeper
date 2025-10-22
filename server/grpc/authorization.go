@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -47,8 +48,7 @@ func (s *AuthorizationServiceServer) Authorize(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	// TODO: заменить на хеши
-	if user.Password != in.GetPassword() {
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(in.GetPassword())) != nil {
 		return nil, ErrInvalidCredentials
 	}
 
