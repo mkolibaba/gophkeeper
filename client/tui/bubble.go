@@ -10,6 +10,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
 	"go.uber.org/fx"
 	"io"
 	"os"
@@ -39,6 +40,7 @@ type BubbleParams struct {
 	AuthorizationView *authorization.Model
 	MainView          *home.Model
 	AddDataView       *adddata.Model
+	RegistrationView  *registration.Model
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -57,6 +59,7 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 			view.ViewAuthorization: p.AuthorizationView,
 			view.ViewHome:          p.MainView,
 			view.ViewAddData:       p.AddDataView,
+			view.ViewRegistration:  p.RegistrationView,
 		},
 	}, nil
 }
@@ -81,6 +84,12 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			b.view = view.ViewHome
 		}
 
+	// Регистрация
+	case registration.RegistrationResultMsg:
+		if msg.Err == nil {
+			b.view = view.ViewHome
+		}
+
 	// Добавление данных
 	case adddata.AddDataResultMsg:
 		if msg.Err == nil {
@@ -98,6 +107,10 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		addDataView := b.views[view.ViewAddData].(*adddata.Model)
 		addDataView.ResetFor(helper.DataType(msg))
 		return b, addDataView.Init()
+
+	// Вызов окна регистрации
+	case authorization.CallRegistrationViewMsg:
+		b.view = view.ViewRegistration
 
 	// Выход из окна добавления данных
 	case adddata.ExitMsg:

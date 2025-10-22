@@ -1,7 +1,8 @@
-package authorization
+package registration
 
 import (
 	"context"
+	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mkolibaba/gophkeeper/client"
@@ -10,8 +11,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
 	"go.uber.org/fx"
 )
-
-type CallRegistrationViewMsg struct{}
 
 type Model struct {
 	view.BaseModel
@@ -34,6 +33,7 @@ func New(p Params) *Model {
 		inputSet: inputset.NewInputSet(
 			inputset.NewTextInput("Login"),
 			inputset.NewTextInput("Password", inputset.WithEchoModePassword()),
+			inputset.NewTextInput("Repeat password", inputset.WithEchoModePassword()),
 		),
 	}
 }
@@ -44,7 +44,7 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) tea.Cmd {
 	switch msg := msg.(type) {
-	case AuthorizationResultMsg:
+	case RegistrationResultMsg:
 		m.inputSet.Err = msg.Err
 		m.inputSet.Reset()
 
@@ -53,16 +53,11 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		case "ctrl+c", "esc":
 			return tea.Quit
 
-		case "ctrl+r":
-			return func() tea.Msg {
-				return CallRegistrationViewMsg{}
-			}
-
 		case "up", "down", "tab":
 			return m.inputSet.Update(msg)
 
 		case "enter":
-			return m.authorize()
+			return m.register()
 		}
 	}
 
@@ -71,7 +66,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 
 func (m *Model) View() string {
 	return helper.Borderize(
-		"Authorization",
+		"Registration",
 		"",
 		lipgloss.NewStyle().
 			PaddingTop(1).
@@ -82,21 +77,23 @@ func (m *Model) View() string {
 	)
 }
 
-type AuthorizationResultMsg struct {
+type RegistrationResultMsg struct {
 	Err error
 }
 
-func (m *Model) authorize() tea.Cmd {
+func (m *Model) register() tea.Cmd {
 	values := m.inputSet.Values()
 	return func() tea.Msg {
 		login, password := values["Login"], values["Password"]
-		token, err := m.authorizationService.Authorize(context.Background(), login, password)
+		if password != values["Repeat password"] {
+			return RegistrationResultMsg{Err: fmt.Errorf("passwords do not match")}
+		}
+
+		token, err := m.authorizationService.Register(context.Background(), login, password)
 		if err == nil {
 			m.userService.SetInfo(login, token)
 		}
 
-		return AuthorizationResultMsg{
-			Err: err,
-		}
+		return RegistrationResultMsg{Err: err}
 	}
 }

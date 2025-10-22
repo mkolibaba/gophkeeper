@@ -4,6 +4,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
 	"go.uber.org/fx"
 )
 
@@ -13,6 +14,7 @@ var Module = fx.Module(
 		authorization.New,
 		home.New,
 		adddata.New,
+		registration.New,
 		NewBubble,
 	),
 	fx.Invoke(

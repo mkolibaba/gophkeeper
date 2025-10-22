@@ -6,7 +6,7 @@ import tea "github.com/charmbracelet/bubbletea"
 type View uint8
 
 const (
-	// ViewAuthorization - авторизация.
+	// ViewAuthorization - авторизация пользователя.
 	ViewAuthorization View = iota
 
 	// ViewHome - основное окно приложения.
@@ -14,6 +14,9 @@ const (
 
 	// ViewAddData - окно добавления данных.
 	ViewAddData
+
+	// ViewRegistration - регистрация нового пользователя.
+	ViewRegistration
 )
 
 // Model - представление состояния UI.
