@@ -62,10 +62,10 @@ func StreamAuth(userService client.UserService) grpc.StreamClientInterceptor {
 
 func newBearerAccessOption(userService client.UserService) (grpc.CallOption, error) {
 	token := userService.GetBearerToken()
-	if token == nil {
+	if token == "" {
 		return nil, fmt.Errorf("bearer token not found in session")
 	}
-	return grpc.PerRPCCredentials(bearerAccess{*token}), nil
+	return grpc.PerRPCCredentials(bearerAccess{token}), nil
 }
 
 type bearerAccess struct {

@@ -30,28 +30,19 @@ func NewBinaryServiceServer(
 ) *BinaryServiceServer {
 	return &BinaryServiceServer{
 		binaryService: binaryService,
-		validate:      validate, // TODO: использовать
+		validate:      validate,
 		logger:        logger,
 	}
 }
 
 func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeeperv1.SaveBinaryRequest, empty.Empty]) error {
-	// TODO: хорошей практикой было бы сначала проверить, что такой сущности
-	//  нет, а потом сохранять чанки
-
 	file, err := os.CreateTemp("", "*.tmp")
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
 	}
 	defer os.Remove(file.Name())
 
-	var (
-		filename    string
-		size        int64
-		name        string
-		notes       string
-		initialized bool
-	)
+	var data server.BinaryData
 
 	for {
 		in, err := stream.Recv()
@@ -62,12 +53,17 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 			return status.Error(codes.Internal, err.Error())
 		}
 
-		if !initialized {
-			name = in.GetName()
-			filename = in.GetFilename()
-			size = in.GetSize()
-			notes = in.GetNotes()
-			initialized = true
+		if data.Name == "" {
+			data = server.BinaryData{
+				Name:     in.GetName(),
+				Filename: in.GetFilename(),
+				Size:     in.GetSize(),
+				Notes:    in.GetNotes(),
+			}
+
+			if err := s.validate.StructCtx(stream.Context(), &data); err != nil {
+				return status.Error(codes.InvalidArgument, err.Error())
+			}
 		}
 
 		_, err = file.Write(in.GetChunk().GetData())
@@ -84,12 +80,7 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 	}
 
 	err = s.binaryService.Create(stream.Context(), server.ReadableBinaryData{
-		BinaryData: server.BinaryData{
-			Name:     name,
-			Filename: filename,
-			Size:     size,
-			Notes:    notes,
-		},
+		BinaryData: data,
 		DataReader: file,
 	})
 	if err != nil {

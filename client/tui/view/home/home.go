@@ -154,7 +154,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 
 	switch msg := msg.(type) {
 	case loadDataMsg:
-		m.statusBar.CurrentUser = *m.userService.GetUserLogin()
+		m.statusBar.CurrentUser = m.userService.GetUserLogin()
 		m.dataTable.ProcessFetchedData(msg)
 		m.dataDetail.Data = m.dataTable.GetCurrentRow()
 

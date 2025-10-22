@@ -3,8 +3,8 @@ package inmem
 import "github.com/charmbracelet/log"
 
 type UserService struct {
-	login *string // TODO: доставать логин из токена
-	token *string
+	login string
+	token string
 
 	logger *log.Logger
 }
@@ -14,13 +14,14 @@ func NewUserService(logger *log.Logger) *UserService {
 }
 
 func (s *UserService) SetInfo(login, token string) {
-	s.login, s.token = &login, &token
+	s.login = login
+	s.token = token
 }
 
-func (s *UserService) GetUserLogin() *string {
+func (s *UserService) GetUserLogin() string {
 	return s.login
 }
 
-func (s *UserService) GetBearerToken() *string {
+func (s *UserService) GetBearerToken() string {
 	return s.token
 }

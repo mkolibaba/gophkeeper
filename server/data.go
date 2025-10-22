@@ -44,6 +44,7 @@ type LoginDataUpdate struct {
 }
 
 // LoginService - сервис для работы с авторизационными данными типа логин/пароль.
+// Работать с данными может только их владелец.
 type LoginService interface {
 	// Create сохраняет данные для текущего пользователя.
 	Create(ctx context.Context, data LoginData) error
@@ -76,10 +77,8 @@ type NoteDataUpdate struct {
 	Text *string
 }
 
-// TODO(critical): для каждого сервиса добавить документацию, что манипулировать данными
-//  может только владелец
-
 // NoteService - сервис для работы с текстовыми данными.
+// Работать с данными может только их владелец.
 type NoteService interface {
 	// Create сохраняет текстовые данные для текущего пользователя.
 	Create(ctx context.Context, data NoteData) error
@@ -120,6 +119,7 @@ type BinaryDataUpdate struct {
 }
 
 // BinaryService - сервис для работы с бинарными данными.
+// Работать с данными может только их владелец.
 type BinaryService interface {
 	// Create сохраняет бинарные данные для текущего пользователя.
 	Create(ctx context.Context, data ReadableBinaryData) error
@@ -164,6 +164,7 @@ type CardDataUpdate struct {
 }
 
 // CardService - сервис для работы с данными карт.
+// Работать с данными может только их владелец.
 type CardService interface {
 	// Create сохраняет данные карты для текущего пользователя.
 	Create(ctx context.Context, data CardData) error

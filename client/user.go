@@ -10,9 +10,8 @@ type (
 	}
 
 	UserService interface {
-		// TODO: нужно этот метод (и, наверное, весь сервис) сделать красивее
 		SetInfo(login string, token string)
-		GetUserLogin() *string
-		GetBearerToken() *string
+		GetUserLogin() string
+		GetBearerToken() string
 	}
 )
