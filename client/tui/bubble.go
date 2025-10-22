@@ -9,6 +9,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/editdata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
 	"go.uber.org/fx"
@@ -41,6 +42,7 @@ type BubbleParams struct {
 	MainView          *home.Model
 	AddDataView       *adddata.Model
 	RegistrationView  *registration.Model
+	EditDataView      *editdata.Model
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
@@ -60,6 +62,7 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 			view.ViewHome:          p.MainView,
 			view.ViewAddData:       p.AddDataView,
 			view.ViewRegistration:  p.RegistrationView,
+			view.ViewEditData:      p.EditDataView,
 		},
 	}, nil
 }
@@ -101,12 +104,29 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 		}
 
+	// Редактирование данных
+	case editdata.EditDataResultMsg:
+		if msg.Err == nil {
+			b.view = view.ViewHome
+			homeView := b.views[view.ViewHome].(*home.Model)
+			return b, tea.Batch(
+				homeView.LoadData(),
+				homeView.NotifyOk("Edited %s successfully", msg.Name),
+			)
+		}
+
 	// Вызов окна добавления данных
 	case home.CallAddDataViewMsg:
 		b.view = view.ViewAddData
 		addDataView := b.views[view.ViewAddData].(*adddata.Model)
 		addDataView.ResetFor(helper.DataType(msg))
 		return b, addDataView.Init()
+
+	case home.CallEditDataViewMsg:
+		b.view = view.ViewEditData
+		editDataView := b.views[view.ViewEditData].(*editdata.Model)
+		editDataView.ResetFor(msg)
+		return b, editDataView.Init()
 
 	// Вызов окна регистрации
 	case authorization.CallRegistrationViewMsg:

@@ -66,6 +66,7 @@ func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophk
 	var result []*gophkeeperv1.Login
 	for _, login := range logins {
 		var out gophkeeperv1.Login
+		out.SetId(login.ID)
 		out.SetName(login.Name)
 		out.SetLogin(login.Login)
 		out.SetPassword(login.Password)

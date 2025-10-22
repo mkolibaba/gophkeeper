@@ -18,7 +18,7 @@ func NewLoginService(conn *grpc.ClientConn) *LoginService {
 	}
 }
 
-func (l *LoginService) Save(ctx context.Context, data client.LoginData) error {
+func (s *LoginService) Save(ctx context.Context, data client.LoginData) error {
 	var login gophkeeperv1.Login
 	login.SetName(data.Name)
 	login.SetLogin(data.Login)
@@ -26,12 +26,12 @@ func (l *LoginService) Save(ctx context.Context, data client.LoginData) error {
 	login.SetWebsite(data.Website)
 	login.SetNotes(data.Notes)
 
-	_, err := l.client.Save(ctx, &login)
+	_, err := s.client.Save(ctx, &login)
 	return err
 }
 
-func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
-	result, err := l.client.GetAll(ctx, &empty.Empty{})
+func (s *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
+	result, err := s.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -51,10 +51,33 @@ func (l *LoginService) GetAll(ctx context.Context) ([]client.LoginData, error) {
 	return logins, nil
 }
 
-func (l *LoginService) Remove(ctx context.Context, id int64) error {
+func (s *LoginService) Update(ctx context.Context, data client.LoginDataUpdate) error {
+	var in gophkeeperv1.Login
+	in.SetId(data.ID)
+	if data.Name != nil {
+		in.SetName(*data.Name)
+	}
+	if data.Login != nil {
+		in.SetLogin(*data.Login)
+	}
+	if data.Password != nil {
+		in.SetPassword(*data.Password)
+	}
+	if data.Website != nil {
+		in.SetWebsite(*data.Website)
+	}
+	if data.Notes != nil {
+		in.SetNotes(*data.Notes)
+	}
+
+	_, err := s.client.Update(ctx, &in)
+	return err
+}
+
+func (s *LoginService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
 	in.SetId(id)
 
-	_, err := l.client.Remove(ctx, &in)
+	_, err := s.client.Remove(ctx, &in)
 	return err
 }

@@ -21,7 +21,7 @@ func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
 	}
 }
 
-func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error {
+func (s *BinaryService) Save(ctx context.Context, data client.BinaryData) error {
 	file, err := os.Open(data.Filename)
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
@@ -32,7 +32,7 @@ func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error 
 		return fmt.Errorf("save: %w", err)
 	}
 
-	stream, err := b.client.Upload(ctx)
+	stream, err := s.client.Upload(ctx)
 	if err != nil {
 		return fmt.Errorf("save: %w", err)
 	}
@@ -75,8 +75,8 @@ func (b *BinaryService) Save(ctx context.Context, data client.BinaryData) error 
 	return nil
 }
 
-func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error) {
-	result, err := b.client.GetAll(ctx, nil)
+func (s *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error) {
+	result, err := s.client.GetAll(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -94,11 +94,25 @@ func (b *BinaryService) GetAll(ctx context.Context) ([]client.BinaryData, error)
 	return binaries, nil
 }
 
-func (b *BinaryService) Download(ctx context.Context, id int64) error {
+func (s *BinaryService) Update(ctx context.Context, data client.BinaryDataUpdate) error {
+	var in gophkeeperv1.UpdateBinaryRequest
+	in.SetId(data.ID)
+	if data.Name != nil {
+		in.SetName(*data.Name)
+	}
+	if data.Notes != nil {
+		in.SetNotes(*data.Notes)
+	}
+
+	_, err := s.client.Update(ctx, &in)
+	return err
+}
+
+func (s *BinaryService) Download(ctx context.Context, id int64) error {
 	var in gophkeeperv1.DownloadBinaryRequest
 	in.SetId(id)
 
-	stream, err := b.client.Download(ctx, &in)
+	stream, err := s.client.Download(ctx, &in)
 	if err != nil {
 		return err
 	}
@@ -141,10 +155,10 @@ func (b *BinaryService) Download(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (b *BinaryService) Remove(ctx context.Context, id int64) error {
+func (s *BinaryService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
 	in.SetId(id)
 
-	_, err := b.client.Remove(ctx, &in)
+	_, err := s.client.Remove(ctx, &in)
 	return err
 }

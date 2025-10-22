@@ -109,6 +109,7 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*goph
 	var result []*gophkeeperv1.Binary
 	for _, binary := range binaries {
 		var out gophkeeperv1.Binary
+		out.SetId(binary.ID)
 		out.SetName(binary.Name)
 		out.SetFilename(binary.Filename)
 		out.SetSize(binary.Size)

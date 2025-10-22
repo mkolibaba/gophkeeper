@@ -17,6 +17,9 @@ const (
 
 	// ViewRegistration - регистрация нового пользователя.
 	ViewRegistration
+
+	// ViewEditData - окно редактирования данных.
+	ViewEditData
 )
 
 // Model - представление состояния UI.

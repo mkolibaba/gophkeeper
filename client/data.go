@@ -1,3 +1,8 @@
+//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
+//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
+//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
+//go:generate moq -stub -pkg mock -out mock/card.go . CardService
+
 package client
 
 import (
@@ -28,10 +33,19 @@ func (d LoginData) GetName() string {
 	return d.Name
 }
 
-//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
+type LoginDataUpdate struct {
+	ID       int64
+	Name     *string
+	Login    *string
+	Password *string
+	Website  *string
+	Notes    *string
+}
+
 type LoginService interface {
 	Save(ctx context.Context, data LoginData) error
 	GetAll(ctx context.Context) ([]LoginData, error)
+	Update(ctx context.Context, data LoginDataUpdate) error
 	Remove(ctx context.Context, id int64) error
 }
 
@@ -49,10 +63,16 @@ func (d NoteData) GetName() string {
 	return d.Name
 }
 
-//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
+type NoteDataUpdate struct {
+	ID   int64
+	Name *string
+	Text *string
+}
+
 type NoteService interface {
 	Save(ctx context.Context, data NoteData) error
 	GetAll(ctx context.Context) ([]NoteData, error)
+	Update(ctx context.Context, data NoteDataUpdate) error
 	Remove(ctx context.Context, id int64) error
 }
 
@@ -72,10 +92,16 @@ func (d BinaryData) GetName() string {
 	return d.Name
 }
 
-//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
+type BinaryDataUpdate struct {
+	ID    int64
+	Name  *string
+	Notes *string
+}
+
 type BinaryService interface {
 	Save(ctx context.Context, data BinaryData) error
 	GetAll(ctx context.Context) ([]BinaryData, error)
+	Update(ctx context.Context, data BinaryDataUpdate) error
 	Remove(ctx context.Context, id int64) error
 	Download(ctx context.Context, id int64) error
 }
@@ -98,10 +124,20 @@ func (d CardData) GetName() string {
 	return d.Name
 }
 
-//go:generate moq -stub -pkg mock -out mock/card.go . CardService
+type CardDataUpdate struct {
+	ID         int64
+	Name       *string
+	Number     *string
+	ExpDate    *string
+	CVV        *string
+	Cardholder *string
+	Notes      *string
+}
+
 type CardService interface {
 	Save(ctx context.Context, data CardData) error
 	GetAll(ctx context.Context) ([]CardData, error)
+	Update(ctx context.Context, data CardDataUpdate) error
 	Remove(ctx context.Context, id int64) error
 }
 

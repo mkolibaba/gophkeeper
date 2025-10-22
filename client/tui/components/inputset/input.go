@@ -65,7 +65,7 @@ type TextArea struct {
 	textarea.Model
 }
 
-func NewTextArea(placeholder string) Input {
+func NewTextArea(placeholder string, opts ...TextAreaOption) Input {
 	area := textarea.New()
 	area.Placeholder = placeholder
 	area.CharLimit = 2000
@@ -79,6 +79,10 @@ func NewTextArea(placeholder string) Input {
 	})
 	area.Cursor.SetMode(cursor.CursorStatic)
 	area.ShowLineNumbers = false
+
+	for _, o := range opts {
+		o(&area)
+	}
 
 	return &TextArea{area}
 }
@@ -103,9 +107,10 @@ type FilePicker struct {
 	focused      bool
 	pickingMode  bool
 	selectedFile string
+	disabled     bool
 }
 
-func NewFilePicker(placeholder string) Input {
+func NewFilePicker(placeholder string, opts ...FilePickerOption) Input {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = 255
@@ -119,10 +124,16 @@ func NewFilePicker(placeholder string) Input {
 	picker.Styles.Selected = lipgloss.NewStyle().Background(helper.HeaderColor)
 	picker.Cursor = " "
 
-	return &FilePicker{
+	fp := &FilePicker{
 		filePicker: picker,
 		textInput:  input,
 	}
+
+	for _, o := range opts {
+		o(fp)
+	}
+
+	return fp
 }
 
 func (f *FilePicker) Init() tea.Cmd {
@@ -131,6 +142,11 @@ func (f *FilePicker) Init() tea.Cmd {
 
 func (i *FilePicker) Update(msg tea.Msg) (Input, tea.Cmd) {
 	var cmd tea.Cmd
+
+	// TODO(minor): неплохо было бы пропускать этот инпут при навигации
+	if i.disabled {
+		return i, cmd
+	}
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:

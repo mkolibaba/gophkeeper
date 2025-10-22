@@ -1,6 +1,7 @@
 package inputset
 
 import (
+	"github.com/charmbracelet/bubbles/textarea"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -14,6 +15,7 @@ var (
 			Foreground(lipgloss.Color("169"))
 )
 
+// TODO: либо объединить для всех инпутов, либо разделить для каждого
 type Option func(*textinput.Model)
 
 func WithEchoModePassword() Option {
@@ -23,9 +25,25 @@ func WithEchoModePassword() Option {
 	}
 }
 
-func WithCharLimit(charLimit int) Option {
+func WithValue(value string) Option {
 	return func(input *textinput.Model) {
-		input.CharLimit = charLimit
+		input.SetValue(value)
+	}
+}
+
+type TextAreaOption func(*textarea.Model)
+
+func WithTextAreaValue(value string) TextAreaOption {
+	return func(input *textarea.Model) {
+		input.SetValue(value)
+	}
+}
+
+type FilePickerOption func(*FilePicker)
+
+func WithFilePickerDisabled() FilePickerOption {
+	return func(input *FilePicker) {
+		input.disabled = true
 	}
 }
 

@@ -7,3 +7,6 @@ data_folder = "data"
 [jwt]
 ttl = "100h"
 secret = "gophkeeper-app"
+
+[development]
+enabled = true

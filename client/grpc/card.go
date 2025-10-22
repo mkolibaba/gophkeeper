@@ -18,7 +18,7 @@ func NewCardService(conn *grpc.ClientConn) *CardService {
 	}
 }
 
-func (c *CardService) Save(ctx context.Context, data client.CardData) error {
+func (s *CardService) Save(ctx context.Context, data client.CardData) error {
 	var card gophkeeperv1.Card
 	card.SetName(data.Name)
 	card.SetNumber(data.Number)
@@ -27,12 +27,12 @@ func (c *CardService) Save(ctx context.Context, data client.CardData) error {
 	card.SetCardholder(data.Cardholder)
 	card.SetNotes(data.Notes)
 
-	_, err := c.client.Save(ctx, &card)
+	_, err := s.client.Save(ctx, &card)
 	return err
 }
 
-func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
-	result, err := c.client.GetAll(ctx, &empty.Empty{})
+func (s *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
+	result, err := s.client.GetAll(ctx, &empty.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -52,10 +52,36 @@ func (c *CardService) GetAll(ctx context.Context) ([]client.CardData, error) {
 	return cards, nil
 }
 
-func (c *CardService) Remove(ctx context.Context, id int64) error {
+func (s *CardService) Update(ctx context.Context, data client.CardDataUpdate) error {
+	var in gophkeeperv1.Card
+	in.SetId(data.ID)
+	if data.Name != nil {
+		in.SetName(*data.Name)
+	}
+	if data.Number != nil {
+		in.SetNumber(*data.Number)
+	}
+	if data.ExpDate != nil {
+		in.SetExpDate(*data.ExpDate)
+	}
+	if data.CVV != nil {
+		in.SetCvv(*data.CVV)
+	}
+	if data.Cardholder != nil {
+		in.SetCardholder(*data.Cardholder)
+	}
+	if data.Notes != nil {
+		in.SetNotes(*data.Notes)
+	}
+
+	_, err := s.client.Update(ctx, &in)
+	return err
+}
+
+func (s *CardService) Remove(ctx context.Context, id int64) error {
 	var in gophkeeperv1.RemoveDataRequest
 	in.SetId(id)
 
-	_, err := c.client.Remove(ctx, &in)
+	_, err := s.client.Remove(ctx, &in)
 	return err
 }

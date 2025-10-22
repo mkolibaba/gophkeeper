@@ -28,11 +28,13 @@ func updateData[I updateIn, U any](
 
 	data := mapper(in)
 
+	logger.Debug("updating data", "id", in.GetId(), "data", data)
+
 	if err := updater(ctx, in.GetId(), data); err != nil {
 		if errors.Is(err, server.ErrPermissionDenied) {
 			return nil, status.Error(codes.PermissionDenied, server.ErrPermissionDenied.Error())
 		}
-		logger.Error("failed to remove data", "err", err)
+		logger.Error("failed to update data", "err", err)
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

@@ -64,6 +64,7 @@ func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	var result []*gophkeeperv1.Note
 	for _, note := range notes {
 		var out gophkeeperv1.Note
+		out.SetId(note.ID)
 		out.SetName(note.Name)
 		out.SetText(note.Text)
 		result = append(result, &out)

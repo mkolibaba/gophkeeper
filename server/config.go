@@ -18,6 +18,9 @@ type Config struct {
 		Secret string
 		TTL    time.Duration
 	}
+	Development struct {
+		Enabled bool
+	}
 }
 
 func NewConfig() (*Config, error) {

@@ -15,6 +15,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/editdata"
 	"go.uber.org/fx"
 	"sync"
 )
@@ -30,6 +31,8 @@ func CallAddDataView(dataType helper.DataType) tea.Cmd {
 	}
 }
 
+type CallEditDataViewMsg client.Data
+
 type loadDataMsg []client.Data
 
 type keyMap struct {
@@ -38,7 +41,8 @@ type keyMap struct {
 	AddNote        key.Binding
 	AddBinary      key.Binding
 	AddCard        key.Binding
-	DownloadBinary key.Binding
+	EditData       key.Binding
+	DownloadBinary key.Binding // TODO(minor): показывать только тогда, когда выбран binary тип
 	Remove         key.Binding
 	Help           key.Binding
 	Quit           key.Binding
@@ -52,7 +56,7 @@ func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.UpDown},
 		{k.AddLogin, k.AddNote, k.AddBinary, k.AddCard},
-		{k.DownloadBinary, k.Remove},
+		{k.EditData, k.DownloadBinary, k.Remove},
 		{k.Quit},
 	}
 }
@@ -107,6 +111,10 @@ func New(p Params) *Model {
 			key.WithKeys("ctrl+r"),
 			key.WithHelp("ctrl+r", "remove"),
 		),
+		EditData: key.NewBinding(
+			key.WithKeys("alt+e"),
+			key.WithHelp("alt+e", "edit"),
+		),
 		DownloadBinary: key.NewBinding(
 			key.WithKeys("d"),
 			key.WithHelp("d", "download binary"),
@@ -160,6 +168,16 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		}
 		return m.statusBar.NotifyError(fmt.Sprintf("Adding %s failed. See logs", msg.Name))
 
+	case editdata.EditDataResultMsg:
+		// По процессу условие всегда true.
+		if msg.Err == nil {
+			return tea.Batch(
+				m.LoadData(),
+				m.statusBar.NotifyOk(fmt.Sprintf("Edited %s successfully", msg.Name)),
+			)
+		}
+		return m.statusBar.NotifyError(fmt.Sprintf("Editing %s failed. See logs", msg.Name))
+
 	case authorization.AuthorizationResultMsg:
 		// По процессу условие всегда true.
 		if msg.Err == nil {
@@ -179,6 +197,12 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 			current := m.dataTable.GetCurrentRow()
 			if d, ok := current.(client.BinaryData); ok {
 				return m.startDownloadBinary(d)
+			}
+
+		case key.Matches(msg, m.keyMap.EditData):
+			current := m.dataTable.GetCurrentRow()
+			return func() tea.Msg {
+				return CallEditDataViewMsg(current)
 			}
 
 		case key.Matches(msg, m.keyMap.Remove):

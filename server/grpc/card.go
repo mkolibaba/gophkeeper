@@ -67,6 +67,7 @@ func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	var result []*gophkeeperv1.Card
 	for _, card := range cards {
 		var out gophkeeperv1.Card
+		out.SetId(card.ID)
 		out.SetName(card.Name)
 		out.SetNumber(card.Number)
 		out.SetExpDate(card.ExpDate)
