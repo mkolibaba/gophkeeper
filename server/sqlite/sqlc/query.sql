@@ -40,7 +40,7 @@ DELETE
 FROM login
 WHERE id = ?;
 
--- name: InsertNote :exec
+-- name: InsertNote :execlastid
 INSERT INTO note (name, text, user)
 VALUES (?, ?, ?);
 
@@ -53,7 +53,8 @@ WHERE id = ?;
 -- name: SelectNote :one
 SELECT *
 FROM note
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: SelectNoteUser :one
 SELECT user
@@ -68,7 +69,8 @@ WHERE user = ?;
 -- name: DeleteNote :execrows
 DELETE
 FROM note
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: InsertBinary :one
 INSERT INTO binary (name, filename, size, notes, user)

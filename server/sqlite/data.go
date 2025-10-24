@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
 	"modernc.org/sqlite"
@@ -48,6 +50,9 @@ func removeData(
 	id int64,
 ) error {
 	user, err := getUser(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}
@@ -56,12 +61,27 @@ func removeData(
 		return server.ErrPermissionDenied
 	}
 
-	n, err := remove(ctx, id)
+	_, err = remove(ctx, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("remove: %w", err)
 	}
+	return nil
+}
+
+func removeDataV2(
+	ctx context.Context,
+	remove func(ctx context.Context, id int64, user string) (int64, error),
+	id int64,
+) error {
+	n, err := remove(ctx, id, server.UserFromContext(ctx))
 	if n == 0 {
 		return server.ErrDataNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("remove: %w", err)
 	}
 	return nil
 }

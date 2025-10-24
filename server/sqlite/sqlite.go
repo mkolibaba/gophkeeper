@@ -24,7 +24,7 @@ type DB struct {
 
 func NewDB(config *server.Config, logger *log.Logger) *DB {
 	return &DB{
-		dsn:            fmt.Sprintf("%s/gophkeeper.sqlite", config.SQLite.DataFolder),
+		dsn:            config.SQLite.DSN,
 		binariesFolder: fmt.Sprintf("%s/assets/binary", config.SQLite.DataFolder),
 		logger:         logger,
 	}
@@ -39,6 +39,11 @@ func (d *DB) Open() (err error) {
 	err = os.MkdirAll(d.binariesFolder, 0755)
 	if err != nil {
 		return err
+	}
+
+	// Включаем проверки foreign key, которые в SQLite по умолчанию выключены.
+	if _, err := d.db.Exec(`PRAGMA foreign_keys = ON;`); err != nil {
+		return fmt.Errorf("migrate: foreign keys pragma: %w", err)
 	}
 
 	if err := d.migrate(); err != nil {

@@ -69,7 +69,7 @@ type NoteData struct {
 	ID   int64
 	Name string `validate:"required"`
 	Text string
-	User string
+	User string // TODO: убрать юзера
 }
 
 func (n NoteData) GetUser() string {

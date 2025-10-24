@@ -3,6 +3,7 @@ port = 8080
 
 [sqlite]
 data_folder = "data"
+dsn = "data/gophkeeper.sqlite"
 
 [jwt]
 ttl = "100h"

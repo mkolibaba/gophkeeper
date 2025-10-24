@@ -1,3 +1,4 @@
+-- password: demo
 INSERT INTO user (login, password)
 VALUES ('demo', '$2a$10$Kxn.379HFtAZrwv6SD7uXelbllGVXh3bcxfJ4HRraN8P0IaaedRri');
 

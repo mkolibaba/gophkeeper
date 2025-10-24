@@ -55,10 +55,11 @@ const deleteNote = `-- name: DeleteNote :execrows
 DELETE
 FROM note
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) DeleteNote(ctx context.Context, id int64) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteNote, id)
+func (q *Queries) DeleteNote(ctx context.Context, iD int64, user string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteNote, iD, user)
 	if err != nil {
 		return 0, err
 	}
@@ -146,7 +147,7 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) error 
 	return err
 }
 
-const insertNote = `-- name: InsertNote :exec
+const insertNote = `-- name: InsertNote :execlastid
 INSERT INTO note (name, text, user)
 VALUES (?, ?, ?)
 `
@@ -157,9 +158,12 @@ type InsertNoteParams struct {
 	User string
 }
 
-func (q *Queries) InsertNote(ctx context.Context, arg InsertNoteParams) error {
-	_, err := q.db.ExecContext(ctx, insertNote, arg.Name, arg.Text, arg.User)
-	return err
+func (q *Queries) InsertNote(ctx context.Context, arg InsertNoteParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, insertNote, arg.Name, arg.Text, arg.User)
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 const insertUser = `-- name: InsertUser :exec
@@ -389,10 +393,11 @@ const selectNote = `-- name: SelectNote :one
 SELECT id, name, text, user
 FROM note
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) SelectNote(ctx context.Context, id int64) (Note, error) {
-	row := q.db.QueryRowContext(ctx, selectNote, id)
+func (q *Queries) SelectNote(ctx context.Context, iD int64, user string) (Note, error) {
+	row := q.db.QueryRowContext(ctx, selectNote, iD, user)
 	var i Note
 	err := row.Scan(
 		&i.ID,

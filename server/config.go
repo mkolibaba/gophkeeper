@@ -13,6 +13,7 @@ type Config struct {
 	}
 	SQLite struct {
 		DataFolder string `mapstructure:"data_folder"`
+		DSN        string
 	}
 	JWT struct {
 		Secret string
