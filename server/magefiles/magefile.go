@@ -93,7 +93,7 @@ func Watch() error {
 // Run all code generators
 func Gen() {
 	color.HiYellow("[gen] Generating sources")
-	mg.Deps(GenSqlc, GenGoverter, GenOpaqueMapper)
+	mg.Deps(GenSqlc, GenGoverter, GenOpaqueMapper, GenMock)
 	color.HiGreen("[gen] Done")
 }
 
@@ -187,6 +187,26 @@ func GenOpaqueMapper() error {
 	}
 	color.HiGreen("[opaquemapper] Done")
 	return nil
+}
+
+// Generate mocks
+func GenMock() {
+	needsRefresh, err := target.Dir(
+		"mock",
+		"data.go",
+	)
+	if err != nil {
+		return
+	}
+	if !needsRefresh {
+		color.HiGreen("[genmock] Generated files are up to date, skipping")
+		return
+	}
+
+	installTool("moq", "github.com/matryer/moq@latest")
+
+	color.HiGreen("[genmock] Generating mocks...")
+	must.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/server")
 }
 
 func installGoverter() {

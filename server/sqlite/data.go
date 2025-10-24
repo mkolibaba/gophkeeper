@@ -11,8 +11,9 @@ import (
 func unwrapInsertError(err error) error {
 	if se, ok := asType[*sqlite.Error](err); ok {
 		switch se.Code() {
-		case sqlite3.SQLITE_CONSTRAINT_PRIMARYKEY:
-			return server.ErrDataAlreadyExists
+		// TODO(minor): никогда не возвращается, проверить
+		//case sqlite3.SQLITE_CONSTRAINT_PRIMARYKEY:
+		//	return server.ErrDataAlreadyExists
 		case sqlite3.SQLITE_CONSTRAINT_FOREIGNKEY:
 			return server.ErrUserNotFound
 		}

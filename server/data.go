@@ -2,6 +2,10 @@
 //go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/note_mapping.go . NoteDataUpdate
 //go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/binary_mapping.go . BinaryDataUpdate
 //go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/card_mapping.go -mappings CVV:Cvv . CardDataUpdate
+//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
+//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
+//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
+//go:generate moq -stub -pkg mock -out mock/card.go . CardService
 
 package server
 
@@ -14,7 +18,7 @@ import (
 )
 
 var (
-	ErrDataAlreadyExists = errors.New("data already exists")
+	ErrDataAlreadyExists = errors.New("data already exists") // TODO(minor): проверить, что нигде таких кейсов нет
 	ErrDataNotFound      = errors.New("data not found")
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")

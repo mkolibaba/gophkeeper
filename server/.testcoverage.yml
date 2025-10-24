@@ -23,4 +23,5 @@ exclude:
   paths:
     - ^cmd/*
     - gen/
+    - mock/
     - ^magefiles/

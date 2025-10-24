@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"github.com/charmbracelet/log"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -46,9 +45,6 @@ func (s *LoginServiceServer) Save(ctx context.Context, in *gophkeeperv1.Login) (
 	}
 
 	if err := s.loginService.Create(ctx, data); err != nil {
-		if errors.Is(err, server.ErrDataAlreadyExists) {
-			return nil, status.Error(codes.AlreadyExists, "data with this name already exists")
-		}
 		s.logger.Error("failed to save data", "err", err)
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
