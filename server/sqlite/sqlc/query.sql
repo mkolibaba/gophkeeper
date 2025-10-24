@@ -105,7 +105,7 @@ DELETE
 FROM binary
 WHERE id = ?;
 
--- name: InsertCard :exec
+-- name: InsertCard :execlastid
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?);
 
@@ -122,7 +122,8 @@ WHERE id = ?;
 -- name: SelectCard :one
 SELECT *
 FROM card
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: SelectCardUser :one
 SELECT user
@@ -137,4 +138,5 @@ WHERE user = ?;
 -- name: DeleteCard :execrows
 DELETE
 FROM card
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;

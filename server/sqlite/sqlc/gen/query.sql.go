@@ -27,10 +27,11 @@ const deleteCard = `-- name: DeleteCard :execrows
 DELETE
 FROM card
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) DeleteCard(ctx context.Context, id int64) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteCard, id)
+func (q *Queries) DeleteCard(ctx context.Context, iD int64, user string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteCard, iD, user)
 	if err != nil {
 		return 0, err
 	}
@@ -94,7 +95,7 @@ func (q *Queries) InsertBinary(ctx context.Context, arg InsertBinaryParams) (int
 	return id, err
 }
 
-const insertCard = `-- name: InsertCard :exec
+const insertCard = `-- name: InsertCard :execlastid
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?)
 `
@@ -109,8 +110,8 @@ type InsertCardParams struct {
 	User       string
 }
 
-func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) error {
-	_, err := q.db.ExecContext(ctx, insertCard,
+func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, insertCard,
 		arg.Name,
 		arg.Number,
 		arg.ExpDate,
@@ -119,7 +120,10 @@ func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) error {
 		arg.Notes,
 		arg.User,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 const insertLogin = `-- name: InsertLogin :execlastid
@@ -253,10 +257,11 @@ const selectCard = `-- name: SelectCard :one
 SELECT id, name, number, exp_date, cvv, cardholder, notes, user
 FROM card
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) SelectCard(ctx context.Context, id int64) (Card, error) {
-	row := q.db.QueryRowContext(ctx, selectCard, id)
+func (q *Queries) SelectCard(ctx context.Context, iD int64, user string) (Card, error) {
+	row := q.db.QueryRowContext(ctx, selectCard, iD, user)
 	var i Card
 	err := row.Scan(
 		&i.ID,
