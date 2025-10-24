@@ -7,7 +7,7 @@ WHERE login = ?;
 INSERT INTO user (login, password)
 VALUES (?, ?);
 
--- name: InsertLogin :exec
+-- name: InsertLogin :execlastid
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES (?, ?, ?, ?, ?, ?);
 
@@ -23,7 +23,8 @@ WHERE id = ?;
 -- name: SelectLogin :one
 SELECT *
 FROM login
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: SelectLoginUser :one
 SELECT user
@@ -38,7 +39,8 @@ WHERE user = ?;
 -- name: DeleteLogin :execrows
 DELETE
 FROM login
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: InsertNote :execlastid
 INSERT INTO note (name, text, user)

@@ -2,6 +2,8 @@ package sqlite
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
@@ -21,7 +23,7 @@ func NewLoginService(queries *sqlc.Queries, converter converter.DataConverter) *
 }
 
 func (s *LoginService) Create(ctx context.Context, data server.LoginData) error {
-	err := s.qs.InsertLogin(ctx, s.converter.ConvertToInsertLogin(ctx, data))
+	_, err := s.qs.InsertLogin(ctx, s.converter.ConvertToInsertLogin(ctx, data))
 	return unwrapInsertError(err)
 }
 
@@ -30,28 +32,27 @@ func (s *LoginService) GetAll(ctx context.Context) ([]server.LoginData, error) {
 }
 
 func (s *LoginService) Update(ctx context.Context, id int64, data server.LoginDataUpdate) error {
-	login, err := s.qs.SelectLogin(ctx, id)
+	login, err := s.qs.SelectLogin(ctx, id, server.UserFromContext(ctx))
+	if errors.Is(err, sql.ErrNoRows) {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
-	}
-
-	if err := server.VerifyCanEditData(ctx, login); err != nil {
-		return err
 	}
 
 	params := s.converter.ConvertToUpdateLogin(login)
 	s.converter.ConvertToUpdateLoginUpdate(data, &params)
 
 	n, err := s.qs.UpdateLogin(ctx, params)
+	if n == 0 {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
-	}
-	if n == 0 {
-		return fmt.Errorf("update: no rows")
 	}
 	return nil
 }
 
 func (s *LoginService) Remove(ctx context.Context, id int64) error {
-	return removeData(ctx, s.qs.SelectLoginUser, s.qs.DeleteLogin, id)
+	return removeDataV2(ctx, s.qs.DeleteLogin, id)
 }

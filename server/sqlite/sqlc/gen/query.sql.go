@@ -41,10 +41,11 @@ const deleteLogin = `-- name: DeleteLogin :execrows
 DELETE
 FROM login
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) DeleteLogin(ctx context.Context, id int64) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteLogin, id)
+func (q *Queries) DeleteLogin(ctx context.Context, iD int64, user string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteLogin, iD, user)
 	if err != nil {
 		return 0, err
 	}
@@ -121,7 +122,7 @@ func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) error {
 	return err
 }
 
-const insertLogin = `-- name: InsertLogin :exec
+const insertLogin = `-- name: InsertLogin :execlastid
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES (?, ?, ?, ?, ?, ?)
 `
@@ -135,8 +136,8 @@ type InsertLoginParams struct {
 	User     string
 }
 
-func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) error {
-	_, err := q.db.ExecContext(ctx, insertLogin,
+func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, insertLogin,
 		arg.Name,
 		arg.Login,
 		arg.Password,
@@ -144,7 +145,10 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) error 
 		arg.Notes,
 		arg.User,
 	)
-	return err
+	if err != nil {
+		return 0, err
+	}
+	return result.LastInsertId()
 }
 
 const insertNote = `-- name: InsertNote :execlastid
@@ -322,10 +326,11 @@ const selectLogin = `-- name: SelectLogin :one
 SELECT id, name, login, password, website, notes, user
 FROM login
 WHERE id = ?
+  AND user = ?
 `
 
-func (q *Queries) SelectLogin(ctx context.Context, id int64) (Login, error) {
-	row := q.db.QueryRowContext(ctx, selectLogin, id)
+func (q *Queries) SelectLogin(ctx context.Context, iD int64, user string) (Login, error) {
+	row := q.db.QueryRowContext(ctx, selectLogin, iD, user)
 	var i Login
 	err := row.Scan(
 		&i.ID,
