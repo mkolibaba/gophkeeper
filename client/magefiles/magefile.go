@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bitfield/script"
+	"github.com/carolynvs/ma
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -16,6 +17,8 @@ var (
 	outPath = "bin/gophkeeper-client"
 	logOut  = "bin/client.log"
 	spewOut = "bin/spew.log"
+
+	must = shx.CommandBuilder{StopOnError: true}
 )
 
 // Run client build
@@ -84,9 +87,33 @@ func Gen() {
 	mg.Deps(GenMock)
 }
 
+// Run tests with coverage
+func TestCoverage() {
+	installTool("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
+
+	color.HiYellow("[testcoverage] Running tests...")
+	must.RunV("go", "test", "./...", "-coverprofile=./cover.out", "-covermode=atomic", "-coverpkg=./...")
+
+	color.HiYellow("[testcoverage] Creating html coverage file...")
+	must.RunV("go", "tool", "cover", "-html", "cover.out", "-o", "cover.html")
+
+	color.HiYellow("[testcoverage] Running go-test-coverage...")
+	must.RunV("go-test-coverage", "--config=./.testcoverage.yml", "--badge-file-name=./coverage.svg")
+
+	color.HiGreen("[testcoverage] Done")
+}
+
+func installTool(tool, link string) {
+	if _, err := exec.LookPath(tool); err == nil {
+		return
+	}
+	color.HiYellow(fmt.Sprintf("%s not found, installing...", tool))
+	must.RunV("go", "install", link)
+}
+
 // Generate mocks
 func GenMock() error {
-	mg.Deps(installMoq)
+	installTool("moq", "github.com/matryer/moq@latest")
 
 	color.HiGreen("Generating mocks")
 	return sh.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/client")

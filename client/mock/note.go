@@ -28,6 +28,9 @@ var _ client.NoteService = &NoteServiceMock{}
 //			SaveFunc: func(ctx context.Context, data client.NoteData) error {
 //				panic("mock out the Save method")
 //			},
+//			UpdateFunc: func(ctx context.Context, data client.NoteDataUpdate) error {
+//				panic("mock out the Update method")
+//			},
 //		}
 //
 //		// use mockedNoteService in code that requires client.NoteService
@@ -43,6 +46,9 @@ type NoteServiceMock struct {
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(ctx context.Context, data client.NoteData) error
+
+	// UpdateFunc mocks the Update method.
+	UpdateFunc func(ctx context.Context, data client.NoteDataUpdate) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -65,10 +71,18 @@ type NoteServiceMock struct {
 			// Data is the data argument value.
 			Data client.NoteData
 		}
+		// Update holds details about calls to the Update method.
+		Update []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Data is the data argument value.
+			Data client.NoteDataUpdate
+		}
 	}
 	lockGetAll sync.RWMutex
 	lockRemove sync.RWMutex
 	lockSave   sync.RWMutex
+	lockUpdate sync.RWMutex
 }
 
 // GetAll calls GetAllFunc.
@@ -182,5 +196,44 @@ func (mock *NoteServiceMock) SaveCalls() []struct {
 	mock.lockSave.RLock()
 	calls = mock.calls.Save
 	mock.lockSave.RUnlock()
+	return calls
+}
+
+// Update calls UpdateFunc.
+func (mock *NoteServiceMock) Update(ctx context.Context, data client.NoteDataUpdate) error {
+	callInfo := struct {
+		Ctx  context.Context
+		Data client.NoteDataUpdate
+	}{
+		Ctx:  ctx,
+		Data: data,
+	}
+	mock.lockUpdate.Lock()
+	mock.calls.Update = append(mock.calls.Update, callInfo)
+	mock.lockUpdate.Unlock()
+	if mock.UpdateFunc == nil {
+		var (
+			errOut error
+		)
+		return errOut
+	}
+	return mock.UpdateFunc(ctx, data)
+}
+
+// UpdateCalls gets all the calls that were made to Update.
+// Check the length with:
+//
+//	len(mockedNoteService.UpdateCalls())
+func (mock *NoteServiceMock) UpdateCalls() []struct {
+	Ctx  context.Context
+	Data client.NoteDataUpdate
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Data client.NoteDataUpdate
+	}
+	mock.lockUpdate.RLock()
+	calls = mock.calls.Update
+	mock.lockUpdate.RUnlock()
 	return calls
 }

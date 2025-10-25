@@ -31,6 +31,9 @@ var _ client.BinaryService = &BinaryServiceMock{}
 //			SaveFunc: func(ctx context.Context, data client.BinaryData) error {
 //				panic("mock out the Save method")
 //			},
+//			UpdateFunc: func(ctx context.Context, data client.BinaryDataUpdate) error {
+//				panic("mock out the Update method")
+//			},
 //		}
 //
 //		// use mockedBinaryService in code that requires client.BinaryService
@@ -49,6 +52,9 @@ type BinaryServiceMock struct {
 
 	// SaveFunc mocks the Save method.
 	SaveFunc func(ctx context.Context, data client.BinaryData) error
+
+	// UpdateFunc mocks the Update method.
+	UpdateFunc func(ctx context.Context, data client.BinaryDataUpdate) error
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -78,11 +84,19 @@ type BinaryServiceMock struct {
 			// Data is the data argument value.
 			Data client.BinaryData
 		}
+		// Update holds details about calls to the Update method.
+		Update []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Data is the data argument value.
+			Data client.BinaryDataUpdate
+		}
 	}
 	lockDownload sync.RWMutex
 	lockGetAll   sync.RWMutex
 	lockRemove   sync.RWMutex
 	lockSave     sync.RWMutex
+	lockUpdate   sync.RWMutex
 }
 
 // Download calls DownloadFunc.
@@ -235,5 +249,44 @@ func (mock *BinaryServiceMock) SaveCalls() []struct {
 	mock.lockSave.RLock()
 	calls = mock.calls.Save
 	mock.lockSave.RUnlock()
+	return calls
+}
+
+// Update calls UpdateFunc.
+func (mock *BinaryServiceMock) Update(ctx context.Context, data client.BinaryDataUpdate) error {
+	callInfo := struct {
+		Ctx  context.Context
+		Data client.BinaryDataUpdate
+	}{
+		Ctx:  ctx,
+		Data: data,
+	}
+	mock.lockUpdate.Lock()
+	mock.calls.Update = append(mock.calls.Update, callInfo)
+	mock.lockUpdate.Unlock()
+	if mock.UpdateFunc == nil {
+		var (
+			errOut error
+		)
+		return errOut
+	}
+	return mock.UpdateFunc(ctx, data)
+}
+
+// UpdateCalls gets all the calls that were made to Update.
+// Check the length with:
+//
+//	len(mockedBinaryService.UpdateCalls())
+func (mock *BinaryServiceMock) UpdateCalls() []struct {
+	Ctx  context.Context
+	Data client.BinaryDataUpdate
+} {
+	var calls []struct {
+		Ctx  context.Context
+		Data client.BinaryDataUpdate
+	}
+	mock.lockUpdate.RLock()
+	calls = mock.calls.Update
+	mock.lockUpdate.RUnlock()
 	return calls
 }

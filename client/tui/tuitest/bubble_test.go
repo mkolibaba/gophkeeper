@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/exp/teatest"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/inmem"
@@ -11,8 +12,11 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/editdata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
+	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
 	"github.com/stretchr/testify/require"
+	"io"
 	"strings"
 	"testing"
 	"time"
@@ -21,7 +25,7 @@ import (
 func TestAuthorizationView(t *testing.T) {
 	t.Parallel()
 
-	userService := inmem.NewUserService()
+	userService := inmem.NewUserService(log.New(io.Discard))
 	authMock := &mock.AuthorizationServiceMock{
 		AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
 			return "", fmt.Errorf("some error")
@@ -43,7 +47,9 @@ func TestAuthorizationView(t *testing.T) {
 			CardService:   &mock.CardServiceMock{},
 			UserService:   userService,
 		}),
-		AddDataView: adddata.New(adddata.Params{}),
+		AddDataView:      adddata.New(adddata.Params{}),
+		EditDataView:     editdata.New(editdata.Params{}),
+		RegistrationView: registration.New(registration.Params{}),
 	})
 	require.NoError(t, err)
 

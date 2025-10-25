@@ -15,7 +15,8 @@ import (
 var (
 	outPath        = "bin/gophkeeper-server"
 	sqlcConfigPath = "sqlite/sqlc/sqlc.yml"
-	must           = shx.CommandBuilder{StopOnError: true}
+
+	must = shx.CommandBuilder{StopOnError: true}
 )
 
 // Build server binary
