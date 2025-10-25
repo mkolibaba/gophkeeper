@@ -12,11 +12,11 @@ import (
 const deleteBinary = `-- name: DeleteBinary :execrows
 DELETE
 FROM binary
-WHERE id = ?
+WHERE id = ? AND user = ?
 `
 
-func (q *Queries) DeleteBinary(ctx context.Context, id int64) (int64, error) {
-	result, err := q.db.ExecContext(ctx, deleteBinary, id)
+func (q *Queries) DeleteBinary(ctx context.Context, iD int64, user string) (int64, error) {
+	result, err := q.db.ExecContext(ctx, deleteBinary, iD, user)
 	if err != nil {
 		return 0, err
 	}
@@ -223,11 +223,11 @@ func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]Binary, er
 const selectBinary = `-- name: SelectBinary :one
 SELECT id, name, filename, size, notes, user
 FROM binary
-WHERE id = ?
+WHERE id = ? AND user = ?
 `
 
-func (q *Queries) SelectBinary(ctx context.Context, id int64) (Binary, error) {
-	row := q.db.QueryRowContext(ctx, selectBinary, id)
+func (q *Queries) SelectBinary(ctx context.Context, iD int64, user string) (Binary, error) {
+	row := q.db.QueryRowContext(ctx, selectBinary, iD, user)
 	var i Binary
 	err := row.Scan(
 		&i.ID,

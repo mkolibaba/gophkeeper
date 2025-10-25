@@ -18,11 +18,9 @@ import (
 )
 
 var (
-	ErrDataAlreadyExists = errors.New("data already exists") // TODO(minor): проверить, что нигде таких кейсов нет
 	ErrDataNotFound      = errors.New("data not found")
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
-	ErrPermissionDenied  = errors.New("permission denied")
 )
 
 type LoginData struct {
@@ -187,13 +185,6 @@ type CardService interface {
 
 type Data interface {
 	GetUser() string
-}
-
-func VerifyCanEditData(ctx context.Context, data Data) error {
-	if !IsCurrentUser(ctx, data.GetUser()) {
-		return ErrPermissionDenied
-	}
-	return nil
 }
 
 func RegisterDataValidationRules(validate *validator.Validate) error {

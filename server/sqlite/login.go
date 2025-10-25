@@ -54,5 +54,5 @@ func (s *LoginService) Update(ctx context.Context, id int64, data server.LoginDa
 }
 
 func (s *LoginService) Remove(ctx context.Context, id int64) error {
-	return removeDataV2(ctx, s.qs.DeleteLogin, id)
+	return removeData(ctx, s.qs.DeleteLogin, id)
 }

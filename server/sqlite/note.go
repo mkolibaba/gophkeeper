@@ -54,5 +54,5 @@ func (s *NoteService) Update(ctx context.Context, id int64, data server.NoteData
 }
 
 func (s *NoteService) Remove(ctx context.Context, id int64) error {
-	return removeDataV2(ctx, s.qs.DeleteNote, id)
+	return removeData(ctx, s.qs.DeleteNote, id)
 }

@@ -48,16 +48,12 @@ func (s *BinaryService) Create(ctx context.Context, data server.ReadableBinaryDa
 }
 
 func (s *BinaryService) Get(ctx context.Context, id int64) (*server.ReadableBinaryData, error) {
-	binary, err := s.qs.SelectBinary(ctx, id)
+	binary, err := s.qs.SelectBinary(ctx, id, server.UserFromContext(ctx))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, server.ErrDataNotFound
 		}
 		return nil, fmt.Errorf("get: %w", err)
-	}
-
-	if err := server.VerifyCanEditData(ctx, binary); err != nil {
-		return nil, err
 	}
 
 	file, err := os.Open(s.getBinaryAssetPath(id))
@@ -76,30 +72,29 @@ func (s *BinaryService) GetAll(ctx context.Context) ([]server.BinaryData, error)
 }
 
 func (s *BinaryService) Update(ctx context.Context, id int64, data server.BinaryDataUpdate) error {
-	binary, err := s.qs.SelectBinary(ctx, id)
+	binary, err := s.qs.SelectBinary(ctx, id, server.UserFromContext(ctx))
+	if errors.Is(err, sql.ErrNoRows) {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
-	}
-
-	if err := server.VerifyCanEditData(ctx, binary); err != nil {
-		return err
 	}
 
 	params := s.converter.ConvertToUpdateBinary(binary)
 	s.converter.ConvertToUpdateBinaryUpdate(data, &params)
 
 	n, err := s.qs.UpdateBinary(ctx, params)
+	if n == 0 {
+		return server.ErrDataNotFound
+	}
 	if err != nil {
 		return fmt.Errorf("update: %w", err)
-	}
-	if n == 0 {
-		return fmt.Errorf("update: no rows")
 	}
 	return nil
 }
 
 func (s *BinaryService) Remove(ctx context.Context, id int64) error {
-	if err := removeData(ctx, s.qs.SelectBinaryUser, s.qs.DeleteBinary, id); err != nil {
+	if err := removeData(ctx, s.qs.DeleteBinary, id); err != nil {
 		return err
 	}
 

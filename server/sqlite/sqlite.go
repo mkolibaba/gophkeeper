@@ -102,17 +102,3 @@ func (d *DB) migrateFile(name string) error {
 	d.logger.Info("migration script run done", "name", name)
 	return tx.Commit()
 }
-
-func stringOrNull(s string) *string {
-	if s == "" {
-		return nil
-	}
-	return &s
-}
-
-func stringOrEmpty(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}

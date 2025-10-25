@@ -2,8 +2,6 @@ package sqlite
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/mkolibaba/gophkeeper/server"
 	"modernc.org/sqlite"
@@ -35,43 +33,7 @@ func getAllData[S any, R any](
 	return mapper(sources), nil
 }
 
-type anyData struct {
-	user string
-}
-
-func (a anyData) GetUser() string {
-	return a.user
-}
-
 func removeData(
-	ctx context.Context,
-	getUser func(ctx context.Context, id int64) (string, error),
-	remove func(ctx context.Context, id int64) (int64, error),
-	id int64,
-) error {
-	user, err := getUser(ctx, id)
-	if errors.Is(err, sql.ErrNoRows) {
-		return server.ErrDataNotFound
-	}
-	if err != nil {
-		return fmt.Errorf("remove: %w", err)
-	}
-
-	if err := server.VerifyCanEditData(ctx, anyData{user: user}); err != nil {
-		return server.ErrPermissionDenied
-	}
-
-	_, err = remove(ctx, id)
-	if errors.Is(err, sql.ErrNoRows) {
-		return server.ErrDataNotFound
-	}
-	if err != nil {
-		return fmt.Errorf("remove: %w", err)
-	}
-	return nil
-}
-
-func removeDataV2(
 	ctx context.Context,
 	remove func(ctx context.Context, id int64, user string) (int64, error),
 	id int64,

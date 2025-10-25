@@ -54,5 +54,5 @@ func (s *CardService) Update(ctx context.Context, id int64, data server.CardData
 }
 
 func (s *CardService) Remove(ctx context.Context, id int64) error {
-	return removeDataV2(ctx, s.qs.DeleteCard, id)
+	return removeData(ctx, s.qs.DeleteCard, id)
 }

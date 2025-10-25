@@ -88,7 +88,8 @@ WHERE id = ?;
 -- name: SelectBinary :one
 SELECT *
 FROM binary
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: SelectBinaryUser :one
 SELECT user
@@ -103,7 +104,8 @@ WHERE user = ?;
 -- name: DeleteBinary :execrows
 DELETE
 FROM binary
-WHERE id = ?;
+WHERE id = ?
+  AND user = ?;
 
 -- name: InsertCard :execlastid
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
