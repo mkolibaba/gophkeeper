@@ -25,3 +25,4 @@ exclude:
     - gen/
     - mock/
     - ^magefiles/
+    - sqlite/sqlite.go # TODO(minor): по-хорошему тоже нужно покрыть тестами, но пока что сложно

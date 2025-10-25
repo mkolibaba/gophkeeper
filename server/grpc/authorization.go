@@ -37,7 +37,7 @@ func (s *AuthorizationServiceServer) Authorize(
 	in *gophkeeperv1.UserCredentials,
 ) (*gophkeeperv1.TokenResponse, error) {
 	if err := s.validate.StructCtx(ctx, in); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, ErrInvalidCredentials
 	}
 
 	user, err := s.userService.Get(ctx, in.GetLogin())
@@ -67,7 +67,7 @@ func (s *AuthorizationServiceServer) Register(
 	in *gophkeeperv1.UserCredentials,
 ) (*gophkeeperv1.TokenResponse, error) {
 	if err := s.validate.StructCtx(ctx, in); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, ErrInvalidCredentials
 	}
 
 	err := s.userService.Save(ctx, server.User{

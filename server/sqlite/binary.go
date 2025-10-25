@@ -49,10 +49,10 @@ func (s *BinaryService) Create(ctx context.Context, data server.ReadableBinaryDa
 
 func (s *BinaryService) Get(ctx context.Context, id int64) (*server.ReadableBinaryData, error) {
 	binary, err := s.qs.SelectBinary(ctx, id, server.UserFromContext(ctx))
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, server.ErrDataNotFound
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, server.ErrDataNotFound
-		}
 		return nil, fmt.Errorf("get: %w", err)
 	}
 

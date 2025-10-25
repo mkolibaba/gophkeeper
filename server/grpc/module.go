@@ -29,8 +29,13 @@ func StartServer(*Server) {
 }
 
 func RegisterValidationRules(validate *validator.Validate) {
-	validate.RegisterStructValidationMapRules(map[string]string{
-		"login":    "required",
-		"password": "required",
+	validate.RegisterStructValidation(func(sl validator.StructLevel) {
+		in := sl.Current().Interface().(gophkeeperv1.UserCredentials)
+		if !in.HasLogin() || len(in.GetLogin()) == 0 {
+			sl.ReportError(in.GetLogin(), "login", "login", "", "")
+		}
+		if !in.HasPassword() || len(in.GetPassword()) == 0 {
+			sl.ReportError(in.GetPassword(), "password", "password", "", "")
+		}
 	}, gophkeeperv1.UserCredentials{})
 }

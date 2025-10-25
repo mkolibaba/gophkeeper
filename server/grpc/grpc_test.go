@@ -23,5 +23,6 @@ func newTestValidator(t *testing.T) *validator.Validate {
 	v := validator.New()
 	err := server.RegisterDataValidationRules(v)
 	require.NoError(t, err)
+	RegisterValidationRules(v)
 	return v
 }

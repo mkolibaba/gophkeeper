@@ -194,6 +194,8 @@ func GenMock() {
 	needsRefresh, err := target.Dir(
 		"mock",
 		"data.go",
+		"user.go",
+		"authorization.go",
 	)
 	if err != nil {
 		return

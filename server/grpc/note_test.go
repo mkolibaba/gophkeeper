@@ -109,6 +109,33 @@ func TestNoteRemove(t *testing.T) {
 	})
 }
 
+func TestNoteGetAll(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		service := &mock.NoteServiceMock{
+			GetAllFunc: func(ctx context.Context) ([]server.NoteData, error) {
+				return []server.NoteData{
+					{ID: 1, Name: "note1"},
+					{ID: 2, Name: "note2"},
+				}, nil
+			},
+		}
+		srv := createNoteServiceServer(t, service)
+		resp, err := srv.GetAll(t.Context(), nil)
+		require.NoError(t, err)
+		require.Len(t, resp.GetResult(), 2)
+	})
+	t.Run("db_error", func(t *testing.T) {
+		service := &mock.NoteServiceMock{
+			GetAllFunc: func(ctx context.Context) ([]server.NoteData, error) {
+				return nil, fmt.Errorf("db error")
+			},
+		}
+		srv := createNoteServiceServer(t, service)
+		_, err := srv.GetAll(t.Context(), nil)
+		requireGrpcError(t, err, codes.Internal)
+	})
+}
+
 func createNoteServiceServer(t *testing.T, noteService server.NoteService) *NoteServiceServer {
 	return NewNoteServiceServer(noteService, newTestValidator(t), log.New(io.Discard))
 }

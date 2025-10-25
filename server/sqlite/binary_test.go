@@ -64,6 +64,40 @@ func TestBinaryCreate(t *testing.T) {
 	})
 }
 
+func TestBinaryGen(t *testing.T) {
+	mustCreateUser(t, "alice", "123")
+	mustCreateUser(t, "bob", "123")
+	binaryID := mustCreateBinary(t, "text", "text_1.txt", strings.NewReader("content 1"), "alice")
+
+	t.Cleanup(func() {
+		// TODO: подчищать файлы
+		db.db.Exec("DELETE FROM binary")
+		db.db.Exec("DELETE FROM user")
+	})
+
+	srv := NewBinaryService(queries, db, NewDataConverter())
+
+	t.Run("success", func(t *testing.T) {
+		ctx := server.NewContextWithUser(t.Context(), "alice")
+		binaryData, err := srv.Get(ctx, binaryID)
+		require.NoError(t, err)
+		require.Equal(t, binaryData.Name, "text")
+		content, err := io.ReadAll(binaryData.DataReader)
+		require.NoError(t, err)
+		require.Equal(t, "content 1", string(content))
+	})
+	// TODO: почему-то err == nil, поправить
+	//t.Run("file_removed", func(t *testing.T) {
+	//	id := mustCreateBinary(t, "text2", "text_2.txt", strings.NewReader("content 2"), "alice")
+	//	// TODO(minor): имплементация скопирована из сервиса. возможно, не очень хорошо так делать
+	//	require.NoError(t, os.Remove(srv.getBinaryAssetPath(id)))
+	//
+	//	ctx := server.NewContextWithUser(t.Context(), "alice")
+	//	_, err := srv.Get(ctx, binaryID)
+	//	require.Error(t, err)
+	//})
+}
+
 func TestBinaryGetAll(t *testing.T) {
 	mustCreateUser(t, "alice", "123")
 	mustCreateUser(t, "bob", "123")

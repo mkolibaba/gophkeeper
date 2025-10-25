@@ -76,6 +76,20 @@ func TestCardUpdate(t *testing.T) {
 		_, err := srv.Update(t.Context(), &in)
 		requireGrpcError(t, err, codes.InvalidArgument)
 	})
+	t.Run("not_found", func(t *testing.T) {
+		srv := createCardServiceServer(t, &mock.CardServiceMock{
+			UpdateFunc: func(ctx context.Context, id int64, data server.CardDataUpdate) error {
+				return server.ErrDataNotFound
+			},
+		})
+
+		var in gophkeeperv1.Card
+		in.SetId(1)
+		in.SetName("new card name")
+
+		_, err := srv.Update(t.Context(), &in)
+		requireGrpcError(t, err, codes.NotFound)
+	})
 }
 
 func TestCardRemove(t *testing.T) {

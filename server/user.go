@@ -1,3 +1,5 @@
+//go:generate moq -stub -pkg mock -out mock/user.go . UserService
+
 package server
 
 import (
@@ -12,8 +14,4 @@ type User struct {
 type UserService interface {
 	Get(ctx context.Context, login string) (*User, error)
 	Save(ctx context.Context, user User) error
-}
-
-func IsCurrentUser(ctx context.Context, user string) bool {
-	return UserFromContext(ctx) == user
 }
