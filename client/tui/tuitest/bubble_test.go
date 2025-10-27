@@ -412,6 +412,77 @@ func TestEditDataView_Note(t *testing.T) {
 	require.Equal(t, *c.Name, "my note new new")
 }
 
+func TestEditDataView_Binary(t *testing.T) {
+	t.Parallel()
+
+	userService := inmem.NewUserService(log.New(io.Discard))
+	authMock := &mock.AuthorizationServiceMock{
+		AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
+			return "some token", nil
+		},
+	}
+	binaryServiceMock := &mock.BinaryServiceMock{
+		GetAllFunc: func(ctx context.Context) ([]client.BinaryData, error) {
+			return []client.BinaryData{{
+				ID:   1,
+				Name: "my binary",
+			}}, nil
+		},
+		SaveFunc: func(ctx context.Context, data client.BinaryData) error {
+			return nil
+		},
+	}
+	var config client.Config
+	config.Development.Enabled = false
+
+	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
+		AuthorizationView: authorization.New(authorization.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+		MainView: home.New(home.Params{
+			LoginService:  &mock.LoginServiceMock{},
+			BinaryService: binaryServiceMock,
+			NoteService:   &mock.NoteServiceMock{},
+			CardService:   &mock.CardServiceMock{},
+			UserService:   userService,
+		}),
+		AddDataView: adddata.New(adddata.Params{}),
+		EditDataView: editdata.New(editdata.Params{
+			BinaryService: binaryServiceMock,
+		}),
+		RegistrationView: registration.New(registration.Params{}),
+	})
+	require.NoError(t, err)
+
+	// Инициализируем приложение.
+	tm := teatest.NewTestModel(t, bubble, teatest.WithInitialTermSize(130, 40))
+
+	// Ожидаем отрисовки формы авторизации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Authorization") &&
+			strings.Contains(s, "Login") &&
+			strings.Contains(s, "Password")
+	})
+
+	// За счет мока сразу авторизуемся.
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail") &&
+			strings.Contains(s, "my binary")
+	})
+
+	// Заходим в форму редактирования.
+	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Edit my binary")
+	})
+}
+
 func TestEditDataView_Card(t *testing.T) {
 	t.Parallel()
 
