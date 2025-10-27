@@ -231,6 +231,13 @@ func TestAddDataView(t *testing.T) {
 			strings.Contains(s, "Detail")
 	})
 
+	// TODO: по-хорошему нужно вынести в отдельный тест
+	// Вызываем строку помощи.
+	tm.Type("h")
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "alt+2")
+	})
+
 	// Заходим в форму добавления.
 	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'2'}, Alt: true})
 	waitFor(t, tm, func(s string) bool {
@@ -253,6 +260,70 @@ func TestAddDataView(t *testing.T) {
 	c := cc[0].Data
 	require.Equal(t, c.Name, "new name")
 	require.Equal(t, c.Text, "some long long long text")
+}
+
+func TestAddDataView_Binary(t *testing.T) {
+	t.Parallel()
+
+	userService := inmem.NewUserService(log.New(io.Discard))
+	authMock := &mock.AuthorizationServiceMock{
+		AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
+			return "some token", nil
+		},
+	}
+	noteServiceMock := &mock.NoteServiceMock{
+		SaveFunc: func(ctx context.Context, data client.NoteData) error {
+			return nil
+		},
+	}
+	var config client.Config
+	config.Development.Enabled = false
+
+	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
+		AuthorizationView: authorization.New(authorization.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+		MainView: home.New(home.Params{
+			LoginService:  &mock.LoginServiceMock{},
+			BinaryService: &mock.BinaryServiceMock{},
+			NoteService:   noteServiceMock,
+			CardService:   &mock.CardServiceMock{},
+			UserService:   userService,
+		}),
+		AddDataView: adddata.New(adddata.Params{
+			NoteService: noteServiceMock,
+		}),
+		EditDataView:     editdata.New(editdata.Params{}),
+		RegistrationView: registration.New(registration.Params{}),
+	})
+	require.NoError(t, err)
+
+	// Инициализируем приложение.
+	tm := teatest.NewTestModel(t, bubble, teatest.WithInitialTermSize(130, 40))
+
+	// Ожидаем отрисовки формы авторизации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Authorization") &&
+			strings.Contains(s, "Login") &&
+			strings.Contains(s, "Password")
+	})
+
+	// За счет мока сразу авторизуемся.
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Проверяем, что приложение перешло на домашнюю страницу.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail")
+	})
+
+	// Заходим в форму добавления.
+	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'3'}, Alt: true})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Add Binary")
+	})
 }
 
 func TestEditDataView_Note(t *testing.T) {
