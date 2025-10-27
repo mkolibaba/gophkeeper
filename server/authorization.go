@@ -1,5 +1,3 @@
-//go:generate moq -stub -pkg mock -out mock/authorization.go . AuthorizationService
-
 package server
 
 import (

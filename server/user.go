@@ -1,5 +1,3 @@
-//go:generate moq -stub -pkg mock -out mock/user.go . UserService
-
 package server
 
 import (

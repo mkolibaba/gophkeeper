@@ -5,12 +5,14 @@ import (
 	"github.com/bitfield/script"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
-	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
+	"github.com/mkolibaba/gophkeeper/shared/mage/gen"
 	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
 	//mage:import test
 	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
+	//mage:import gen
+	_ "github.com/mkolibaba/gophkeeper/shared/mage/gen"
 )
 
 var (
@@ -66,12 +68,7 @@ func Spew() error {
 
 // Run gen
 func Gen() {
-	mg.Deps(GenMockery)
-}
-
-func GenMockery() {
-	tool.Install("mockery", "github.com/vektra/mockery/v3@v3.5.5")
-	must.RunV("mockery")
+	mg.Deps(gen.Mockery)
 }
 
 func binaryPath() string {

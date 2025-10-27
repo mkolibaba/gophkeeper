@@ -6,12 +6,15 @@ import (
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
+	"github.com/mkolibaba/gophkeeper/shared/mage/gen"
 	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
 	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
 	//mage:import test
 	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
+	//mage:import gen
+	_ "github.com/mkolibaba/gophkeeper/shared/mage/gen"
 )
 
 var (
@@ -59,7 +62,7 @@ func Watch() error {
 // Run all code generators
 func Gen() {
 	color.HiYellow("[gen] Generating sources")
-	mg.Deps(GenSqlc, GenGoverter, GenOpaqueMapper, GenMock)
+	mg.Deps(GenSqlc, GenGoverter, GenOpaqueMapper, gen.Mockery)
 	color.HiGreen("[gen] Done")
 }
 
@@ -153,28 +156,6 @@ func GenOpaqueMapper() error {
 	}
 	color.HiGreen("[opaquemapper] Done")
 	return nil
-}
-
-// Generate mocks
-func GenMock() {
-	needsRefresh, err := target.Dir(
-		"mock",
-		"data.go",
-		"user.go",
-		"authorization.go",
-	)
-	if err != nil {
-		return
-	}
-	if !needsRefresh {
-		color.HiGreen("[genmock] Generated files are up to date, skipping")
-		return
-	}
-
-	tool.Install("moq", "github.com/matryer/moq@latest")
-
-	color.HiGreen("[genmock] Generating mocks...")
-	must.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/server")
 }
 
 func installGoverter() {
