@@ -8,13 +8,17 @@ import (
 	"google.golang.org/grpc"
 )
 
+func NewCardServiceClient(conn *grpc.ClientConn) gophkeeperv1.CardServiceClient {
+	return gophkeeperv1.NewCardServiceClient(conn)
+}
+
 type CardService struct {
 	client gophkeeperv1.CardServiceClient
 }
 
-func NewCardService(conn *grpc.ClientConn) *CardService {
+func NewCardService(client gophkeeperv1.CardServiceClient) *CardService {
 	return &CardService{
-		client: gophkeeperv1.NewCardServiceClient(conn),
+		client: client,
 	}
 }
 

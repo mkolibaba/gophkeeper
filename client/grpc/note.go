@@ -8,13 +8,17 @@ import (
 	"google.golang.org/grpc"
 )
 
+func NewNoteServiceClient(conn *grpc.ClientConn) gophkeeperv1.NoteServiceClient {
+	return gophkeeperv1.NewNoteServiceClient(conn)
+}
+
 type NoteService struct {
 	client gophkeeperv1.NoteServiceClient
 }
 
-func NewNoteService(conn *grpc.ClientConn) *NoteService {
+func NewNoteService(client gophkeeperv1.NoteServiceClient) *NoteService {
 	return &NoteService{
-		client: gophkeeperv1.NewNoteServiceClient(conn),
+		client: client,
 	}
 }
 

@@ -8,13 +8,17 @@ import (
 	"google.golang.org/grpc"
 )
 
+func NewLoginServiceClient(conn *grpc.ClientConn) gophkeeperv1.LoginServiceClient {
+	return gophkeeperv1.NewLoginServiceClient(conn)
+}
+
 type LoginService struct {
 	client gophkeeperv1.LoginServiceClient
 }
 
-func NewLoginService(conn *grpc.ClientConn) *LoginService {
+func NewLoginService(client gophkeeperv1.LoginServiceClient) *LoginService {
 	return &LoginService{
-		client: gophkeeperv1.NewLoginServiceClient(conn),
+		client: client,
 	}
 }
 

@@ -116,7 +116,7 @@ func GenMock() error {
 	installTool("moq", "github.com/matryer/moq@latest")
 
 	color.HiGreen("Generating mocks")
-	return sh.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/client")
+	return sh.RunV("go", "generate", "./...")
 }
 
 func installMoq() error {

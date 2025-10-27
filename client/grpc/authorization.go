@@ -9,14 +9,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+func NewAuthorizationServiceClient(conn *grpc.ClientConn) gophkeeperv1.AuthorizationServiceClient {
+	return gophkeeperv1.NewAuthorizationServiceClient(conn)
+}
+
 type AuthorizationService struct {
 	client gophkeeperv1.AuthorizationServiceClient
 	logger *log.Logger
 }
 
-func NewAuthorizationService(conn *grpc.ClientConn, logger *log.Logger) *AuthorizationService {
+func NewAuthorizationService(client gophkeeperv1.AuthorizationServiceClient, logger *log.Logger) *AuthorizationService {
 	return &AuthorizationService{
-		client: gophkeeperv1.NewAuthorizationServiceClient(conn),
+		client: client,
 		logger: logger,
 	}
 }

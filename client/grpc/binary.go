@@ -11,13 +11,17 @@ import (
 	"strings"
 )
 
+func NewBinaryServiceClient(conn *grpc.ClientConn) gophkeeperv1.BinaryServiceClient {
+	return gophkeeperv1.NewBinaryServiceClient(conn)
+}
+
 type BinaryService struct {
 	client gophkeeperv1.BinaryServiceClient
 }
 
-func NewBinaryService(conn *grpc.ClientConn) *BinaryService {
+func NewBinaryService(client gophkeeperv1.BinaryServiceClient) *BinaryService {
 	return &BinaryService{
-		client: gophkeeperv1.NewBinaryServiceClient(conn),
+		client: client,
 	}
 }
 
