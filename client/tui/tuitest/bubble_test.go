@@ -100,8 +100,8 @@ func TestAddDataView(t *testing.T) {
 			return "some token", nil
 		},
 	}
-	loginServiceMock := &mock.LoginServiceMock{
-		SaveFunc: func(ctx context.Context, data client.LoginData) error {
+	noteServiceMock := &mock.NoteServiceMock{
+		SaveFunc: func(ctx context.Context, data client.NoteData) error {
 			return nil
 		},
 	}
@@ -115,14 +115,14 @@ func TestAddDataView(t *testing.T) {
 			UserService:          userService,
 		}),
 		MainView: home.New(home.Params{
-			LoginService:  loginServiceMock,
+			LoginService:  &mock.LoginServiceMock{},
 			BinaryService: &mock.BinaryServiceMock{},
-			NoteService:   &mock.NoteServiceMock{},
+			NoteService:   noteServiceMock,
 			CardService:   &mock.CardServiceMock{},
 			UserService:   userService,
 		}),
 		AddDataView: adddata.New(adddata.Params{
-			LoginService: loginServiceMock,
+			NoteService: noteServiceMock,
 		}),
 		EditDataView:     editdata.New(editdata.Params{}),
 		RegistrationView: registration.New(registration.Params{}),
@@ -149,21 +149,15 @@ func TestAddDataView(t *testing.T) {
 	})
 
 	// Заходим в форму добавления логина.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'1'}, Alt: true})
+	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'2'}, Alt: true})
 	waitFor(t, tm, func(s string) bool {
-		return strings.Contains(s, "Add Login")
+		return strings.Contains(s, "Add Note")
 	})
 
 	// Заполняем форму.
 	tm.Type("new name")
 	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
-	tm.Type("some login")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
-	tm.Type("my password")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
-	tm.Type("example.com")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
-	tm.Type("long note")
+	tm.Type("some long long long text")
 	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Data") &&
@@ -171,14 +165,11 @@ func TestAddDataView(t *testing.T) {
 	})
 
 	// Проверяем корректность переданных данных
-	cc := loginServiceMock.SaveCalls()
+	cc := noteServiceMock.SaveCalls()
 	require.Len(t, cc, 1)
 	c := cc[0].Data
 	require.Equal(t, c.Name, "new name")
-	require.Equal(t, c.Login, "some login")
-	require.Equal(t, c.Password, "my password")
-	require.Equal(t, c.Website, "example.com")
-	require.Equal(t, c.Notes, "long note")
+	require.Equal(t, c.Text, "some long long long text")
 }
 
 func waitFor(t *testing.T, tm *teatest.TestModel, cond func(s string) bool) {
