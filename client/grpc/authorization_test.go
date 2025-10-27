@@ -16,7 +16,7 @@ import (
 func TestAuthorizationAuthorize(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		srv := NewAuthorizationService(
-			&mock.AuthorizationServiceClientForMockingMock{
+			&mock.AuthorizationServiceClientMock{
 				AuthorizeFunc: func(ctx context.Context, in *gophkeeperv1.UserCredentials, opts ...grpc.CallOption) (*gophkeeperv1.TokenResponse, error) {
 					var out gophkeeperv1.TokenResponse
 					out.SetToken("cool token")
@@ -32,7 +32,7 @@ func TestAuthorizationAuthorize(t *testing.T) {
 	})
 	t.Run("fail", func(t *testing.T) {
 		srv := NewAuthorizationService(
-			&mock.AuthorizationServiceClientForMockingMock{
+			&mock.AuthorizationServiceClientMock{
 				AuthorizeFunc: func(ctx context.Context, in *gophkeeperv1.UserCredentials, opts ...grpc.CallOption) (*gophkeeperv1.TokenResponse, error) {
 					return nil, status.Error(codes.Internal, "some error")
 				},

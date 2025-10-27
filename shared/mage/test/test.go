@@ -2,6 +2,7 @@ package test
 
 import (
 	"github.com/fatih/color"
+	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
 	"github.com/uwu-tools/magex/shx"
 	"strings"
 )
@@ -29,4 +30,20 @@ func Run() error {
 	}
 
 	return err
+}
+
+// Run test coverage
+func Coverage() {
+	tool.Install("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
+
+	color.HiYellow("[testcoverage] Running tests...")
+	must.RunV("go", "test", "./...", "-coverprofile=./cover.out", "-covermode=atomic", "-coverpkg=./...")
+
+	color.HiYellow("[testcoverage] Creating html coverage file...")
+	must.RunV("go", "tool", "cover", "-html", "cover.out", "-o", "cover.html")
+
+	color.HiYellow("[testcoverage] Running go-test-coverage...")
+	must.RunV("go-test-coverage", "--config=./.testcoverage.yml", "--badge-file-name=./coverage.svg")
+
+	color.HiGreen("[testcoverage] Done")
 }

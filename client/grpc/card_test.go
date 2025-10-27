@@ -12,7 +12,7 @@ import (
 )
 
 func TestCardSave(t *testing.T) {
-	clientMock := &mock.CardServiceClientForMockingMock{}
+	clientMock := &mock.CardServiceClientMock{}
 	srv := NewCardService(clientMock)
 
 	err := srv.Save(t.Context(), client.CardData{
@@ -30,7 +30,7 @@ func TestCardSave(t *testing.T) {
 }
 
 func TestCardGetAll(t *testing.T) {
-	clientMock := &mock.CardServiceClientForMockingMock{
+	clientMock := &mock.CardServiceClientMock{
 		GetAllFunc: func(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gophkeeperv1.GetAllCardsResponse, error) {
 			var card1 gophkeeperv1.Card
 			card1.SetId(1)
@@ -53,7 +53,7 @@ func TestCardGetAll(t *testing.T) {
 }
 
 func TestCardUpdate(t *testing.T) {
-	clientMock := &mock.CardServiceClientForMockingMock{}
+	clientMock := &mock.CardServiceClientMock{}
 	srv := NewCardService(clientMock)
 
 	name := "new name"

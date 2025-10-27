@@ -6,6 +6,7 @@ import (
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
+	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
 	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
@@ -36,22 +37,6 @@ func Run() {
 
 	color.HiGreen("Starting server...")
 	must.RunV("./" + binaryPath())
-}
-
-// Run tests with coverage
-func TestCoverage() {
-	installTool("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
-
-	color.HiYellow("[testcoverage] Running tests...")
-	must.RunV("go", "test", "./...", "-coverprofile=./cover.out", "-covermode=atomic", "-coverpkg=./...")
-
-	color.HiYellow("[testcoverage] Creating html coverage file...")
-	must.RunV("go", "tool", "cover", "-html", "cover.out", "-o", "cover.html")
-
-	color.HiYellow("[testcoverage] Running go-test-coverage...")
-	must.RunV("go-test-coverage", "--config=./.testcoverage.yml", "--badge-file-name=./coverage.svg")
-
-	color.HiGreen("[testcoverage] Done")
 }
 
 // Run server in watch mode (requires watchexec)
@@ -186,26 +171,18 @@ func GenMock() {
 		return
 	}
 
-	installTool("moq", "github.com/matryer/moq@latest")
+	tool.Install("moq", "github.com/matryer/moq@latest")
 
 	color.HiGreen("[genmock] Generating mocks...")
 	must.RunV("go", "generate", "github.com/mkolibaba/gophkeeper/server")
 }
 
 func installGoverter() {
-	installTool("goverter", "github.com/jmattheis/goverter/cmd/goverter@v1.9.1")
+	tool.Install("goverter", "github.com/jmattheis/goverter/cmd/goverter@v1.9.1")
 }
 
 func installSqlc() {
-	installTool("sqlc", "github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0")
-}
-
-func installTool(tool, link string) {
-	if _, err := exec.LookPath(tool); err == nil {
-		return
-	}
-	color.HiYellow(fmt.Sprintf("%s not found, installing...", tool))
-	must.RunV("go", "install", link)
+	tool.Install("sqlc", "github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0")
 }
 
 func binaryPath() string {

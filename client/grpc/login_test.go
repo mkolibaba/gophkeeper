@@ -12,7 +12,7 @@ import (
 )
 
 func TestLoginSave(t *testing.T) {
-	clientMock := &mock.LoginServiceClientForMockingMock{}
+	clientMock := &mock.LoginServiceClientMock{}
 	srv := NewLoginService(clientMock)
 
 	err := srv.Save(t.Context(), client.LoginData{
@@ -30,7 +30,7 @@ func TestLoginSave(t *testing.T) {
 }
 
 func TestLoginGetAll(t *testing.T) {
-	clientMock := &mock.LoginServiceClientForMockingMock{
+	clientMock := &mock.LoginServiceClientMock{
 		GetAllFunc: func(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gophkeeperv1.GetAllLoginsResponse, error) {
 			var login1 gophkeeperv1.Login
 			login1.SetId(1)
@@ -53,7 +53,7 @@ func TestLoginGetAll(t *testing.T) {
 }
 
 func TestLoginUpdate(t *testing.T) {
-	clientMock := &mock.LoginServiceClientForMockingMock{}
+	clientMock := &mock.LoginServiceClientMock{}
 	srv := NewLoginService(clientMock)
 
 	name := "new name"

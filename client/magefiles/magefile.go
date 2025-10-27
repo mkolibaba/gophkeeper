@@ -1,16 +1,14 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/bitfield/script"
-	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
 	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
-	"strings"
 	//mage:import test
 	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
 )
@@ -68,48 +66,12 @@ func Spew() error {
 
 // Run gen
 func Gen() {
-	mg.Deps(GenMock)
+	mg.Deps(GenMockery)
 }
 
-// Run tests with coverage
-func TestCoverage() {
-	installTool("go-test-coverage", "github.com/vladopajic/go-test-coverage/v2@latest")
-
-	color.HiYellow("[testcoverage] Running tests...")
-	must.RunV("go", "test", "./...", "-coverprofile=./cover.out", "-covermode=atomic", "-coverpkg=./...")
-
-	color.HiYellow("[testcoverage] Creating html coverage file...")
-	must.RunV("go", "tool", "cover", "-html", "cover.out", "-o", "cover.html")
-
-	color.HiYellow("[testcoverage] Running go-test-coverage...")
-	must.RunV("go-test-coverage", "--config=./.testcoverage.yml", "--badge-file-name=./coverage.svg")
-
-	color.HiGreen("[testcoverage] Done")
-}
-
-func installTool(tool, link string) {
-	if _, err := exec.LookPath(tool); err == nil {
-		return
-	}
-	color.HiYellow(fmt.Sprintf("%s not found, installing...", tool))
-	must.RunV("go", "install", link)
-}
-
-// Generate mocks
-func GenMock() error {
-	installTool("moq", "github.com/matryer/moq@latest")
-
-	color.HiGreen("Generating mocks")
-	return sh.RunV("go", "generate", "./...")
-}
-
-func installMoq() error {
-	if _, err := exec.LookPath("moq"); err == nil {
-		return nil
-	}
-
-	fmt.Println("moq has not been found, installing")
-	return sh.RunV("go", "install", "github.com/matryer/moq@latest")
+func GenMockery() {
+	tool.Install("mockery", "github.com/vektra/mockery/v3@v3.5.5")
+	must.RunV("mockery")
 }
 
 func binaryPath() string {
@@ -117,23 +79,4 @@ func binaryPath() string {
 		return outPath + ".exe"
 	}
 	return outPath
-}
-
-func run(program string, args []string, env map[string]string) (string, error) {
-	// Make string representation of command
-	fullArgs := append([]string{program}, args...)
-	cmdStr := strings.Join(fullArgs, " ")
-
-	// Make string representation of environment
-	envStrBuf := new(bytes.Buffer)
-	for key, value := range env {
-		fmt.Fprintf(envStrBuf, "%s=\"%s\", ", key, value)
-	}
-	envStr := string(bytes.TrimRight(envStrBuf.Bytes(), ", "))
-
-	// Show info
-	fmt.Println("Running '" + cmdStr + "'" + " with env " + envStr)
-
-	// Run
-	return sh.OutputWith(env, program, args...)
 }

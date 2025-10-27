@@ -12,7 +12,7 @@ import (
 )
 
 func TestNoteSave(t *testing.T) {
-	clientMock := &mock.NoteServiceClientForMockingMock{}
+	clientMock := &mock.NoteServiceClientMock{}
 	srv := NewNoteService(clientMock)
 
 	err := srv.Save(t.Context(), client.NoteData{
@@ -29,7 +29,7 @@ func TestNoteSave(t *testing.T) {
 }
 
 func TestNoteGetAll(t *testing.T) {
-	clientMock := &mock.NoteServiceClientForMockingMock{
+	clientMock := &mock.NoteServiceClientMock{
 		GetAllFunc: func(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*gophkeeperv1.GetAllNotesResponse, error) {
 			var note1 gophkeeperv1.Note
 			note1.SetId(1)
@@ -52,7 +52,7 @@ func TestNoteGetAll(t *testing.T) {
 }
 
 func TestNoteUpdate(t *testing.T) {
-	clientMock := &mock.NoteServiceClientForMockingMock{}
+	clientMock := &mock.NoteServiceClientMock{}
 	srv := NewNoteService(clientMock)
 
 	name := "new name"

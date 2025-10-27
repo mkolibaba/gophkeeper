@@ -1,8 +1,3 @@
-//go:generate moq -stub -pkg mock -out mock/login.go . LoginService
-//go:generate moq -stub -pkg mock -out mock/note.go . NoteService
-//go:generate moq -stub -pkg mock -out mock/binary.go . BinaryService
-//go:generate moq -stub -pkg mock -out mock/card.go . CardService
-
 package client
 
 import (
