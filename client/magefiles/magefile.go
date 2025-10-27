@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bitfield/script"
-	"github.com/carolynvs/ma
+	"github.com/carolynvs/magex/shx"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"

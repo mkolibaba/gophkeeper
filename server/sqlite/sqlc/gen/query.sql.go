@@ -12,7 +12,8 @@ import (
 const deleteBinary = `-- name: DeleteBinary :execrows
 DELETE
 FROM binary
-WHERE id = ? AND user = ?
+WHERE id = ?
+  AND user = ?
 `
 
 func (q *Queries) DeleteBinary(ctx context.Context, iD int64, user string) (int64, error) {
@@ -223,7 +224,8 @@ func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]Binary, er
 const selectBinary = `-- name: SelectBinary :one
 SELECT id, name, filename, size, notes, user
 FROM binary
-WHERE id = ? AND user = ?
+WHERE id = ?
+  AND user = ?
 `
 
 func (q *Queries) SelectBinary(ctx context.Context, iD int64, user string) (Binary, error) {
