@@ -4,13 +4,15 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/bitfield/script"
-	"github.com/carolynvs/magex/shx"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
 	"strings"
+	//mage:import test
+	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
 )
 
 var (
@@ -33,24 +35,6 @@ func Build() error {
 func Run() error {
 	mg.Deps(Build)
 	return sh.RunV("./" + binaryPath())
-}
-
-// Runs go test in verbose mode and prettifies the output
-func Test() error {
-	output, err := sh.Output("go", "test", "./...")
-	for _, line := range strings.Split(output, "\n") {
-		if strings.Contains(line, "[no test files]") {
-			continue
-		}
-		if strings.HasPrefix(line, "ok") {
-			color.HiGreen(line)
-		} else if strings.Contains(line, "FAIL") {
-			color.HiRed(line)
-		} else {
-			color.New().Println(line)
-		}
-	}
-	return err
 }
 
 // Run client in watch mode (requires watchexec)

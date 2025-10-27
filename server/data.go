@@ -30,11 +30,6 @@ type LoginData struct {
 	Password string
 	Website  string
 	Notes    string
-	User     string
-}
-
-func (l LoginData) GetUser() string {
-	return l.User
 }
 
 type LoginDataUpdate struct {
@@ -67,11 +62,6 @@ type NoteData struct {
 	ID   int64
 	Name string `validate:"required"`
 	Text string
-	User string // TODO: убрать юзера
-}
-
-func (n NoteData) GetUser() string {
-	return n.User
 }
 
 type NoteDataUpdate struct {
@@ -103,11 +93,6 @@ type BinaryData struct {
 	Filename string `validate:"required"`
 	Size     int64
 	Notes    string
-	User     string
-}
-
-func (b BinaryData) GetUser() string {
-	return b.User
 }
 
 type ReadableBinaryData struct {
@@ -149,11 +134,6 @@ type CardData struct {
 	CVV        string `validate:"required,len=3"`
 	Cardholder string `validate:"required"`
 	Notes      string
-	User       string
-}
-
-func (c CardData) GetUser() string {
-	return c.User
 }
 
 type CardDataUpdate struct {
@@ -181,10 +161,6 @@ type CardService interface {
 	// Remove удаляет данные. Только владелец данных может
 	// удалять их.
 	Remove(ctx context.Context, id int64) error
-}
-
-type Data interface {
-	GetUser() string
 }
 
 func RegisterDataValidationRules(validate *validator.Validate) error {

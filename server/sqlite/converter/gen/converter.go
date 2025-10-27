@@ -21,7 +21,6 @@ func (c *DataConverterImpl) ConvertToBinaryData(source gen.Binary) server.Binary
 	if source.Notes != nil {
 		serverBinaryData.Notes = *source.Notes
 	}
-	serverBinaryData.User = source.User
 	return serverBinaryData
 }
 func (c *DataConverterImpl) ConvertToBinaryDataSlice(source []gen.Binary) []server.BinaryData {
@@ -45,7 +44,6 @@ func (c *DataConverterImpl) ConvertToCardData(source gen.Card) server.CardData {
 	if source.Notes != nil {
 		serverCardData.Notes = *source.Notes
 	}
-	serverCardData.User = source.User
 	return serverCardData
 }
 func (c *DataConverterImpl) ConvertToCardDataSlice(source []gen.Card) []server.CardData {
@@ -115,7 +113,6 @@ func (c *DataConverterImpl) ConvertToLoginData(source gen.Login) server.LoginDat
 	if source.Notes != nil {
 		serverLoginData.Notes = *source.Notes
 	}
-	serverLoginData.User = source.User
 	return serverLoginData
 }
 func (c *DataConverterImpl) ConvertToLoginDataSlice(source []gen.Login) []server.LoginData {
@@ -135,7 +132,6 @@ func (c *DataConverterImpl) ConvertToNoteData(source gen.Note) server.NoteData {
 	if source.Text != nil {
 		serverNoteData.Text = *source.Text
 	}
-	serverNoteData.User = source.User
 	return serverNoteData
 }
 func (c *DataConverterImpl) ConvertToNoteDataSlice(source []gen.Note) []server.NoteData {

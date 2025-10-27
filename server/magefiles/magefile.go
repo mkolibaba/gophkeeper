@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/carolynvs/magex/shx"
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
+	"github.com/uwu-tools/magex/shx"
 	"os/exec"
 	"runtime"
-	"strings"
+	//mage:import test
+	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
 )
 
 var (
@@ -35,27 +36,6 @@ func Run() {
 
 	color.HiGreen("Starting server...")
 	must.RunV("./" + binaryPath())
-}
-
-// Run tests and prettify the output
-func Test() error {
-	color.HiGreen("Running tests...")
-
-	output, err := shx.Output("go", "test", "./...")
-	for _, line := range strings.Split(output, "\n") {
-		if strings.Contains(line, "[no test files]") {
-			continue
-		}
-		if strings.HasPrefix(line, "ok") {
-			color.HiGreen(line)
-		} else if strings.Contains(line, "FAIL") {
-			color.HiRed(line)
-		} else {
-			color.New().Println(line)
-		}
-	}
-
-	return err
 }
 
 // Run tests with coverage

@@ -4,7 +4,6 @@ go 1.25.2
 
 require (
 	github.com/bitfield/script v0.24.1
-	github.com/carolynvs/magex v0.9.0
 	github.com/charmbracelet/bubbles v0.21.1-0.20250623103423-23b8fd6302d7
 	github.com/charmbracelet/bubbletea v1.3.10
 	github.com/charmbracelet/lipgloss v1.1.0
@@ -18,6 +17,7 @@ require (
 	github.com/mkolibaba/gophkeeper/proto v0.0.1
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
+	github.com/uwu-tools/magex v0.10.1
 	go.uber.org/fx v1.24.0
 	google.golang.org/grpc v1.76.0
 )
