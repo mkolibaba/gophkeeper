@@ -27,3 +27,4 @@ exclude:
     - ^magefiles/
     - grpc/binary.go # TODO: убрать и сделать тест для загрузки файлов
     - grpc/client.go # конструкторы
+    - module.go      # конструкторы
