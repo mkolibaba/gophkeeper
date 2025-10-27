@@ -324,6 +324,9 @@ func TestAddDataView_Binary(t *testing.T) {
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Add Binary")
 	})
+
+	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlP})
 }
 
 func TestEditDataView_Note(t *testing.T) {
