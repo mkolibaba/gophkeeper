@@ -172,7 +172,7 @@ func TestAddDataView(t *testing.T) {
 	require.Equal(t, c.Text, "some long long long text")
 }
 
-func TestEditDataView(t *testing.T) {
+func TestEditDataView_Note(t *testing.T) {
 	t.Parallel()
 
 	userService := inmem.NewUserService(log.New(io.Discard))
@@ -256,6 +256,178 @@ func TestEditDataView(t *testing.T) {
 	require.Len(t, cc, 1)
 	c := cc[0].Data
 	require.Equal(t, *c.Name, "my note new new")
+}
+
+func TestEditDataView_Card(t *testing.T) {
+	t.Parallel()
+
+	userService := inmem.NewUserService(log.New(io.Discard))
+	authMock := &mock.AuthorizationServiceMock{
+		AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
+			return "some token", nil
+		},
+	}
+	cardServiceMock := &mock.CardServiceMock{
+		GetAllFunc: func(ctx context.Context) ([]client.CardData, error) {
+			return []client.CardData{{
+				ID:     1,
+				Name:   "my card",
+				Number: "112233",
+			}}, nil
+		},
+		SaveFunc: func(ctx context.Context, data client.CardData) error {
+			return nil
+		},
+	}
+	var config client.Config
+	config.Development.Enabled = false
+
+	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
+		AuthorizationView: authorization.New(authorization.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+		MainView: home.New(home.Params{
+			LoginService:  &mock.LoginServiceMock{},
+			BinaryService: &mock.BinaryServiceMock{},
+			NoteService:   &mock.NoteServiceMock{},
+			CardService:   cardServiceMock,
+			UserService:   userService,
+		}),
+		AddDataView: adddata.New(adddata.Params{}),
+		EditDataView: editdata.New(editdata.Params{
+			CardService: cardServiceMock,
+		}),
+		RegistrationView: registration.New(registration.Params{}),
+	})
+	require.NoError(t, err)
+
+	// Инициализируем приложение.
+	tm := teatest.NewTestModel(t, bubble, teatest.WithInitialTermSize(130, 40))
+
+	// Ожидаем отрисовки формы авторизации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Authorization") &&
+			strings.Contains(s, "Login") &&
+			strings.Contains(s, "Password")
+	})
+
+	// За счет мока сразу авторизуемся.
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail") &&
+			strings.Contains(s, "my card")
+	})
+
+	// Заходим в форму редактирования.
+	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Edit my card")
+	})
+
+	// Заполняем форму.
+	tm.Type(" new new")
+	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail")
+	})
+
+	// Проверяем корректность переданных данных
+	cc := cardServiceMock.UpdateCalls()
+	require.Len(t, cc, 1)
+	c := cc[0].Data
+	require.Equal(t, *c.Name, "my card new new")
+}
+
+func TestEditDataView_Login(t *testing.T) {
+	t.Parallel()
+
+	userService := inmem.NewUserService(log.New(io.Discard))
+	authMock := &mock.AuthorizationServiceMock{
+		AuthorizeFunc: func(ctx context.Context, login string, password string) (string, error) {
+			return "some token", nil
+		},
+	}
+	loginServiceMock := &mock.LoginServiceMock{
+		GetAllFunc: func(ctx context.Context) ([]client.LoginData, error) {
+			return []client.LoginData{{
+				ID:    1,
+				Name:  "my login123",
+				Login: "testuser",
+			}}, nil
+		},
+		SaveFunc: func(ctx context.Context, data client.LoginData) error {
+			return nil
+		},
+	}
+	var config client.Config
+	config.Development.Enabled = false
+
+	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
+		AuthorizationView: authorization.New(authorization.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+		MainView: home.New(home.Params{
+			LoginService:  loginServiceMock,
+			BinaryService: &mock.BinaryServiceMock{},
+			NoteService:   &mock.NoteServiceMock{},
+			CardService:   &mock.CardServiceMock{},
+			UserService:   userService,
+		}),
+		AddDataView: adddata.New(adddata.Params{}),
+		EditDataView: editdata.New(editdata.Params{
+			LoginService: loginServiceMock,
+		}),
+		RegistrationView: registration.New(registration.Params{}),
+	})
+	require.NoError(t, err)
+
+	// Инициализируем приложение.
+	tm := teatest.NewTestModel(t, bubble, teatest.WithInitialTermSize(130, 40))
+
+	// Ожидаем отрисовки формы авторизации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Authorization") &&
+			strings.Contains(s, "Login") &&
+			strings.Contains(s, "Password")
+	})
+
+	// За счет мока сразу авторизуемся.
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail") &&
+			strings.Contains(s, "my login123")
+	})
+
+	// Заходим в форму редактирования.
+	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Edit my login123")
+	})
+
+	// Заполняем форму.
+	tm.Type(" new new")
+	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail")
+	})
+
+	// Проверяем корректность переданных данных
+	cc := loginServiceMock.UpdateCalls()
+	require.Len(t, cc, 1)
+	c := cc[0].Data
+	require.Equal(t, *c.Name, "my login123 new new")
 }
 
 func waitFor(t *testing.T, tm *teatest.TestModel, cond func(s string) bool) {
