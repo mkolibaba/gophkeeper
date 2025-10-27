@@ -91,6 +91,89 @@ func TestAuthorizationView(t *testing.T) {
 	})
 }
 
+func TestRegistrationView(t *testing.T) {
+	t.Parallel()
+
+	userService := inmem.NewUserService(log.New(io.Discard))
+	authMock := &mock.AuthorizationServiceMock{
+		RegisterFunc: func(ctx context.Context, login string, password string) (string, error) {
+			return "", fmt.Errorf("some error")
+		},
+	}
+	var config client.Config
+	config.Development.Enabled = false
+
+	bubble, err := tui.NewBubble(tui.BubbleParams{
+		Config: &config, // TODO: выглядит как сильная связанность
+		AuthorizationView: authorization.New(authorization.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+		MainView: home.New(home.Params{
+			LoginService:  &mock.LoginServiceMock{},
+			BinaryService: &mock.BinaryServiceMock{},
+			NoteService:   &mock.NoteServiceMock{},
+			CardService:   &mock.CardServiceMock{},
+			UserService:   userService,
+		}),
+		AddDataView:  adddata.New(adddata.Params{}),
+		EditDataView: editdata.New(editdata.Params{}),
+		RegistrationView: registration.New(registration.Params{
+			AuthorizationService: authMock,
+			UserService:          userService,
+		}),
+	})
+	require.NoError(t, err)
+
+	// Инициализируем приложение.
+	tm := teatest.NewTestModel(t, bubble, teatest.WithInitialTermSize(130, 40))
+
+	// Ожидаем отрисовки формы авторизации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Authorization") &&
+			strings.Contains(s, "Login") &&
+			strings.Contains(s, "Password")
+	})
+
+	// Переходим на форму регистрации.
+	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlR})
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Registration") &&
+			strings.Contains(s, "Repeat password")
+	})
+
+	// Пытаемся зарегистрироваться.
+	tm.Type("foo")
+	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Type("bar")
+	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Type("bar")
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Ждем отображения ошибки регистрации.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "some error")
+	})
+
+	// Меняем моковый метод и пытаемся зарегистрироваться снова.
+	authMock.RegisterFunc = func(ctx context.Context, login string, password string) (string, error) {
+		return "super token", nil
+	}
+	userService.SetInfo("foo", "super token") // TODO: выглядит неправильно
+	tm.Type("foo")
+	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Type("bar")
+	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Type("bar")
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Проверяем, что приложение перешло на домашнюю страницу.
+	waitFor(t, tm, func(s string) bool {
+		return strings.Contains(s, "Data") &&
+			strings.Contains(s, "Detail")
+	})
+}
+
 func TestAddDataView(t *testing.T) {
 	t.Parallel()
 
