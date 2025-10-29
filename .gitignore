@@ -22,3 +22,9 @@ Thumbs.db
 .idea/
 *.swp
 *.bak
+
+.task
+bin
+server/data
+cover.out
+cover.html

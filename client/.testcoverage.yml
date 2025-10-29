@@ -1,0 +1,32 @@
+profile: cover.out
+local-prefix: "github.com/mkolibaba/gophkeeper/client"
+
+# Holds coverage thresholds percentages, values should be in range [0-100]
+threshold:
+  # (optional; default 0)
+  # The minimum coverage that each file should have
+  file: 0
+
+  # (optional; default 0)
+  # The minimum coverage that each package should have
+  package: 0
+
+  # (optional; default 0)
+  # The minimum total coverage project should have
+  total: 80
+
+
+# Holds regexp rules which will exclude matched files or packages
+# from coverage statistics
+exclude:
+  # Exclude files or packages matching their paths
+  paths:
+    - ^cmd/*
+    - gen/
+    - mock/
+    - ^magefiles/
+    - grpc/binary.go # TODO: убрать и сделать тест для загрузки файлов
+    # конструкторы
+    - grpc/client.go
+    - module.go
+    - tui/tui.go

@@ -1,0 +1,17 @@
+template: matryer
+packages:
+  github.com/mkolibaba/gophkeeper/server:
+    config:
+      dir: "mock"
+      filename: "server.go"
+      pkgname: "mock"
+      structname: "{{.InterfaceName}}Mock"
+    interfaces:
+      LoginService:
+      NoteService:
+      BinaryService:
+      CardService:
+      UserService:
+      AuthorizationService:
+template-data:
+  stub-impl: true

@@ -1,0 +1,9 @@
+edition = "2023";
+
+package gophkeeper;
+
+option go_package = "gophkeeper.v1;gophkeeperv1";
+
+message RemoveDataRequest {
+  int64 id = 1;
+}

@@ -1,0 +1,10 @@
+[grpc]
+server_address = "localhost:8080"
+
+[log]
+output = "bin/client.log"
+truncate = true
+
+[development]
+enabled = true
+spew_output = "bin/spew.log"

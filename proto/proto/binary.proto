@@ -1,0 +1,58 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+import "data.proto";
+
+package gophkeeper;
+
+option go_package = "gophkeeper.v1;gophkeeperv1";
+
+message Binary {
+  int64 id = 1;
+  string name = 2;
+  string filename = 3;
+  int64 size = 4;
+  string notes = 5;
+}
+
+message FileChunk {
+  bytes data = 1;
+  int32 index = 2;
+}
+
+message SaveBinaryRequest {
+  FileChunk chunk = 1;
+  string name = 2;
+  string filename = 3;
+  int64 size = 4;
+  string notes = 5;
+}
+
+message DownloadBinaryRequest {
+  int64 id = 1;
+}
+
+message DownloadBinaryResponse {
+  FileChunk chunk = 1;
+  string name = 2;
+  string filename = 3;
+  int64 size = 4;
+}
+
+message GetAllBinariesResponse {
+  repeated Binary result = 1;
+}
+
+message UpdateBinaryRequest {
+  int64 id = 1;
+  string name = 2;
+  string notes = 3;
+}
+
+service BinaryService {
+  rpc Upload(stream SaveBinaryRequest) returns (google.protobuf.Empty);
+  rpc Download(DownloadBinaryRequest) returns (stream DownloadBinaryResponse);
+  rpc GetAll(google.protobuf.Empty) returns (GetAllBinariesResponse);
+  rpc Update(UpdateBinaryRequest) returns (google.protobuf.Empty);
+  rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
+}

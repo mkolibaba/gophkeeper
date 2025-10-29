@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "query.sql"
+    schema: "../migration"
+    gen:
+      go:
+        package: "sqlc"
+        out: "gen"
+        emit_pointers_for_null_types: true
+        query_parameter_limit: 2

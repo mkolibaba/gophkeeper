@@ -1,0 +1,167 @@
+package grpc
+
+import (
+	"context"
+	"errors"
+	"github.com/charmbracelet/log"
+	"github.com/go-playground/validator/v10"
+	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
+	"github.com/mkolibaba/gophkeeper/server"
+	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"io"
+	"os"
+)
+
+type BinaryServiceServer struct {
+	gophkeeperv1.UnimplementedBinaryServiceServer
+	binaryService server.BinaryService
+	validate      *validator.Validate
+	logger        *log.Logger
+}
+
+func NewBinaryServiceServer(
+	binaryService server.BinaryService,
+	validate *validator.Validate,
+	logger *log.Logger,
+) *BinaryServiceServer {
+	return &BinaryServiceServer{
+		binaryService: binaryService,
+		validate:      validate,
+		logger:        logger,
+	}
+}
+
+func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeeperv1.SaveBinaryRequest, empty.Empty]) error {
+	file, err := os.CreateTemp("", "*.tmp")
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	defer os.Remove(file.Name())
+
+	var data server.BinaryData
+
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		if data.Name == "" {
+			data = server.BinaryData{
+				Name:     in.GetName(),
+				Filename: in.GetFilename(),
+				Size:     in.GetSize(),
+				Notes:    in.GetNotes(),
+			}
+
+			if err := s.validate.StructCtx(stream.Context(), &data); err != nil {
+				return status.Error(codes.InvalidArgument, err.Error())
+			}
+		}
+
+		_, err = file.Write(in.GetChunk().GetData())
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+	}
+
+	if err = file.Sync(); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	err = s.binaryService.Create(stream.Context(), server.ReadableBinaryData{
+		BinaryData: data,
+		DataReader: file,
+	})
+	if err != nil {
+		return status.Error(codes.Internal, err.Error())
+	}
+
+	return stream.SendAndClose(&empty.Empty{})
+}
+
+func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllBinariesResponse, error) {
+	binaries, err := s.binaryService.GetAll(ctx)
+	if err != nil {
+		s.logger.Error("failed to retrieve binary data", "err", err)
+		return nil, status.Error(codes.Internal, "internal server error")
+	}
+
+	var result []*gophkeeperv1.Binary
+	for _, binary := range binaries {
+		var out gophkeeperv1.Binary
+		out.SetId(binary.ID)
+		out.SetName(binary.Name)
+		out.SetFilename(binary.Filename)
+		out.SetSize(binary.Size)
+		out.SetNotes(binary.Notes)
+		result = append(result, &out)
+	}
+
+	var out gophkeeperv1.GetAllBinariesResponse
+	out.SetResult(result)
+
+	return &out, nil
+}
+
+func (s *BinaryServiceServer) Update(ctx context.Context, in *gophkeeperv1.UpdateBinaryRequest) (*empty.Empty, error) {
+	return updateData(ctx, in, func(i *gophkeeperv1.UpdateBinaryRequest) server.BinaryDataUpdate {
+		return grpcgen.MapBinaryDataUpdate(i)
+	}, s.binaryService.Update, s.logger)
+}
+
+func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
+	return removeData(ctx, in, s.binaryService.Remove, s.logger)
+}
+
+func (s *BinaryServiceServer) Download(in *gophkeeperv1.DownloadBinaryRequest, stream grpc.ServerStreamingServer[gophkeeperv1.DownloadBinaryResponse]) error {
+	binary, err := s.binaryService.Get(stream.Context(), in.GetId())
+	if err != nil {
+		if errors.Is(err, server.ErrDataNotFound) {
+			return status.Error(codes.NotFound, "data not found")
+		}
+		s.logger.Error("failed to retrieve data", "err", err)
+		return status.Error(codes.Internal, "internal server error")
+	}
+
+	file := binary.DataReader
+	buf := make([]byte, 64*1024) // 64 KB
+	idx := 0
+
+	for {
+		n, err := file.Read(buf)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		var chunk gophkeeperv1.FileChunk
+		chunk.SetData(buf[:n])
+
+		var out gophkeeperv1.DownloadBinaryResponse
+		out.SetChunk(&chunk)
+		out.SetName(binary.Name)
+		out.SetFilename(binary.Filename)
+		out.SetSize(binary.Size)
+
+		if err := stream.Send(&out); err != nil {
+			return status.Error(codes.Internal, err.Error())
+		}
+
+		idx++
+	}
+
+	return nil
+}
