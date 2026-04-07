@@ -2,12 +2,12 @@ package interceptors
 
 import (
 	"bytes"
-	"github.com/charmbracelet/log"
+	"io"
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/interop/grpc_testing"
-	"io"
-	"testing"
 )
 
 func TestLoggedAttributesUnary(t *testing.T) {

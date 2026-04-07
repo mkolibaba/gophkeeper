@@ -1,6 +1,6 @@
 package inmem
 
-import "github.com/charmbracelet/log"
+import "charm.land/log/v2"
 
 type UserService struct {
 	login string

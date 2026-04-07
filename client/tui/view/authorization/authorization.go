@@ -2,8 +2,9 @@ package authorization
 
 import (
 	"context"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"

@@ -3,9 +3,14 @@ package tuitest
 import (
 	"context"
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/log"
-	"github.com/charmbracelet/x/exp/teatest"
+	"io"
+	"strings"
+	"testing"
+	"time"
+
+	tea "charm.land/bubbletea/v2"
+	"charm.land/log/v2"
+	"github.com/charmbracelet/x/exp/teatest/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/inmem"
 	"github.com/mkolibaba/gophkeeper/client/mock"
@@ -16,10 +21,6 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
 	"github.com/stretchr/testify/require"
-	"io"
-	"strings"
-	"testing"
-	"time"
 )
 
 func TestAuthorizationView(t *testing.T) {
@@ -65,9 +66,9 @@ func TestAuthorizationView(t *testing.T) {
 
 	// Пытаемся авторизоваться.
 	tm.Type("foo")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Ждем отображения ошибки авторизации.
 	waitFor(t, tm, func(s string) bool {
@@ -80,9 +81,9 @@ func TestAuthorizationView(t *testing.T) {
 	}
 	userService.SetInfo("foo", "super token") // TODO: выглядит неправильно
 	tm.Type("foo")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу.
 	waitFor(t, tm, func(s string) bool {
@@ -136,7 +137,7 @@ func TestRegistrationView(t *testing.T) {
 	})
 
 	// Переходим на форму регистрации.
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlR})
+	tm.Send(tea.KeyPressMsg{Code: 'r', Mod: tea.ModCtrl})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Registration") &&
 			strings.Contains(s, "Repeat password")
@@ -144,11 +145,11 @@ func TestRegistrationView(t *testing.T) {
 
 	// Пытаемся зарегистрироваться.
 	tm.Type("foo")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Ждем отображения ошибки регистрации.
 	waitFor(t, tm, func(s string) bool {
@@ -161,11 +162,11 @@ func TestRegistrationView(t *testing.T) {
 	}
 	userService.SetInfo("foo", "super token") // TODO: выглядит неправильно
 	tm.Type("foo")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("bar")
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу.
 	waitFor(t, tm, func(s string) bool {
@@ -223,7 +224,7 @@ func TestAddDataView(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу.
 	waitFor(t, tm, func(s string) bool {
@@ -239,16 +240,16 @@ func TestAddDataView(t *testing.T) {
 	})
 
 	// Заходим в форму добавления.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'2'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: '2', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Add Note")
 	})
 
 	// Заполняем форму.
 	tm.Type("new name")
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
 	tm.Type("some long long long text")
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	tm.Send(tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Data") &&
 			strings.Contains(s, "Detail")
@@ -311,7 +312,7 @@ func TestAddDataView_Binary(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу.
 	waitFor(t, tm, func(s string) bool {
@@ -320,13 +321,13 @@ func TestAddDataView_Binary(t *testing.T) {
 	})
 
 	// Заходим в форму добавления.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'3'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: '3', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Add Binary")
 	})
 
-	tm.Send(tea.KeyMsg{Type: tea.KeyTab})
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlP})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyTab})
+	tm.Send(tea.KeyPressMsg{Code: 'p', Mod: tea.ModCtrl})
 }
 
 func TestEditDataView_Note(t *testing.T) {
@@ -385,7 +386,7 @@ func TestEditDataView_Note(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
 	waitFor(t, tm, func(s string) bool {
@@ -395,14 +396,14 @@ func TestEditDataView_Note(t *testing.T) {
 	})
 
 	// Заходим в форму редактирования.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: 'e', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Edit my note")
 	})
 
 	// Заполняем форму.
 	tm.Type(" new new")
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	tm.Send(tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Data") &&
 			strings.Contains(s, "Detail")
@@ -470,7 +471,7 @@ func TestEditDataView_Binary(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
 	waitFor(t, tm, func(s string) bool {
@@ -480,7 +481,7 @@ func TestEditDataView_Binary(t *testing.T) {
 	})
 
 	// Заходим в форму редактирования.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: 'e', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Edit my binary")
 	})
@@ -542,7 +543,7 @@ func TestEditDataView_Card(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
 	waitFor(t, tm, func(s string) bool {
@@ -552,14 +553,14 @@ func TestEditDataView_Card(t *testing.T) {
 	})
 
 	// Заходим в форму редактирования.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: 'e', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Edit my card")
 	})
 
 	// Заполняем форму.
 	tm.Type(" new new")
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	tm.Send(tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Data") &&
 			strings.Contains(s, "Detail")
@@ -628,7 +629,7 @@ func TestEditDataView_Login(t *testing.T) {
 	})
 
 	// За счет мока сразу авторизуемся.
-	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+	tm.Send(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Проверяем, что приложение перешло на домашнюю страницу и отрисовало таблицу.
 	waitFor(t, tm, func(s string) bool {
@@ -638,14 +639,14 @@ func TestEditDataView_Login(t *testing.T) {
 	})
 
 	// Заходим в форму редактирования.
-	tm.Send(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}, Alt: true})
+	tm.Send(tea.KeyPressMsg{Code: 'e', Mod: tea.ModAlt})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Edit my login123")
 	})
 
 	// Заполняем форму.
 	tm.Type(" new new")
-	tm.Send(tea.KeyMsg{Type: tea.KeyCtrlS})
+	tm.Send(tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl})
 	waitFor(t, tm, func(s string) bool {
 		return strings.Contains(s, "Data") &&
 			strings.Contains(s, "Detail")

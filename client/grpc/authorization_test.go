@@ -2,15 +2,16 @@ package grpc
 
 import (
 	"context"
-	"github.com/charmbracelet/log"
+	"io"
+	"testing"
+
+	"charm.land/log/v2"
 	"github.com/mkolibaba/gophkeeper/client/grpc/mock"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"io"
-	"testing"
 )
 
 func TestAuthorizationAuthorize(t *testing.T) {

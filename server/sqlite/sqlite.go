@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"github.com/charmbracelet/log"
-	"github.com/mkolibaba/gophkeeper/server"
 	"io/fs"
-	_ "modernc.org/sqlite"
 	"os"
 	"sort"
+
+	"charm.land/log/v2"
+	"github.com/mkolibaba/gophkeeper/server"
+	_ "modernc.org/sqlite"
 )
 
 //go:embed migration/*.sql

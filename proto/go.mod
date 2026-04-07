@@ -1,6 +1,6 @@
 module github.com/mkolibaba/gophkeeper/proto
 
-go 1.25.2
+go 1.25.3
 
 require (
 	github.com/bitfield/script v0.24.1

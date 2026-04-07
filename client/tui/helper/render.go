@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"github.com/charmbracelet/lipgloss"
 	"strings"
+
+	"charm.land/lipgloss/v2"
 )
 
 func Borderize(topText, bottomText, content string, width, height int) string {

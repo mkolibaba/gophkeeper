@@ -2,14 +2,14 @@ package inputset
 
 import (
 	"fmt"
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/bubbles/filepicker"
-	"github.com/charmbracelet/bubbles/textarea"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"os"
+
+	"charm.land/bubbles/v2/filepicker"
+	"charm.land/bubbles/v2/textarea"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 )
 
 const (
@@ -36,9 +36,13 @@ func NewTextInput(placeholder string, opts ...Option) Input {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = defaultCharLimit
-	input.Width = defaultWidth
-	input.Cursor.SetMode(cursor.CursorStatic)
-	input.PromptStyle = promptStyle
+	input.SetWidth(defaultWidth)
+
+	s := input.Styles()
+	s.Cursor.Blink = false
+	s.Focused.Prompt = promptStyle
+	s.Blurred.Prompt = promptStyle
+	input.SetStyles(s)
 
 	for _, o := range opts {
 		o(&input)
@@ -71,13 +75,16 @@ func NewTextArea(placeholder string, opts ...TextAreaOption) Input {
 	area.CharLimit = 2000
 	area.SetWidth(defaultWidth)
 	area.SetHeight(15)
-	area.SetPromptFunc(2, func(lineIdx int) string {
-		if lineIdx == 0 {
+	area.SetPromptFunc(2, func(info textarea.PromptInfo) string {
+		if info.LineNumber == 0 {
 			return promptStyle.Render("> ")
 		}
 		return "  "
 	})
-	area.Cursor.SetMode(cursor.CursorStatic)
+
+	s := area.Styles()
+	s.Cursor.Blink = false
+	area.SetStyles(s)
 	area.ShowLineNumbers = false
 
 	for _, o := range opts {
@@ -114,9 +121,13 @@ func NewFilePicker(placeholder string, opts ...FilePickerOption) Input {
 	input := textinput.New()
 	input.Placeholder = placeholder
 	input.CharLimit = 255
-	input.Width = 100
-	input.Cursor.SetMode(cursor.CursorStatic)
-	input.PromptStyle = promptStyle
+	input.SetWidth(100)
+
+	s := input.Styles()
+	s.Cursor.Blink = false
+	s.Focused.Prompt = promptStyle
+	s.Blurred.Prompt = promptStyle
+	input.SetStyles(s)
 
 	picker := filepicker.New()
 	picker.CurrentDirectory, _ = os.Getwd()

@@ -3,14 +3,15 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/charmbracelet/log"
+	"net"
+
+	"charm.land/log/v2"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/grpc/interceptors"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"net"
 )
 
 type Server struct {

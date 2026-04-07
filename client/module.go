@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
-	"github.com/charmbracelet/log"
-	"go.uber.org/fx"
 	"os"
+
+	"charm.land/log/v2"
+	"go.uber.org/fx"
 )
 
 var Module = fx.Module(

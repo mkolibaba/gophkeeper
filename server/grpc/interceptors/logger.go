@@ -2,13 +2,14 @@ package interceptors
 
 import (
 	"context"
-	"github.com/charmbracelet/log"
+	"time"
+
+	"charm.land/log/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 type LoggerInterceptor struct {

@@ -1,10 +1,11 @@
 package server
 
 import (
-	"github.com/charmbracelet/log"
+	"os"
+
+	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/fx"
-	"os"
 )
 
 var Module = fx.Module(

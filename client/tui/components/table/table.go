@@ -2,11 +2,12 @@ package table
 
 import (
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"regexp"
+
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
-	"regexp"
 )
 
 var (

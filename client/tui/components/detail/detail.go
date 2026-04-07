@@ -2,7 +2,8 @@ package detail
 
 import (
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
+
+	"charm.land/lipgloss/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 )

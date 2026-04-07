@@ -2,7 +2,8 @@ package grpc
 
 import (
 	"context"
-	"github.com/charmbracelet/log"
+
+	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
