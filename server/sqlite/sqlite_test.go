@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"charm.land/log/v2"
 	"github.com/mkolibaba/gophkeeper/server"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
