@@ -1,12 +1,13 @@
 package sqlite
 
 import (
-	"github.com/charmbracelet/log"
-	"github.com/mkolibaba/gophkeeper/server"
-	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 	"io"
 	"os"
 	"testing"
+
+	"charm.land/log/v2"
+	"github.com/mkolibaba/gophkeeper/server"
+	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
 
 var (

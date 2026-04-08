@@ -3,7 +3,8 @@ package grpc
 import (
 	"context"
 	"errors"
-	"github.com/charmbracelet/log"
+
+	"charm.land/log/v2"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"

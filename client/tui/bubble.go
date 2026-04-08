@@ -1,9 +1,11 @@
 package tui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/davecgh/go-spew/spew"
+	"io"
+	"os"
+
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
@@ -12,9 +14,8 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view/editdata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
+	"github.com/sanity-io/litter"
 	"go.uber.org/fx"
-	"io"
-	"os"
 )
 
 // Bubble представляет корневой объект UI.
@@ -46,7 +47,7 @@ type BubbleParams struct {
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
-	var dump *os.File
+	dump := io.Discard
 	if p.Config.Development.Enabled {
 		var err error
 		dump, err = os.OpenFile(p.Config.Development.SpewOutput, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
@@ -69,10 +70,7 @@ func NewBubble(p BubbleParams) (Bubble, error) {
 
 // Init инициализирует UI.
 func (b Bubble) Init() tea.Cmd {
-	return tea.Batch(
-		tea.SetWindowTitle("Gophkeeper"),
-		b.views[view.ViewAuthorization].Init(),
-	)
+	return b.views[view.ViewAuthorization].Init()
 }
 
 // Update обновляет UI в зависимости от события.
@@ -150,18 +148,19 @@ func (b Bubble) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View возвращает строковое представление UI.
-func (b Bubble) View() string {
+func (b Bubble) View() tea.View {
 	title := helper.TitleStyle.
 		Width(b.width).
 		Render()
 	content := b.views[b.view].View()
 
-	return lipgloss.JoinVertical(lipgloss.Top, title, content)
+	v := tea.NewView(lipgloss.JoinVertical(lipgloss.Top, title, content))
+	v.AltScreen = true
+	v.WindowTitle = "Gophkeeper"
+	return v
 }
 
 // spew выводит в dump состояния объектов для дебага.
 func (b Bubble) spew(a ...any) {
-	if b.dump != nil {
-		spew.Fdump(b.dump, a...)
-	}
+	io.WriteString(b.dump, litter.Sdump(a...))
 }

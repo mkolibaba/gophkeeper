@@ -1,6 +1,6 @@
 package helper
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 var (
 	HeaderColor = lipgloss.Color("171")

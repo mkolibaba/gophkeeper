@@ -1,9 +1,11 @@
 package statusbar
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"image/color"
 	"time"
+
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type NotificationType uint8
@@ -14,7 +16,7 @@ const (
 	NotificationError
 )
 
-var notificationColors = map[NotificationType]lipgloss.Color{
+var notificationColors = map[NotificationType]color.Color{
 	NotificationNone:  lipgloss.Color("105"),
 	NotificationOk:    lipgloss.Color("34"),
 	NotificationError: lipgloss.Color("169"),

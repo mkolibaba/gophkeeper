@@ -3,7 +3,10 @@ package grpc
 import (
 	"context"
 	"errors"
-	"github.com/charmbracelet/log"
+	"io"
+	"os"
+
+	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
@@ -12,8 +15,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"io"
-	"os"
 )
 
 type BinaryServiceServer struct {

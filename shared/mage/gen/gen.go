@@ -2,10 +2,11 @@ package gen
 
 import (
 	"errors"
+	"os"
+
 	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
 	"github.com/uwu-tools/magex/mgx"
 	"github.com/uwu-tools/magex/shx"
-	"os"
 )
 
 var (
@@ -18,7 +19,7 @@ func Mockery() {
 		mgx.Must(errors.New(".mockery.yml does not exist"))
 	}
 
-	tool.Install("mockery", "github.com/vektra/mockery/v3@v3.5.5")
+	tool.Install("mockery", "github.com/vektra/mockery/v3@latest")
 
 	must.RunV("mockery")
 }

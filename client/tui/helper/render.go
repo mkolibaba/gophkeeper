@@ -1,8 +1,9 @@
 package helper
 
 import (
-	"github.com/charmbracelet/lipgloss"
 	"strings"
+
+	"charm.land/lipgloss/v2"
 )
 
 func Borderize(topText, bottomText, content string, width, height int) string {
@@ -11,7 +12,7 @@ func Borderize(topText, bottomText, content string, width, height int) string {
 	middle := borderStyle.
 		BorderTop(false).
 		BorderBottom(false).
-		Width(width - 2).
+		Width(width). // TODO: при миграции на charm v2 пришлось убрать -2, разобраться в изменениях. так же в некоторых местах прилипает текст к границам
 		Height(height - 2).
 		Render(content)
 

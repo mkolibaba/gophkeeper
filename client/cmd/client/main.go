@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/charmbracelet/log"
+	"log/slog"
+
+	"charm.land/log/v2"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/grpc"
 	"github.com/mkolibaba/gophkeeper/client/inmem"
 	"github.com/mkolibaba/gophkeeper/client/tui"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
-	"log/slog"
 )
 
 func main() {
