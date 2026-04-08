@@ -6,7 +6,6 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mkolibaba/gophkeeper/client"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
@@ -15,6 +14,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/tui/view/editdata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/home"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/registration"
+	"github.com/sanity-io/litter"
 	"go.uber.org/fx"
 )
 
@@ -47,7 +47,7 @@ type BubbleParams struct {
 }
 
 func NewBubble(p BubbleParams) (Bubble, error) {
-	var dump *os.File
+	dump := io.Discard
 	if p.Config.Development.Enabled {
 		var err error
 		dump, err = os.OpenFile(p.Config.Development.SpewOutput, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
@@ -162,7 +162,5 @@ func (b Bubble) View() tea.View {
 
 // spew выводит в dump состояния объектов для дебага.
 func (b Bubble) spew(a ...any) {
-	if b.dump != nil {
-		spew.Fdump(b.dump, a...)
-	}
+	io.WriteString(b.dump, litter.Sdump(a...))
 }

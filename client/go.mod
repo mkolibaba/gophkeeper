@@ -9,12 +9,12 @@ require (
 	charm.land/log/v2 v2.0.0
 	github.com/bitfield/script v0.24.1
 	github.com/charmbracelet/x/exp/teatest/v2 v2.0.0-20260406091427-a791e22d5143
-	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/protobuf v1.5.4
 	github.com/magefile/mage v1.15.0
 	github.com/mkolibaba/gophkeeper/proto v0.0.1
 	github.com/mkolibaba/gophkeeper/shared v0.0.0-20251029094248-8b54389cb22f
+	github.com/sanity-io/litter v1.5.8
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/uwu-tools/magex v0.10.1
@@ -34,6 +34,7 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
