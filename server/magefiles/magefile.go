@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
+	"runtime"
+
 	"github.com/fatih/color"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
 	"github.com/mkolibaba/gophkeeper/shared/mage/gen"
-	"github.com/mkolibaba/gophkeeper/shared/mage/tool"
+	"github.com/uwu-tools/magex/mgx"
+	"github.com/uwu-tools/magex/pkg"
 	"github.com/uwu-tools/magex/shx"
-	"os/exec"
-	"runtime"
 	//mage:import test
 	_ "github.com/mkolibaba/gophkeeper/shared/mage/test"
 	//mage:import gen
@@ -91,7 +93,11 @@ func GenSqlc() error {
 		return nil
 	}
 
-	mg.Deps(installSqlc)
+	mgx.Must(pkg.EnsurePackageWith(pkg.EnsurePackageOptions{
+		Name:           "github.com/sqlc-dev/sqlc/cmd/sqlc",
+		DefaultVersion: "v1.30.0",
+		VersionCommand: "version",
+	}))
 
 	color.HiYellow("[sqlc] Generating code...")
 	if err := sh.RunV("sqlc", "generate", "-f", sqlcConfigPath); err != nil {
@@ -117,7 +123,11 @@ func GenGoverter() error {
 		return nil
 	}
 
-	mg.Deps(installGoverter)
+	mgx.Must(pkg.EnsurePackageWith(pkg.EnsurePackageOptions{
+		Name:           "github.com/jmattheis/goverter/cmd/goverter",
+		DefaultVersion: "v1.9.1",
+		VersionCommand: "version",
+	}))
 
 	color.HiYellow("[goverter] Generating code...")
 	if err := sh.RunV("goverter", "gen", "./sqlite/converter"); err != nil {
@@ -156,14 +166,6 @@ func GenOpaqueMapper() error {
 	}
 	color.HiGreen("[opaquemapper] Done")
 	return nil
-}
-
-func installGoverter() {
-	tool.Install("goverter", "github.com/jmattheis/goverter/cmd/goverter@v1.9.1")
-}
-
-func installSqlc() {
-	tool.Install("sqlc", "github.com/sqlc-dev/sqlc/cmd/sqlc@v1.30.0")
 }
 
 func binaryPath() string {

@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/golang/protobuf v1.5.4
-	github.com/magefile/mage v1.15.0
+	github.com/magefile/mage v1.17.1
 	github.com/mkolibaba/gophkeeper/proto v0.0.1
 	github.com/mkolibaba/gophkeeper/shared v0.0.0-20251029094248-8b54389cb22f
 	github.com/spf13/viper v1.21.0
@@ -22,6 +22,7 @@ require (
 
 require (
 	charm.land/lipgloss/v2 v2.0.1 // indirect
+	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/charmbracelet/colorprofile v0.4.2 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect

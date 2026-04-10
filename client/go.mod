@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/x/exp/teatest/v2 v2.0.0-20260406091427-a791e22d5143
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/protobuf v1.5.4
-	github.com/magefile/mage v1.15.0
+	github.com/magefile/mage v1.17.1
 	github.com/mkolibaba/gophkeeper/proto v0.0.1
 	github.com/mkolibaba/gophkeeper/shared v0.0.0-20251029094248-8b54389cb22f
 	github.com/sanity-io/litter v1.5.8
