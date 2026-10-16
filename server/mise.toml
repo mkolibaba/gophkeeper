@@ -1,0 +1,61 @@
+[tools]
+go = "1.25.8"
+"go:github.com/jmattheis/goverter/cmd/goverter" = "1.9.1"
+mockery = "latest"
+sqlc = "1.30.0"
+watchexec = "latest"
+
+[vars]
+binary_path = 'bin/gophkeeper-server{% if os() == "windows" %}.exe{% endif %}'
+sqlc_config_path = "sqlite/sqlc/sqlc.yml"
+
+[tasks.build]
+description = "Build server binary"
+run = "go build -ldflags='-s -w' -o {{vars.binary_path}} cmd/server/main.go"
+
+[tasks.run]
+description = "Run server"
+run = "{{vars.binary_path}}"
+run_windows = ".\\{{vars.binary_path}}"
+
+[tasks.watch]
+description = "Run server in watch mode"
+run = "watchexec -r -c -e go,sql --wrap-process session --poll 1000 -- mise run run"
+
+[tasks.gen]
+description = "Run generate"
+depends = ["gen:*"]
+
+[tasks."gen:sqlc"]
+description = "Generate sqlc code from queries"
+run = "sqlc generate -f {{vars.sqlc_config_path}}"
+sources = ["sqlite/sqlc/query.sql", "{{vars.sqlc_config_path}}"]
+outputs = ["sqlite/sqlc/gen/**"]
+
+[tasks."gen:goverter"]
+description = "Generate converters with goverter"
+run = "goverter gen ./sqlite/converter"
+sources = ["sqlite/converter/converter.go", "sqlite/sqlc/gen/models.go", "data.go"]
+outputs = ["sqlite/converter/gen/converter.go"]
+
+[tasks."gen:opaquemapper"]
+description = "Generate opaque mapper"
+run = "go generate data.go"
+sources = ["data.go"]
+outputs = ["grpc/gen/**"]
+
+[tasks."gen:mockery"]
+description = "Generate mocks using mockery"
+run = "mockery"
+
+[tasks.test]
+description = "Run tests"
+run = "gotestsum -- ./..."
+
+[tasks.coverage]
+description = "Run tests with coverage"
+run = [
+    "go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...",
+    "go tool cover -html cover.out -o cover.html",
+    "go-test-coverage --config=./.testcoverage.yml --badge-file-name=./coverage.svg"
+]

@@ -4,16 +4,12 @@ go 1.25.8
 
 require (
 	charm.land/log/v2 v2.0.0
-	github.com/fatih/color v1.18.0
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/golang/protobuf v1.5.4
-	github.com/magefile/mage v1.17.1
 	github.com/mkolibaba/gophkeeper/proto v0.0.1
-	github.com/mkolibaba/gophkeeper/shared v0.0.0-20251029094248-8b54389cb22f
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
-	github.com/uwu-tools/magex v0.10.1
 	go.uber.org/fx v1.24.0
 	golang.org/x/crypto v0.40.0
 	google.golang.org/grpc v1.76.0
@@ -22,7 +18,6 @@ require (
 
 require (
 	charm.land/lipgloss/v2 v2.0.1 // indirect
-	github.com/Masterminds/semver/v3 v3.3.1 // indirect
 	github.com/charmbracelet/colorprofile v0.4.2 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
@@ -42,7 +37,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect

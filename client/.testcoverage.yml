@@ -24,7 +24,6 @@ exclude:
     - ^cmd/*
     - gen/
     - mock/
-    - ^magefiles/
     - grpc/binary.go # TODO: убрать и сделать тест для загрузки файлов
     # конструкторы
     - grpc/client.go
