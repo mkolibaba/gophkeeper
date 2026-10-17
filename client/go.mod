@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/x/exp/teatest/v2 v2.0.0-20260406091427-a791e22d5143
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang/protobuf v1.5.4
-	github.com/mkolibaba/gophkeeper/proto v0.0.1
+	github.com/mkolibaba/gophkeeper/proto v0.0.2
 	github.com/sanity-io/litter v1.5.8
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
