@@ -1,5 +1,5 @@
 [tools]
-go = "1.25.8"
+go = "1.27.3"
 gotestsum = "latest"
 "go:github.com/vladopajic/go-test-coverage/v2" = "latest"
 mockery = "latest"

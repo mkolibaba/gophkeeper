@@ -1,6 +1,6 @@
 module github.com/mkolibaba/gophkeeper/server
 
-go 1.25.8
+go 1.27.3
 
 require (
 	charm.land/log/v2 v2.0.0
