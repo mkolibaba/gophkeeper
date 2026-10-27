@@ -23,4 +23,3 @@ exclude:
   paths:
     - ^cmd/*
     - module.go
-    - tui/tui.go
