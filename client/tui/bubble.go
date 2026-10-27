@@ -6,7 +6,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
@@ -38,7 +38,7 @@ type Bubble struct {
 type BubbleParams struct {
 	fx.In
 
-	Config            *client.Config
+	Config            *core.Config
 	AuthorizationView *authorization.Model
 	MainView          *home.Model
 	AddDataView       *adddata.Model

@@ -1,0 +1,45 @@
+[tools]
+go = "1.27.3"
+gotestsum = "latest"
+"go:github.com/vladopajic/go-test-coverage/v2" = "latest"
+watchexec = "latest"
+
+[vars]
+binary_path = 'bin/gophkeeper-client{% if os() == "windows" %}.exe{% endif %}'
+log_out = "bin/client.log"
+spew_out = "bin/spew.log"
+
+[tasks.build]
+description = "Build client"
+run = "go build -ldflags='-s -w' -o {{vars.binary_path}} cmd/main.go"
+
+[tasks.run]
+description = "Run client"
+run = "{{vars.binary_path}}"
+run_windows = ".\\{{vars.binary_path}}"
+
+[tasks.watch]
+description = "Run client in watch mode"
+run = "watchexec -r -c -e go --wrap-process session --poll 1000 -- go run cmd/main.go"
+
+[tasks.log]
+description = "Show client log"
+run = "tail -n 1000 {{vars.log_out}}"
+run_windows = "Get-Content {{vars.log_out}} -Tail 1000"
+
+[tasks.spew]
+description = "Show spew log"
+run = "tail -n 1000 {{vars.spew_out}}"
+run_windows = "Get-Content {{vars.spew_out}} -Tail 1000"
+
+[tasks.test]
+description = "Run tests"
+run = "gotestsum -- ./..."
+
+[tasks.coverage]
+description = "Run tests with coverage"
+run = [
+    "go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...",
+    "go tool cover -html cover.out -o cover.html",
+    "go-test-coverage --config=./.testcoverage.yml --badge-file-name=./coverage.svg"
+]

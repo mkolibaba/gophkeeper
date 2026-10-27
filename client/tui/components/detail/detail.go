@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 )
 
@@ -13,7 +13,7 @@ var (
 )
 
 type Model struct {
-	Data client.Data
+	Data core.Data
 }
 
 func New() Model {
@@ -24,7 +24,7 @@ func (m Model) View() string {
 	var lines []string
 
 	switch d := m.Data.(type) {
-	case client.LoginData:
+	case core.LoginData:
 		lines = []string{
 			fieldStyle.Render("Type"),
 			"Login",
@@ -44,7 +44,7 @@ func (m Model) View() string {
 			fieldStyle.Render("Notes"),
 			d.Notes,
 		}
-	case client.NoteData:
+	case core.NoteData:
 		lines = []string{
 			fieldStyle.Render("Type"),
 			"Note",
@@ -55,7 +55,7 @@ func (m Model) View() string {
 			fieldStyle.Render("Text"),
 			d.Text,
 		}
-	case client.BinaryData:
+	case core.BinaryData:
 		lines = []string{
 			fieldStyle.Render("Type"),
 			"Binary",
@@ -72,7 +72,7 @@ func (m Model) View() string {
 			fieldStyle.Render("Notes"),
 			d.Notes,
 		}
-	case client.CardData:
+	case core.CardData:
 		lines = []string{
 			fieldStyle.Render("Type"),
 			"Card",

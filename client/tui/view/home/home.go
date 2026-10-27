@@ -9,7 +9,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/detail"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/statusbar"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/table"
@@ -32,9 +32,9 @@ func CallAddDataView(dataType helper.DataType) tea.Cmd {
 	}
 }
 
-type CallEditDataViewMsg client.Data
+type CallEditDataViewMsg core.Data
 
-type loadDataMsg []client.Data
+type loadDataMsg []core.Data
 
 type keyMap struct {
 	UpDown         key.Binding
@@ -69,21 +69,21 @@ type Model struct {
 	keyMap        keyMap
 	showHelp      bool
 	statusBar     *statusbar.Model
-	loginService  client.LoginService
-	binaryService client.BinaryService
-	noteService   client.NoteService
-	cardService   client.CardService
-	userService   client.UserService
+	loginService  core.LoginService
+	binaryService core.BinaryService
+	noteService   core.NoteService
+	cardService   core.CardService
+	userService   core.UserService
 }
 
 type Params struct {
 	fx.In
 
-	LoginService  client.LoginService
-	BinaryService client.BinaryService
-	NoteService   client.NoteService
-	CardService   client.CardService
-	UserService   client.UserService
+	LoginService  core.LoginService
+	BinaryService core.BinaryService
+	NoteService   core.NoteService
+	CardService   core.CardService
+	UserService   core.UserService
 }
 
 func New(p Params) *Model {
@@ -196,7 +196,7 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 
 		case key.Matches(msg, m.keyMap.DownloadBinary):
 			current := m.dataTable.GetCurrentRow()
-			if d, ok := current.(client.BinaryData); ok {
+			if d, ok := current.(core.BinaryData); ok {
 				return m.startDownloadBinary(d)
 			}
 
@@ -301,9 +301,9 @@ func (m *Model) LoadData() tea.Cmd {
 	return func() tea.Msg {
 		ctx := context.Background()
 
-		var result []client.Data
+		var result []core.Data
 
-		ch := make(chan client.Data)
+		ch := make(chan core.Data)
 		var wg sync.WaitGroup
 
 		wg.Go(func() {
@@ -344,7 +344,7 @@ func (m *Model) NotifyError(format string, a ...any) tea.Cmd {
 	return m.statusBar.NotifyError(fmt.Sprintf(format, a...))
 }
 
-func (m *Model) startDownloadBinary(data client.BinaryData) tea.Cmd {
+func (m *Model) startDownloadBinary(data core.BinaryData) tea.Cmd {
 	return func() tea.Msg {
 		err := m.binaryService.Download(context.Background(), data.ID)
 		if err != nil {
@@ -355,7 +355,7 @@ func (m *Model) startDownloadBinary(data client.BinaryData) tea.Cmd {
 	}
 }
 
-func (m *Model) removeData(data client.Data) tea.Cmd {
+func (m *Model) removeData(data core.Data) tea.Cmd {
 	return func() tea.Msg {
 		var (
 			ctx = context.Background()
@@ -363,13 +363,13 @@ func (m *Model) removeData(data client.Data) tea.Cmd {
 		)
 
 		switch data := data.(type) {
-		case client.LoginData:
+		case core.LoginData:
 			err = m.loginService.Remove(ctx, data.ID)
-		case client.NoteData:
+		case core.NoteData:
 			err = m.noteService.Remove(ctx, data.ID)
-		case client.BinaryData:
+		case core.BinaryData:
 			err = m.binaryService.Remove(ctx, data.ID)
-		case client.CardData:
+		case core.CardData:
 			err = m.cardService.Remove(ctx, data.ID)
 		}
 
@@ -395,7 +395,7 @@ func removeEmptyStrings(strs ...string) []string {
 	return strs[:n]
 }
 
-func collect[S ~[]E, E client.Data](s S, err error, out chan client.Data) {
+func collect[S ~[]E, E core.Data](s S, err error, out chan core.Data) {
 	if err != nil {
 		return
 	}

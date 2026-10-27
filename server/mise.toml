@@ -1,5 +1,6 @@
 [tools]
 go = "1.27.3"
+gotestsum = "latest"
 "go:github.com/jmattheis/goverter/cmd/goverter" = "1.9.1"
 mockery = "latest"
 sqlc = "1.30.0"
