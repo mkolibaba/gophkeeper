@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=My Product
+Comment=A gophkeeper application
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/gophkeeper.exe %u
+Terminal=false
+Type=Application
+Icon=gophkeeper.exe
+Categories=Utility;
+StartupWMClass=gophkeeper.exe
+
+ 

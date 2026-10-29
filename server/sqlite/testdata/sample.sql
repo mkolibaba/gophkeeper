@@ -1,6 +1,6 @@
 -- password: demo
 INSERT INTO user (login, password)
-VALUES ('demo', '$2a$10$Kxn.379HFtAZrwv6SD7uXelbllGVXh3bcxfJ4HRraN8P0IaaedRri');
+VALUES ('demo', '$2a$10$.1ARcvPQGZGKIogUfiKaCe8Xi7hYkoHvHurzT04aLoJ6S7fEcqJwK');
 
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES ('Google', 'iivanov', '123456', 'google.com', 'Мой основной аккаунт', 'demo'),

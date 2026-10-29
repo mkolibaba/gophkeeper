@@ -1,0 +1,18 @@
+package components
+
+import "github.com/mkolibaba/gophkeeper/client/core"
+
+templ Vault(login string, logins []core.LoginData, errMsg string) {
+	<section id="vault">
+		<h2>Привет, { login }!</h2>
+		<div>Ваши логины:</div>
+		<ul>
+			for _, l := range logins {
+				<li>{ l.Name } - { l.Login }</li>
+			}
+		</ul>
+		if errMsg != "" {
+			<div class="error">{ errMsg }</div>
+		}
+	</section>
+}

@@ -1,0 +1,69 @@
+package components
+
+templ AuthorizationForm(login string, errMsg string) {
+	<form
+		hx-post="/login"
+		hx-target="this"
+		hx-swap="outerHTML"
+	>
+		<p class="title is-1">Gophkeeper</p>
+		<p class="subtitle is-3">A simple credential manager</p>
+		@input("Login", "text", "login", "Enter login", login)
+		@input("Password", "password", "password", "Enter password", "")
+		if errMsg != "" {
+			<div class="error">{ errMsg }</div>
+		}
+		<div class="field is-grouped">
+			<div class="control">
+				<button class="button is-success" type="submit">Login</button>
+			</div>
+			<div class="control">
+				<button
+					class="button is-info"
+					type="button"
+					hx-get="/form/registration"
+					hx-target="closest form"
+					hx-swap="outerHTML"
+				>Register</button>
+			</div>
+		</div>
+	</form>
+}
+
+templ RegistrationForm(login string, errMsg string) {
+	<form
+		hx-post="/register"
+		hx-target="this"
+		hx-swap="outerHTML"
+	>
+		@input("Login", "text", "login", "Enter login", login)
+		@input("Password", "password", "password", "Enter password", "")
+		@input("Password (repeat)", "password", "repeat", "Repeat password", "")
+		if errMsg != "" {
+			<div class="error">{ errMsg }</div>
+		}
+		<div class="field is-grouped">
+			<div class="control">
+				<button class="button is-success" type="submit">Register</button>
+			</div>
+			<div class="control">
+				<button
+					class="button"
+					type="button"
+					hx-get="/form/authorization"
+					hx-target="closest form"
+					hx-swap="outerHTML"
+				>Back</button>
+			</div>
+		</div>
+	</form>
+}
+
+templ input(label, typ, name, placeholder, value string) {
+	<div class="field">
+		<label class="label">{ label }</label>
+		<div class="control">
+			<input class="input" type={ typ } name={ name } placeholder={ placeholder } value={ value } required/>
+		</div>
+	</div>
+}

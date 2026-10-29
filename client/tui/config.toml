@@ -1,5 +1,5 @@
 [grpc]
-server_address = "localhost:8080"
+server_address = "127.0.0.1:8080"
 
 [log]
 output = "bin/client.log"
