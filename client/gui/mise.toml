@@ -1,0 +1,9 @@
+[tools]
+go = "1.27.3"
+
+[tasks."templ:generate"]
+run = "go tool templ generate"
+
+[tasks.dev]
+run = "go tool wails3 dev"
+depends = ["templ:generate"]

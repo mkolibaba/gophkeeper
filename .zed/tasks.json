@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Run templ generate",
+    "command": "cd client/gui; go tool templ generate",
+    "hide": "on_success",
+  },
+  {
+    "label": "Run dev",
+    "command": "cd client/gui; mise run dev",
+    "hide": "on_success",
+  },
+]

@@ -1,6 +1,8 @@
 [tools]
-go = "1.25.8"
+go = "1.27.3"
+gotestsum = "latest"
 "go:github.com/jmattheis/goverter/cmd/goverter" = "1.9.1"
+"go:github.com/vladopajic/go-test-coverage" = "latest"
 mockery = "latest"
 sqlc = "1.30.0"
 watchexec = "latest"

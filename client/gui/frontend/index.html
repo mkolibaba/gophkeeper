@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/static/wails.png" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
+        <link rel="stylesheet" href="/static/bulma.css" />
+        <script src="/static/htmx.min.js"></script>
+        <title>Gophkeeper</title>
+    </head>
+    <body>
+        <section class="section">
+            <div class="container">
+                <div
+                    id="initial"
+                    hx-get="/form/authorization"
+                    hx-trigger="load"
+                    hx-target="#initial"
+                    hx-swap="outerHTML"
+                ></div>
+            </div>
+        </section>
+    </body>
+</html>

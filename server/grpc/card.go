@@ -5,7 +5,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
@@ -32,7 +32,7 @@ func NewCardServiceServer(
 	}
 }
 
-func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*empty.Empty, error) {
+func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*emptypb.Empty, error) {
 	data := server.CardData{
 		Name:       in.GetName(),
 		Number:     in.GetNumber(),
@@ -51,10 +51,10 @@ func (s *CardServiceServer) Save(ctx context.Context, in *gophkeeperv1.Card) (*e
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllCardsResponse, error) {
+func (s *CardServiceServer) GetAll(ctx context.Context, _ *emptypb.Empty) (*gophkeeperv1.GetAllCardsResponse, error) {
 	cards, err := s.cardService.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("failed to retrieve card data", "err", err)
@@ -80,12 +80,12 @@ func (s *CardServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	return &out, nil
 }
 
-func (s *CardServiceServer) Update(ctx context.Context, in *gophkeeperv1.Card) (*empty.Empty, error) {
+func (s *CardServiceServer) Update(ctx context.Context, in *gophkeeperv1.Card) (*emptypb.Empty, error) {
 	return updateData(ctx, in, func(i *gophkeeperv1.Card) server.CardDataUpdate {
 		return grpcgen.MapCardDataUpdate(i)
 	}, s.cardService.Update, s.logger)
 }
 
-func (s *CardServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
+func (s *CardServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*emptypb.Empty, error) {
 	return removeData(ctx, in, s.cardService.Remove, s.logger)
 }

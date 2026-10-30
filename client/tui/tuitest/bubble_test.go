@@ -11,9 +11,9 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/log/v2"
 	"github.com/charmbracelet/x/exp/teatest/v2"
-	"github.com/mkolibaba/gophkeeper/client"
-	"github.com/mkolibaba/gophkeeper/client/inmem"
-	"github.com/mkolibaba/gophkeeper/client/mock"
+	"github.com/mkolibaba/gophkeeper/client/core"
+	"github.com/mkolibaba/gophkeeper/client/core/inmem"
+	"github.com/mkolibaba/gophkeeper/client/core/mock"
 	"github.com/mkolibaba/gophkeeper/client/tui"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/adddata"
 	"github.com/mkolibaba/gophkeeper/client/tui/view/authorization"
@@ -32,7 +32,7 @@ func TestAuthorizationView(t *testing.T) {
 			return "", fmt.Errorf("some error")
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -101,7 +101,7 @@ func TestRegistrationView(t *testing.T) {
 			return "", fmt.Errorf("some error")
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -185,11 +185,11 @@ func TestAddDataView(t *testing.T) {
 		},
 	}
 	noteServiceMock := &mock.NoteServiceMock{
-		SaveFunc: func(ctx context.Context, data client.NoteData) error {
+		SaveFunc: func(ctx context.Context, data core.NoteData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -273,11 +273,11 @@ func TestAddDataView_Binary(t *testing.T) {
 		},
 	}
 	noteServiceMock := &mock.NoteServiceMock{
-		SaveFunc: func(ctx context.Context, data client.NoteData) error {
+		SaveFunc: func(ctx context.Context, data core.NoteData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -340,18 +340,18 @@ func TestEditDataView_Note(t *testing.T) {
 		},
 	}
 	noteServiceMock := &mock.NoteServiceMock{
-		GetAllFunc: func(ctx context.Context) ([]client.NoteData, error) {
-			return []client.NoteData{{
+		GetAllFunc: func(ctx context.Context) ([]core.NoteData, error) {
+			return []core.NoteData{{
 				ID:   1,
 				Name: "my note",
 				Text: "long text",
 			}}, nil
 		},
-		SaveFunc: func(ctx context.Context, data client.NoteData) error {
+		SaveFunc: func(ctx context.Context, data core.NoteData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -426,17 +426,17 @@ func TestEditDataView_Binary(t *testing.T) {
 		},
 	}
 	binaryServiceMock := &mock.BinaryServiceMock{
-		GetAllFunc: func(ctx context.Context) ([]client.BinaryData, error) {
-			return []client.BinaryData{{
+		GetAllFunc: func(ctx context.Context) ([]core.BinaryData, error) {
+			return []core.BinaryData{{
 				ID:   1,
 				Name: "my binary",
 			}}, nil
 		},
-		SaveFunc: func(ctx context.Context, data client.BinaryData) error {
+		SaveFunc: func(ctx context.Context, data core.BinaryData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -497,18 +497,18 @@ func TestEditDataView_Card(t *testing.T) {
 		},
 	}
 	cardServiceMock := &mock.CardServiceMock{
-		GetAllFunc: func(ctx context.Context) ([]client.CardData, error) {
-			return []client.CardData{{
+		GetAllFunc: func(ctx context.Context) ([]core.CardData, error) {
+			return []core.CardData{{
 				ID:     1,
 				Name:   "my card",
 				Number: "112233",
 			}}, nil
 		},
-		SaveFunc: func(ctx context.Context, data client.CardData) error {
+		SaveFunc: func(ctx context.Context, data core.CardData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{
@@ -583,18 +583,18 @@ func TestEditDataView_Login(t *testing.T) {
 		},
 	}
 	loginServiceMock := &mock.LoginServiceMock{
-		GetAllFunc: func(ctx context.Context) ([]client.LoginData, error) {
-			return []client.LoginData{{
+		GetAllFunc: func(ctx context.Context) ([]core.LoginData, error) {
+			return []core.LoginData{{
 				ID:    1,
 				Name:  "my login123",
 				Login: "testuser",
 			}}, nil
 		},
-		SaveFunc: func(ctx context.Context, data client.LoginData) error {
+		SaveFunc: func(ctx context.Context, data core.LoginData) error {
 			return nil
 		},
 	}
-	var config client.Config
+	var config core.Config
 	config.Development.Enabled = false
 
 	bubble, err := tui.NewBubble(tui.BubbleParams{

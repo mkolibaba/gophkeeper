@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"charm.land/log/v2"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/mock"
@@ -35,7 +35,7 @@ func (s *mockUploadStream) Recv() (*gophkeeperv1.SaveBinaryRequest, error) {
 	s.recvIdx++
 	return req, nil
 }
-func (s *mockUploadStream) SendAndClose(_ *empty.Empty) error { return nil }
+func (s *mockUploadStream) SendAndClose(_ *emptypb.Empty) error { return nil }
 func (s *mockUploadStream) SendHeader(_ metadata.MD) error    { return nil }
 func (s *mockUploadStream) SetHeader(_ metadata.MD) error     { return nil }
 func (s *mockUploadStream) SetTrailer(_ metadata.MD)          {}

@@ -8,7 +8,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
@@ -37,19 +37,19 @@ type Model struct {
 	inputSet      *inputset.Model
 	dataName      string
 	send          func(map[string]string) error
-	loginService  client.LoginService
-	noteService   client.NoteService
-	binaryService client.BinaryService
-	cardService   client.CardService
+	loginService  core.LoginService
+	noteService   core.NoteService
+	binaryService core.BinaryService
+	cardService   core.CardService
 }
 
 type Params struct {
 	fx.In
 
-	LoginService  client.LoginService
-	NoteService   client.NoteService
-	BinaryService client.BinaryService
-	CardService   client.CardService
+	LoginService  core.LoginService
+	NoteService   core.NoteService
+	BinaryService core.BinaryService
+	CardService   core.CardService
 }
 
 func New(p Params) *Model {
@@ -113,10 +113,10 @@ func (m *Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, editDataView, helpView)
 }
 
-func (m *Model) ResetFor(data client.Data) {
+func (m *Model) ResetFor(data core.Data) {
 	m.dataName = data.GetName()
 	switch data := data.(type) {
-	case client.LoginData:
+	case core.LoginData:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name", inputset.WithValue(data.Name)),
 			inputset.NewTextInput("Login", inputset.WithValue(data.Login)),
@@ -130,7 +130,7 @@ func (m *Model) ResetFor(data client.Data) {
 			password := values["Password"]
 			website := values["Website"]
 			notes := values["Notes"]
-			return m.loginService.Update(context.Background(), client.LoginDataUpdate{
+			return m.loginService.Update(context.Background(), core.LoginDataUpdate{
 				ID:       data.ID,
 				Name:     &name,
 				Login:    &login,
@@ -139,20 +139,20 @@ func (m *Model) ResetFor(data client.Data) {
 				Notes:    &notes,
 			})
 		}
-	case client.NoteData:
+	case core.NoteData:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name", inputset.WithValue(data.Name)),
 			inputset.NewTextArea("Text", inputset.WithTextAreaValue(data.Text)),
 		)
 		m.send = func(values map[string]string) error {
 			name, text := values["Name"], values["Text"]
-			return m.noteService.Update(context.Background(), client.NoteDataUpdate{
+			return m.noteService.Update(context.Background(), core.NoteDataUpdate{
 				ID:   data.ID,
 				Name: &name,
 				Text: &text,
 			})
 		}
-	case client.BinaryData:
+	case core.BinaryData:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name", inputset.WithValue(data.Name)),
 			inputset.NewFilePicker("File path", inputset.WithFilePickerDisabled()),
@@ -160,13 +160,13 @@ func (m *Model) ResetFor(data client.Data) {
 		)
 		m.send = func(values map[string]string) error {
 			name, notes := values["Name"], values["Notes"]
-			return m.binaryService.Update(context.Background(), client.BinaryDataUpdate{
+			return m.binaryService.Update(context.Background(), core.BinaryDataUpdate{
 				ID:    data.ID,
 				Name:  &name,
 				Notes: &notes,
 			})
 		}
-	case client.CardData:
+	case core.CardData:
 		m.inputSet = inputset.NewInputSet(
 			inputset.NewTextInput("Name", inputset.WithValue(data.Name)),
 			inputset.NewTextInput("Number", inputset.WithValue(data.Number)),
@@ -182,7 +182,7 @@ func (m *Model) ResetFor(data client.Data) {
 			cvv := values["CVV"]
 			cardholder := values["Cardholder"]
 			notes := values["Notes"]
-			return m.cardService.Update(context.Background(), client.CardDataUpdate{
+			return m.cardService.Update(context.Background(), core.CardDataUpdate{
 				ID:         data.ID,
 				Name:       &name,
 				Number:     &number,

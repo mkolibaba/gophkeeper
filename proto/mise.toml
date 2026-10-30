@@ -1,7 +1,10 @@
 [tools]
 buf = "latest"
-protoc-gen-go = "latest"
-protoc-gen-go-grpc = "latest"
+go = "1.27.3"
 
 [tasks.gen]
 run = "buf generate"
+depends = ["tidy"]
+
+[tasks.tidy]
+run = "go mod tidy"
