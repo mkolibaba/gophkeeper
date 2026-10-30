@@ -1,7 +1,6 @@
 package grpc
 
 import (
-	"context"
 	"fmt"
 	"net"
 
@@ -23,7 +22,6 @@ type Server struct {
 type ServerParams struct {
 	fx.In
 
-	Lifecycle                  fx.Lifecycle
 	AuthInterceptor            *interceptors.AuthInterceptor
 	LoggerInterceptor          *interceptors.LoggerInterceptor
 	AuthorizationServiceServer *AuthorizationServiceServer
@@ -53,39 +51,29 @@ func NewServer(p ServerParams) *Server {
 	gophkeeperv1.RegisterCardServiceServer(s, p.CardServiceServer)
 	reflection.Register(s)
 
-	srv := &Server{
+	return &Server{
 		s:      s,
 		port:   p.Config.GRPC.Port,
 		logger: p.Logger,
 	}
-
-	p.Lifecycle.Append(fx.Hook{
-		OnStart: func(context.Context) error {
-			go srv.start()
-			return nil
-		},
-		OnStop: func(context.Context) error {
-			srv.s.GracefulStop()
-			return nil
-		},
-	})
-
-	return srv
 }
 
-func (s *Server) start() error {
+func (s *Server) Listen() (net.Listener, error) {
+	return net.Listen("tcp", ":"+s.port)
+}
+
+func (s *Server) Start(ln net.Listener) error {
 	s.logger.Info("running grpc server", "port", s.port)
 
-	listen, err := net.Listen("tcp", ":"+s.port)
-	if err != nil {
-		return fmt.Errorf("failed to listen: %v", err)
-	}
-
-	if err := s.s.Serve(listen); err != nil {
+	if err := s.s.Serve(ln); err != nil {
 		return fmt.Errorf("failed to serve: %v", err)
 	}
 
 	s.logger.Info("server stopped")
 
 	return nil
+}
+
+func (s *Server) Stop() {
+	s.s.GracefulStop()
 }
