@@ -5,8 +5,8 @@
     "hide": "on_success",
   },
   {
-    "label": "Run templ generate && wails3 dev",
-    "command": "cd client/gui; go tool templ generate; wails3 dev",
+    "label": "Run dev",
+    "command": "cd client/gui; mise run dev",
     "hide": "on_success",
   },
 ]
