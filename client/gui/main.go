@@ -106,7 +106,14 @@ func newApplication(router *echo.Echo) *application.App {
 	return app
 }
 
-func newRouter(authService core.AuthorizationService, userService core.UserService, loginService core.LoginService) *echo.Echo {
+func newRouter(
+	authService core.AuthorizationService,
+	userService core.UserService,
+	loginService core.LoginService,
+	binaryService core.BinaryService,
+	noteService core.NoteService,
+	cardService core.CardService,
+) *echo.Echo {
 	e := echo.New()
 	e.Logger = slog.New(slog.NewTextHandler(os.Stdout, nil))
 	e.Use(middleware.RequestLogger())
@@ -117,6 +124,36 @@ func newRouter(authService core.AuthorizationService, userService core.UserServi
 
 	e.GET("/form/authorization", echo.WrapHandler(templ.Handler(components.AuthorizationForm("", ""))))
 	e.GET("/form/registration", echo.WrapHandler(templ.Handler(components.RegistrationForm("", ""))))
+	e.GET("/vault", func(c *echo.Context) error {
+		login := userService.GetUserLogin()
+
+		logins, err := loginService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+		}
+
+		binaries, err := binaryService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+		}
+
+		notes, err := noteService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+		}
+
+		cards, err := cardService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+		}
+
+		return render(c, components.Vault(login, components.VaultData{
+			Logins: logins,
+			Notes:  notes,
+			Binary: binaries,
+			Cards:  cards,
+		}, ""))
+	})
 	e.POST("/login", func(c *echo.Context) error {
 		var form LoginForm
 		if err := c.Bind(&form); err != nil {
@@ -130,12 +167,7 @@ func newRouter(authService core.AuthorizationService, userService core.UserServi
 
 		userService.SetInfo(form.Login, token)
 
-		logins, err := loginService.GetAll(c.Request().Context())
-		if err != nil {
-			return render(c, components.Vault(form.Login, nil, "Error while loading data: "+err.Error()))
-		}
-
-		return render(c, components.Vault(form.Login, logins, ""))
+		return c.Redirect(http.StatusFound, "/vault")
 	})
 	e.POST("/register", func(c *echo.Context) error {
 		var form RegisterForm
@@ -157,7 +189,7 @@ func newRouter(authService core.AuthorizationService, userService core.UserServi
 
 		userService.SetInfo(form.Login, token)
 
-		return render(c, components.Vault(form.Login, nil, ""))
+		return c.Redirect(http.StatusFound, "/vault")
 	})
 
 	return e

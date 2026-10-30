@@ -2,15 +2,57 @@ package components
 
 import "github.com/mkolibaba/gophkeeper/client/core"
 
-templ Vault(login string, logins []core.LoginData, errMsg string) {
+type VaultData struct {
+	Logins []core.LoginData
+	Notes  []core.NoteData
+	Binary []core.BinaryData
+	Cards  []core.CardData
+}
+
+templ Vault(login string, data VaultData, errMsg string) {
 	<section id="vault">
-		<h2>Привет, { login }!</h2>
-		<div>Ваши логины:</div>
-		<ul>
-			for _, l := range logins {
-				<li>{ l.Name } - { l.Login }</li>
-			}
-		</ul>
+		<p class="title is-1">Привет, { login }!</p>
+		<div class="table-contaier">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Name</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, l := range data.Logins {
+						<tr>
+							<th>Login</th>
+							<td>{ l.Name }</td>
+							<td>{ l.Login }</td>
+						</tr>
+					}
+					for _, n := range data.Notes {
+						<tr>
+							<th>Note</th>
+							<td>{ n.Name }</td>
+							<td>{ n.Text }</td>
+						</tr>
+					}
+					for _, b := range data.Binary {
+						<tr>
+							<th>Binary</th>
+							<td>{ b.Name }</td>
+							<td>(binary)</td>
+						</tr>
+					}
+					for _, c := range data.Cards {
+						<tr>
+							<th>Card</th>
+							<td>{ c.Name }</td>
+							<td>{ c.Number }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
 		if errMsg != "" {
 			<div class="error">{ errMsg }</div>
 		}
