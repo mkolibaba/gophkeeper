@@ -15,6 +15,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/client/core"
 	coremodule "github.com/mkolibaba/gophkeeper/client/core/module"
 	"github.com/mkolibaba/gophkeeper/client/gui/components"
+	"github.com/starfederation/datastar-go/datastar"
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"go.uber.org/fx"
 )
@@ -23,14 +24,14 @@ import (
 var assets embed.FS
 
 type LoginForm struct {
-	Login    string `form:"login"`
-	Password string `form:"password"`
+	Login    string `json:"login"`
+	Password string `json:"password"`
 }
 
 type RegisterForm struct {
-	Login    string `form:"login"`
-	Password string `form:"password"`
-	Repeat   string `form:"repeat"`
+	Login    string `json:"login"`
+	Password string `json:"password"`
+	Repeat   string `json:"repeat"`
 }
 
 func main() {
@@ -122,74 +123,123 @@ func newRouter(
 	e.File("/", "index.html")
 	e.Static("/static", ".")
 
-	e.GET("/form/authorization", echo.WrapHandler(templ.Handler(components.AuthorizationForm("", ""))))
-	e.GET("/form/registration", echo.WrapHandler(templ.Handler(components.RegistrationForm("", ""))))
-	e.GET("/vault", func(c *echo.Context) error {
-		login := userService.GetUserLogin()
+	e.GET("/form/authorization", datastarTemplWrapper(components.AuthorizationForm()))
+	e.GET("/form/registration", datastarTemplWrapper(components.RegistrationForm()))
 
+	e.POST("/login", func(c *echo.Context) error {
+		sse := datastar.NewSSE(c.Response(), c.Request())
+
+		var form LoginForm
+		if err := datastar.ReadSignals(c.Request(), &form); err != nil {
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Invalid request",
+			})
+		}
+
+		// Сбрасываем пароль на форме
+		sse.MarshalAndPatchSignals(map[string]any{
+			"password": "",
+		})
+
+		token, err := authService.Authorize(c.Request().Context(), form.Login, form.Password)
+		if err != nil {
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Invalid login and/or password",
+			})
+		}
+
+		userService.SetInfo(form.Login, token)
+
+		// TODO: поправить после исправления апи
 		logins, err := loginService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+			return render(c, components.Vault(components.VaultData{}))
 		}
 
 		binaries, err := binaryService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+			return render(c, components.Vault(components.VaultData{}))
 		}
 
 		notes, err := noteService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+			return render(c, components.Vault(components.VaultData{}))
 		}
 
 		cards, err := cardService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(login, components.VaultData{}, "Error while loading data: "+err.Error()))
+			return render(c, components.Vault(components.VaultData{}))
 		}
 
-		return render(c, components.Vault(login, components.VaultData{
+		return sse.PatchElementTempl(components.Vault(components.VaultData{
 			Logins: logins,
 			Notes:  notes,
 			Binary: binaries,
 			Cards:  cards,
-		}, ""))
-	})
-	e.POST("/login", func(c *echo.Context) error {
-		var form LoginForm
-		if err := c.Bind(&form); err != nil {
-			return render(c, components.AuthorizationForm("", "Invalid request"))
-		}
-
-		token, err := authService.Authorize(c.Request().Context(), form.Login, form.Password)
-		if err != nil {
-			return render(c, components.AuthorizationForm(form.Login, "Invalid login and/or password"))
-		}
-
-		userService.SetInfo(form.Login, token)
-
-		return c.Redirect(http.StatusFound, "/vault")
+		}))
 	})
 	e.POST("/register", func(c *echo.Context) error {
+		sse := datastar.NewSSE(c.Response(), c.Request())
+
 		var form RegisterForm
-		if err := c.Bind(&form); err != nil {
-			return render(c, components.RegistrationForm("", "Invalid request"))
+		if err := datastar.ReadSignals(c.Request(), &form); err != nil {
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Invalid request",
+			})
 		}
 
+		sse.MarshalAndPatchSignals(map[string]any{
+			"password": "",
+			"repeat":   "",
+		})
+
 		if form.Password == "" {
-			return render(c, components.RegistrationForm(form.Login, "Password should not be empty"))
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Password should not be empty",
+			})
 		}
 		if form.Password != form.Repeat {
-			return render(c, components.RegistrationForm(form.Login, "Passwords should match"))
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Passwords should match",
+			})
 		}
 
 		token, err := authService.Register(c.Request().Context(), form.Login, form.Password)
 		if err != nil {
-			return render(c, components.RegistrationForm(form.Login, "Can not register: "+err.Error()))
+			return sse.MarshalAndPatchSignals(map[string]any{
+				"errMsg": "Can not register: "+err.Error(),
+			})
 		}
 
 		userService.SetInfo(form.Login, token)
 
-		return c.Redirect(http.StatusFound, "/vault")
+		// TODO: поправить после исправления апи
+		logins, err := loginService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(components.VaultData{}))
+		}
+
+		binaries, err := binaryService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(components.VaultData{}))
+		}
+
+		notes, err := noteService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(components.VaultData{}))
+		}
+
+		cards, err := cardService.GetAll(c.Request().Context())
+		if err != nil {
+			return render(c, components.Vault(components.VaultData{}))
+		}
+
+		return sse.PatchElementTempl(components.Vault(components.VaultData{
+			Logins: logins,
+			Notes:  notes,
+			Binary: binaries,
+			Cards:  cards,
+		}))
 	})
 
 	return e
@@ -204,4 +254,11 @@ func render(c *echo.Context, t templ.Component) error {
 	}
 
 	return c.HTML(http.StatusOK, buf.String())
+}
+
+func datastarTemplWrapper(cmp templ.Component) echo.HandlerFunc {
+	return func(c *echo.Context) error {
+		sse := datastar.NewSSE(c.Response(), c.Request())
+		return sse.PatchElementTempl(cmp)
+	}
 }

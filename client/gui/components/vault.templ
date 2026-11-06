@@ -9,9 +9,9 @@ type VaultData struct {
 	Cards  []core.CardData
 }
 
-templ Vault(login string, data VaultData, errMsg string) {
-	<section id="vault">
-		<p class="title is-1">Привет, { login }!</p>
+templ Vault(data VaultData) {
+	<div id="container">
+		<p class="title is-1" data-text="`Привет, ${$login}!`"></p>
 		<div class="table-contaier">
 			<table class="table">
 				<thead>
@@ -53,8 +53,5 @@ templ Vault(login string, data VaultData, errMsg string) {
 				</tbody>
 			</table>
 		</div>
-		if errMsg != "" {
-			<div class="error">{ errMsg }</div>
-		}
-	</section>
+	</div>
 }

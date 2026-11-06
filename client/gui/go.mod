@@ -8,6 +8,7 @@ require (
 	github.com/a-h/templ v0.3.1100
 	github.com/labstack/echo/v5 v5.4.2
 	github.com/mkolibaba/gophkeeper/client/core v0.0.0-00010101000000-000000000000
+	github.com/starfederation/datastar-go v1.2.2
 	github.com/wailsapp/wails/v3 v3.0.0
 	go.uber.org/fx v1.24.0
 )
@@ -22,6 +23,7 @@ require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/AlekSi/pointer v1.2.0 // indirect
 	github.com/BurntSushi/toml v1.6.0 // indirect
+	github.com/CAFxX/httpcompression v0.0.9 // indirect
 	github.com/Ladicle/tabwriter v1.0.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
@@ -152,6 +154,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tc-hib/winres v0.3.1 // indirect
 	github.com/ulikunitz/xz v0.5.15 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/wailsapp/task/v3 v3.40.1-patched3 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect

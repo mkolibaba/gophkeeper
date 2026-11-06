@@ -8,20 +8,12 @@
             content="width=device-width, initial-scale=1.0, viewport-fit=cover"
         />
         <link rel="stylesheet" href="/static/bulma.css" />
-        <script src="/static/htmx.min.js"></script>
+        <script type="module" vite-ignore src="/static/datastar.min.js"></script>
         <title>Gophkeeper</title>
     </head>
     <body>
         <section class="section">
-            <div class="container">
-                <div
-                    id="initial"
-                    hx-get="/form/authorization"
-                    hx-trigger="load"
-                    hx-target="#initial"
-                    hx-swap="outerHTML"
-                ></div>
-            </div>
+            <div id="container" data-init="@get('/form/authorization')"></div>
         </section>
     </body>
 </html>

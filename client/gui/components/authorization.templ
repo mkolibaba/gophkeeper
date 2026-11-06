@@ -1,69 +1,45 @@
 package components
 
-templ AuthorizationForm(login string, errMsg string) {
-	<form
-		hx-post="/login"
-		hx-target="this"
-		hx-swap="outerHTML"
-	>
+templ AuthorizationForm() {
+	<div id="container" data-signals="{errMsg: ''}">
 		<p class="title is-1">Gophkeeper</p>
 		<p class="subtitle is-3">A simple credential manager</p>
-		@input("Login", "text", "login", "Enter login", login)
-		@input("Password", "password", "password", "Enter password", "")
-		if errMsg != "" {
-			<div class="error">{ errMsg }</div>
-		}
+		@input("Login", "text", "login", "Enter login")
+		@input("Password", "password", "password", "Enter password")
+		<div class="error" data-show="$errMsg" data-text="$errMsg"></div>
 		<div class="field is-grouped">
 			<div class="control">
-				<button class="button is-success" type="submit">Login</button>
+				<button class="button is-success" data-on:click="@post('/login')">Login</button>
 			</div>
 			<div class="control">
-				<button
-					class="button is-info"
-					type="button"
-					hx-get="/form/registration"
-					hx-target="closest form"
-					hx-swap="outerHTML"
-				>Register</button>
+				<button	class="button is-info" data-on:click="@get('/form/registration')">Register</button>
 			</div>
 		</div>
-	</form>
+	</div>
 }
 
-templ RegistrationForm(login string, errMsg string) {
-	<form
-		hx-post="/register"
-		hx-target="this"
-		hx-swap="outerHTML"
-	>
-		@input("Login", "text", "login", "Enter login", login)
-		@input("Password", "password", "password", "Enter password", "")
-		@input("Password (repeat)", "password", "repeat", "Repeat password", "")
-		if errMsg != "" {
-			<div class="error">{ errMsg }</div>
-		}
+templ RegistrationForm() {
+	<div id="container" data-signals="{errMsg: ''}">
+		@input("Login", "text", "login", "Enter login")
+		@input("Password", "password", "password", "Enter password")
+		@input("Password (repeat)", "password", "repeat", "Repeat password")
+		<div class="error" data-show="$errMsg" data-text="$errMsg"></div>
 		<div class="field is-grouped">
 			<div class="control">
-				<button class="button is-success" type="submit">Register</button>
+				<button class="button is-success" data-on:click="@post('/register')">Register</button>
 			</div>
 			<div class="control">
-				<button
-					class="button"
-					type="button"
-					hx-get="/form/authorization"
-					hx-target="closest form"
-					hx-swap="outerHTML"
-				>Back</button>
+				<button class="button" data-on:click="@get('/form/authorization')">Back</button>
 			</div>
 		</div>
-	</form>
+	</div>
 }
 
-templ input(label, typ, name, placeholder, value string) {
+templ input(label, typ, name, placeholder string) {
 	<div class="field">
 		<label class="label">{ label }</label>
 		<div class="control">
-			<input class="input" type={ typ } name={ name } placeholder={ placeholder } value={ value } required/>
+			<input class="input" type={ typ } placeholder={ placeholder } data-bind={ name } required/>
 		</div>
 	</div>
 }
