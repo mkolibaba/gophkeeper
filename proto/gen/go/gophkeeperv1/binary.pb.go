@@ -1007,13 +1007,13 @@ const file_binary_proto_rawDesc = "" +
 	"\x13UpdateBinaryRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05notes\x18\x03 \x01(\tR\x05notes2\xf1\x02\n" +
+	"\x05notes\x18\x03 \x01(\tR\x05notes2\xf6\x02\n" +
 	"\rBinaryService\x12A\n" +
 	"\x06Upload\x12\x1d.gophkeeper.SaveBinaryRequest\x1a\x16.google.protobuf.Empty(\x01\x12S\n" +
 	"\bDownload\x12!.gophkeeper.DownloadBinaryRequest\x1a\".gophkeeper.DownloadBinaryResponse0\x01\x12D\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\".gophkeeper.GetAllBinariesResponse\x12A\n" +
 	"\x06Update\x12\x1f.gophkeeper.UpdateBinaryRequest\x1a\x16.google.protobuf.Empty\x12?\n" +
-	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyBt\n" +
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x1a\x03\x88\x02\x01Bt\n" +
 	"\x0ecom.gophkeeperB\vBinaryProtoP\x01Z\r/gophkeeperv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gophkeeper\xca\x02\n" +
 	"Gophkeeper\xe2\x02\x16Gophkeeper\\GPBMetadata\xea\x02\n" +

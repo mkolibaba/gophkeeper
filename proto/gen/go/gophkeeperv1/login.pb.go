@@ -335,12 +335,12 @@ const file_login_proto_rawDesc = "" +
 	"\awebsite\x18\x05 \x01(\tR\awebsite\x12\x14\n" +
 	"\x05notes\x18\x06 \x01(\tR\x05notes\"A\n" +
 	"\x14GetAllLoginsResponse\x12)\n" +
-	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result2\xfb\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x11.gophkeeper.LoginR\x06result2\x80\x02\n" +
 	"\fLoginService\x121\n" +
 	"\x04Save\x12\x11.gophkeeper.Login\x1a\x16.google.protobuf.Empty\x12B\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a .gophkeeper.GetAllLoginsResponse\x123\n" +
 	"\x06Update\x12\x11.gophkeeper.Login\x1a\x16.google.protobuf.Empty\x12?\n" +
-	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyBs\n" +
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x1a\x03\x88\x02\x01Bs\n" +
 	"\x0ecom.gophkeeperB\n" +
 	"LoginProtoP\x01Z\r/gophkeeperv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gophkeeper\xca\x02\n" +

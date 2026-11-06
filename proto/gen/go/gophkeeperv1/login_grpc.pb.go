@@ -29,6 +29,8 @@ const (
 // LoginServiceClient is the client API for LoginService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Deprecated: Do not use.
 type LoginServiceClient interface {
 	Save(ctx context.Context, in *Login, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllLoginsResponse, error)
@@ -40,6 +42,7 @@ type loginServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
+// Deprecated: Do not use.
 func NewLoginServiceClient(cc grpc.ClientConnInterface) LoginServiceClient {
 	return &loginServiceClient{cc}
 }
@@ -87,6 +90,8 @@ func (c *loginServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, 
 // LoginServiceServer is the server API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
+//
+// Deprecated: Do not use.
 type LoginServiceServer interface {
 	Save(context.Context, *Login) (*emptypb.Empty, error)
 	GetAll(context.Context, *emptypb.Empty) (*GetAllLoginsResponse, error)
@@ -124,6 +129,7 @@ type UnsafeLoginServiceServer interface {
 	mustEmbedUnimplementedLoginServiceServer()
 }
 
+// Deprecated: Do not use.
 func RegisterLoginServiceServer(s grpc.ServiceRegistrar, srv LoginServiceServer) {
 	// If the following call panics, it indicates UnimplementedLoginServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an

@@ -1,7 +1,7 @@
 version: v2
 lint:
   use:
-    - STANDART
+    - STANDARD
 breaking:
   use:
     - FILE

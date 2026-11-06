@@ -19,6 +19,7 @@ message GetAllLoginsResponse {
 }
 
 service LoginService {
+    option deprecated = true;
   rpc Save(Login) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllLoginsResponse);
   rpc Update(Login) returns (google.protobuf.Empty);

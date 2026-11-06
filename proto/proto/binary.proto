@@ -48,9 +48,12 @@ message UpdateBinaryRequest {
 }
 
 service BinaryService {
+    option deprecated = true;
   rpc Upload(stream SaveBinaryRequest) returns (google.protobuf.Empty);
   rpc Download(DownloadBinaryRequest) returns (stream DownloadBinaryResponse);
   rpc GetAll(google.protobuf.Empty) returns (GetAllBinariesResponse);
   rpc Update(UpdateBinaryRequest) returns (google.protobuf.Empty);
   rpc Remove(RemoveDataRequest) returns (google.protobuf.Empty);
 }
+
+

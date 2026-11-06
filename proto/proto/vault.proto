@@ -1,0 +1,77 @@
+edition = "2023";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "binary.proto";
+import "card.proto";
+import "login.proto";
+import "note.proto";
+
+package gophkeeper;
+
+message Item {
+  string id = 1;
+  string name = 2;
+  string notes = 3;
+  google.protobuf.Timestamp updated_at = 4;
+
+  oneof data {
+    Binary binary = 10;
+    Card card = 11;
+    Login login = 12;
+    Note note = 13;
+  }
+}
+
+message Vault {
+    repeated Item items = 1;
+}
+
+message CreateItemRequest {
+    string name = 1;
+    string notes = 2;
+
+    oneof data {
+        Binary binary = 10;
+        Card card = 11;
+        Login login = 12;
+        Note note = 13;
+    }
+}
+
+message UpdateItemRequest {
+    string id = 1;
+    string name = 2;
+    string notes = 3;
+
+    oneof data {
+        Binary binary = 10;
+        Card card = 11;
+        Login login = 12;
+        Note note = 13;
+    }
+}
+
+enum ItemType {
+    BINARY = 0;
+    CARD = 1;
+    LOGIN = 2;
+    NOTE = 3;
+}
+
+message DeleteItemRequest {
+    string id = 1;
+    ItemType item_type = 2;
+}
+
+service VaultService {
+    rpc Get(google.protobuf.Empty) returns (Vault);
+    rpc CreateItem(CreateItemRequest) returns (Item);
+    rpc UpdateItem(UpdateItemRequest) returns (Item);
+    rpc DeleteItem(DeleteItemRequest) returns (google.protobuf.Empty);
+}
+
+service BlobService {
+    rpc Upload(stream SaveBinaryRequest) returns (google.protobuf.Empty);
+    rpc Download(DownloadBinaryRequest) returns (stream DownloadBinaryResponse);
+}

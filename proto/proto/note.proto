@@ -5,17 +5,14 @@ import "data.proto";
 
 package gophkeeper;
 
-message Note {
-  int64 id = 1;
-  string name = 2;
-  string text = 3;
-}
+cuuu
 
 message GetAllNotesResponse {
   repeated Note result = 1;
 }
 
 service NoteService {
+    option deprecated = true;
   rpc Save(Note) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllNotesResponse);
   rpc Update(Note) returns (google.protobuf.Empty);

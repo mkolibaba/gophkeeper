@@ -372,12 +372,12 @@ const file_card_proto_rawDesc = "" +
 	"cardholder\x12\x14\n" +
 	"\x05notes\x18\a \x01(\tR\x05notes\"?\n" +
 	"\x13GetAllCardsResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xf7\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.CardR\x06result2\xfc\x01\n" +
 	"\vCardService\x120\n" +
 	"\x04Save\x12\x10.gophkeeper.Card\x1a\x16.google.protobuf.Empty\x12A\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllCardsResponse\x122\n" +
 	"\x06Update\x12\x10.gophkeeper.Card\x1a\x16.google.protobuf.Empty\x12?\n" +
-	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyBr\n" +
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x1a\x03\x88\x02\x01Br\n" +
 	"\x0ecom.gophkeeperB\tCardProtoP\x01Z\r/gophkeeperv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gophkeeper\xca\x02\n" +
 	"Gophkeeper\xe2\x02\x16Gophkeeper\\GPBMetadata\xea\x02\n" +

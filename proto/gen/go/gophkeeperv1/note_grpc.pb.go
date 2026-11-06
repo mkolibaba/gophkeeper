@@ -29,6 +29,8 @@ const (
 // NoteServiceClient is the client API for NoteService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Deprecated: Do not use.
 type NoteServiceClient interface {
 	Save(ctx context.Context, in *Note, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllNotesResponse, error)
@@ -40,6 +42,7 @@ type noteServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
+// Deprecated: Do not use.
 func NewNoteServiceClient(cc grpc.ClientConnInterface) NoteServiceClient {
 	return &noteServiceClient{cc}
 }
@@ -87,6 +90,8 @@ func (c *noteServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, o
 // NoteServiceServer is the server API for NoteService service.
 // All implementations must embed UnimplementedNoteServiceServer
 // for forward compatibility.
+//
+// Deprecated: Do not use.
 type NoteServiceServer interface {
 	Save(context.Context, *Note) (*emptypb.Empty, error)
 	GetAll(context.Context, *emptypb.Empty) (*GetAllNotesResponse, error)
@@ -124,6 +129,7 @@ type UnsafeNoteServiceServer interface {
 	mustEmbedUnimplementedNoteServiceServer()
 }
 
+// Deprecated: Do not use.
 func RegisterNoteServiceServer(s grpc.ServiceRegistrar, srv NoteServiceServer) {
 	// If the following call panics, it indicates UnimplementedNoteServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an

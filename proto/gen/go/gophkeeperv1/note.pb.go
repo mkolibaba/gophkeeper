@@ -234,12 +234,12 @@ const file_note_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04text\x18\x03 \x01(\tR\x04text\"?\n" +
 	"\x13GetAllNotesResponse\x12(\n" +
-	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result2\xf7\x01\n" +
+	"\x06result\x18\x01 \x03(\v2\x10.gophkeeper.NoteR\x06result2\xfc\x01\n" +
 	"\vNoteService\x120\n" +
 	"\x04Save\x12\x10.gophkeeper.Note\x1a\x16.google.protobuf.Empty\x12A\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x1f.gophkeeper.GetAllNotesResponse\x122\n" +
 	"\x06Update\x12\x10.gophkeeper.Note\x1a\x16.google.protobuf.Empty\x12?\n" +
-	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.EmptyBr\n" +
+	"\x06Remove\x12\x1d.gophkeeper.RemoveDataRequest\x1a\x16.google.protobuf.Empty\x1a\x03\x88\x02\x01Br\n" +
 	"\x0ecom.gophkeeperB\tNoteProtoP\x01Z\r/gophkeeperv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gophkeeper\xca\x02\n" +
 	"Gophkeeper\xe2\x02\x16Gophkeeper\\GPBMetadata\xea\x02\n" +

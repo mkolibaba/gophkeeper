@@ -29,6 +29,8 @@ const (
 // CardServiceClient is the client API for CardService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Deprecated: Do not use.
 type CardServiceClient interface {
 	Save(ctx context.Context, in *Card, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetAll(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllCardsResponse, error)
@@ -40,6 +42,7 @@ type cardServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
+// Deprecated: Do not use.
 func NewCardServiceClient(cc grpc.ClientConnInterface) CardServiceClient {
 	return &cardServiceClient{cc}
 }
@@ -87,6 +90,8 @@ func (c *cardServiceClient) Remove(ctx context.Context, in *RemoveDataRequest, o
 // CardServiceServer is the server API for CardService service.
 // All implementations must embed UnimplementedCardServiceServer
 // for forward compatibility.
+//
+// Deprecated: Do not use.
 type CardServiceServer interface {
 	Save(context.Context, *Card) (*emptypb.Empty, error)
 	GetAll(context.Context, *emptypb.Empty) (*GetAllCardsResponse, error)
@@ -124,6 +129,7 @@ type UnsafeCardServiceServer interface {
 	mustEmbedUnimplementedCardServiceServer()
 }
 
+// Deprecated: Do not use.
 func RegisterCardServiceServer(s grpc.ServiceRegistrar, srv CardServiceServer) {
 	// If the following call panics, it indicates UnimplementedCardServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an

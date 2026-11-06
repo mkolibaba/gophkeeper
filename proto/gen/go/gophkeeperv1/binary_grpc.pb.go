@@ -30,6 +30,8 @@ const (
 // BinaryServiceClient is the client API for BinaryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+//
+// Deprecated: Do not use.
 type BinaryServiceClient interface {
 	Upload(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[SaveBinaryRequest, emptypb.Empty], error)
 	Download(ctx context.Context, in *DownloadBinaryRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DownloadBinaryResponse], error)
@@ -42,6 +44,7 @@ type binaryServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
+// Deprecated: Do not use.
 func NewBinaryServiceClient(cc grpc.ClientConnInterface) BinaryServiceClient {
 	return &binaryServiceClient{cc}
 }
@@ -111,6 +114,8 @@ func (c *binaryServiceClient) Remove(ctx context.Context, in *RemoveDataRequest,
 // BinaryServiceServer is the server API for BinaryService service.
 // All implementations must embed UnimplementedBinaryServiceServer
 // for forward compatibility.
+//
+// Deprecated: Do not use.
 type BinaryServiceServer interface {
 	Upload(grpc.ClientStreamingServer[SaveBinaryRequest, emptypb.Empty]) error
 	Download(*DownloadBinaryRequest, grpc.ServerStreamingServer[DownloadBinaryResponse]) error
@@ -152,6 +157,7 @@ type UnsafeBinaryServiceServer interface {
 	mustEmbedUnimplementedBinaryServiceServer()
 }
 
+// Deprecated: Do not use.
 func RegisterBinaryServiceServer(s grpc.ServiceRegistrar, srv BinaryServiceServer) {
 	// If the following call panics, it indicates UnimplementedBinaryServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an

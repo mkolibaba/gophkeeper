@@ -20,6 +20,7 @@ message GetAllCardsResponse {
 }
 
 service CardService {
+    option deprecated = true;
   rpc Save(Card) returns (google.protobuf.Empty);
   rpc GetAll(google.protobuf.Empty) returns (GetAllCardsResponse);
   rpc Update(Card) returns (google.protobuf.Empty);
