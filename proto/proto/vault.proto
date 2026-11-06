@@ -2,25 +2,43 @@ edition = "2023";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "binary.proto";
-import "card.proto";
-import "login.proto";
-import "note.proto";
 
 package gophkeeper;
 
-message Item {
-  string id = 1;
-  string name = 2;
-  string notes = 3;
-  google.protobuf.Timestamp updated_at = 4;
+message Binary {
+    string filename = 1;
+    int64 size = 2;
+}
 
-  oneof data {
-    Binary binary = 10;
-    Card card = 11;
-    Login login = 12;
-    Note note = 13;
-  }
+message Card {
+    string number = 1;
+    string exp_date = 2;
+    string cvv = 3;
+    string cardholder = 4;
+}
+
+message Login {
+    string login = 1;
+    string password = 2;
+    string website = 3;
+}
+
+message Note {
+    string text = 1;
+}
+
+message Item {
+    string id = 1;
+    string name = 2;
+    string notes = 3;
+    google.protobuf.Timestamp updated_at = 4;
+
+    oneof data {
+        Binary binary = 10;
+        Card card = 11;
+        Login login = 12;
+        Note note = 13;
+    }
 }
 
 message Vault {
@@ -52,16 +70,8 @@ message UpdateItemRequest {
     }
 }
 
-enum ItemType {
-    BINARY = 0;
-    CARD = 1;
-    LOGIN = 2;
-    NOTE = 3;
-}
-
 message DeleteItemRequest {
     string id = 1;
-    ItemType item_type = 2;
 }
 
 service VaultService {
@@ -71,7 +81,4 @@ service VaultService {
     rpc DeleteItem(DeleteItemRequest) returns (google.protobuf.Empty);
 }
 
-service BlobService {
-    rpc Upload(stream SaveBinaryRequest) returns (google.protobuf.Empty);
-    rpc Download(DownloadBinaryRequest) returns (stream DownloadBinaryResponse);
-}
+// обмен бинарными данными ведется через google/bytestream/bytestream.proto

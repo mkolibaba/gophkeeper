@@ -22,51 +22,511 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ItemType int32
+type Binary struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Filename    *string                `protobuf:"bytes,1,opt,name=filename"`
+	xxx_hidden_Size        int64                  `protobuf:"varint,2,opt,name=size"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
 
-const (
-	ItemType_BINARY ItemType = 0
-	ItemType_CARD   ItemType = 1
-	ItemType_LOGIN  ItemType = 2
-	ItemType_NOTE   ItemType = 3
-)
+func (x *Binary) Reset() {
+	*x = Binary{}
+	mi := &file_vault_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
 
-// Enum value maps for ItemType.
-var (
-	ItemType_name = map[int32]string{
-		0: "BINARY",
-		1: "CARD",
-		2: "LOGIN",
-		3: "NOTE",
+func (x *Binary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Binary) ProtoMessage() {}
+
+func (x *Binary) ProtoReflect() protoreflect.Message {
+	mi := &file_vault_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	ItemType_value = map[string]int32{
-		"BINARY": 0,
-		"CARD":   1,
-		"LOGIN":  2,
-		"NOTE":   3,
+	return mi.MessageOf(x)
+}
+
+func (x *Binary) GetFilename() string {
+	if x != nil {
+		if x.xxx_hidden_Filename != nil {
+			return *x.xxx_hidden_Filename
+		}
+		return ""
 	}
-)
-
-func (x ItemType) Enum() *ItemType {
-	p := new(ItemType)
-	*p = x
-	return p
+	return ""
 }
 
-func (x ItemType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+func (x *Binary) GetSize() int64 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
 }
 
-func (ItemType) Descriptor() protoreflect.EnumDescriptor {
-	return file_vault_proto_enumTypes[0].Descriptor()
+func (x *Binary) SetFilename(v string) {
+	x.xxx_hidden_Filename = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
 }
 
-func (ItemType) Type() protoreflect.EnumType {
-	return &file_vault_proto_enumTypes[0]
+func (x *Binary) SetSize(v int64) {
+	x.xxx_hidden_Size = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
-func (x ItemType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
+func (x *Binary) HasFilename() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *Binary) HasSize() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *Binary) ClearFilename() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Filename = nil
+}
+
+func (x *Binary) ClearSize() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Size = 0
+}
+
+type Binary_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Filename *string
+	Size     *int64
+}
+
+func (b0 Binary_builder) Build() *Binary {
+	m0 := &Binary{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Filename != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_Filename = b.Filename
+	}
+	if b.Size != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_Size = *b.Size
+	}
+	return m0
+}
+
+type Card struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Number      *string                `protobuf:"bytes,1,opt,name=number"`
+	xxx_hidden_ExpDate     *string                `protobuf:"bytes,2,opt,name=exp_date,json=expDate"`
+	xxx_hidden_Cvv         *string                `protobuf:"bytes,3,opt,name=cvv"`
+	xxx_hidden_Cardholder  *string                `protobuf:"bytes,4,opt,name=cardholder"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Card) Reset() {
+	*x = Card{}
+	mi := &file_vault_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Card) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Card) ProtoMessage() {}
+
+func (x *Card) ProtoReflect() protoreflect.Message {
+	mi := &file_vault_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Card) GetNumber() string {
+	if x != nil {
+		if x.xxx_hidden_Number != nil {
+			return *x.xxx_hidden_Number
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Card) GetExpDate() string {
+	if x != nil {
+		if x.xxx_hidden_ExpDate != nil {
+			return *x.xxx_hidden_ExpDate
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Card) GetCvv() string {
+	if x != nil {
+		if x.xxx_hidden_Cvv != nil {
+			return *x.xxx_hidden_Cvv
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Card) GetCardholder() string {
+	if x != nil {
+		if x.xxx_hidden_Cardholder != nil {
+			return *x.xxx_hidden_Cardholder
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Card) SetNumber(v string) {
+	x.xxx_hidden_Number = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+}
+
+func (x *Card) SetExpDate(v string) {
+	x.xxx_hidden_ExpDate = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+}
+
+func (x *Card) SetCvv(v string) {
+	x.xxx_hidden_Cvv = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+}
+
+func (x *Card) SetCardholder(v string) {
+	x.xxx_hidden_Cardholder = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+}
+
+func (x *Card) HasNumber() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *Card) HasExpDate() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *Card) HasCvv() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *Card) HasCardholder() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *Card) ClearNumber() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Number = nil
+}
+
+func (x *Card) ClearExpDate() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_ExpDate = nil
+}
+
+func (x *Card) ClearCvv() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Cvv = nil
+}
+
+func (x *Card) ClearCardholder() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Cardholder = nil
+}
+
+type Card_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Number     *string
+	ExpDate    *string
+	Cvv        *string
+	Cardholder *string
+}
+
+func (b0 Card_builder) Build() *Card {
+	m0 := &Card{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Number != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		x.xxx_hidden_Number = b.Number
+	}
+	if b.ExpDate != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		x.xxx_hidden_ExpDate = b.ExpDate
+	}
+	if b.Cvv != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		x.xxx_hidden_Cvv = b.Cvv
+	}
+	if b.Cardholder != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		x.xxx_hidden_Cardholder = b.Cardholder
+	}
+	return m0
+}
+
+type Login struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Login       *string                `protobuf:"bytes,1,opt,name=login"`
+	xxx_hidden_Password    *string                `protobuf:"bytes,2,opt,name=password"`
+	xxx_hidden_Website     *string                `protobuf:"bytes,3,opt,name=website"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Login) Reset() {
+	*x = Login{}
+	mi := &file_vault_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Login) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Login) ProtoMessage() {}
+
+func (x *Login) ProtoReflect() protoreflect.Message {
+	mi := &file_vault_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Login) GetLogin() string {
+	if x != nil {
+		if x.xxx_hidden_Login != nil {
+			return *x.xxx_hidden_Login
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Login) GetPassword() string {
+	if x != nil {
+		if x.xxx_hidden_Password != nil {
+			return *x.xxx_hidden_Password
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Login) GetWebsite() string {
+	if x != nil {
+		if x.xxx_hidden_Website != nil {
+			return *x.xxx_hidden_Website
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Login) SetLogin(v string) {
+	x.xxx_hidden_Login = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *Login) SetPassword(v string) {
+	x.xxx_hidden_Password = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *Login) SetWebsite(v string) {
+	x.xxx_hidden_Website = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *Login) HasLogin() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *Login) HasPassword() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *Login) HasWebsite() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *Login) ClearLogin() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Login = nil
+}
+
+func (x *Login) ClearPassword() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Password = nil
+}
+
+func (x *Login) ClearWebsite() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Website = nil
+}
+
+type Login_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Login    *string
+	Password *string
+	Website  *string
+}
+
+func (b0 Login_builder) Build() *Login {
+	m0 := &Login{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Login != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_Login = b.Login
+	}
+	if b.Password != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Password = b.Password
+	}
+	if b.Website != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_Website = b.Website
+	}
+	return m0
+}
+
+type Note struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Text        *string                `protobuf:"bytes,1,opt,name=text"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Note) Reset() {
+	*x = Note{}
+	mi := &file_vault_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Note) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Note) ProtoMessage() {}
+
+func (x *Note) ProtoReflect() protoreflect.Message {
+	mi := &file_vault_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Note) GetText() string {
+	if x != nil {
+		if x.xxx_hidden_Text != nil {
+			return *x.xxx_hidden_Text
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *Note) SetText(v string) {
+	x.xxx_hidden_Text = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *Note) HasText() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *Note) ClearText() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Text = nil
+}
+
+type Note_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Text *string
+}
+
+func (b0 Note_builder) Build() *Note {
+	m0 := &Note{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Text != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Text = b.Text
+	}
+	return m0
 }
 
 type Item struct {
@@ -84,7 +544,7 @@ type Item struct {
 
 func (x *Item) Reset() {
 	*x = Item{}
-	mi := &file_vault_proto_msgTypes[0]
+	mi := &file_vault_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -96,7 +556,7 @@ func (x *Item) String() string {
 func (*Item) ProtoMessage() {}
 
 func (x *Item) ProtoReflect() protoreflect.Message {
-	mi := &file_vault_proto_msgTypes[0]
+	mi := &file_vault_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -419,7 +879,7 @@ func (b0 Item_builder) Build() *Item {
 type case_Item_Data protoreflect.FieldNumber
 
 func (x case_Item_Data) String() string {
-	md := file_vault_proto_msgTypes[0].Descriptor()
+	md := file_vault_proto_msgTypes[4].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -463,7 +923,7 @@ type Vault struct {
 
 func (x *Vault) Reset() {
 	*x = Vault{}
-	mi := &file_vault_proto_msgTypes[1]
+	mi := &file_vault_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -475,7 +935,7 @@ func (x *Vault) String() string {
 func (*Vault) ProtoMessage() {}
 
 func (x *Vault) ProtoReflect() protoreflect.Message {
-	mi := &file_vault_proto_msgTypes[1]
+	mi := &file_vault_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -526,7 +986,7 @@ type CreateItemRequest struct {
 
 func (x *CreateItemRequest) Reset() {
 	*x = CreateItemRequest{}
-	mi := &file_vault_proto_msgTypes[2]
+	mi := &file_vault_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -538,7 +998,7 @@ func (x *CreateItemRequest) String() string {
 func (*CreateItemRequest) ProtoMessage() {}
 
 func (x *CreateItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_vault_proto_msgTypes[2]
+	mi := &file_vault_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -805,7 +1265,7 @@ func (b0 CreateItemRequest_builder) Build() *CreateItemRequest {
 type case_CreateItemRequest_Data protoreflect.FieldNumber
 
 func (x case_CreateItemRequest_Data) String() string {
-	md := file_vault_proto_msgTypes[2].Descriptor()
+	md := file_vault_proto_msgTypes[6].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -854,7 +1314,7 @@ type UpdateItemRequest struct {
 
 func (x *UpdateItemRequest) Reset() {
 	*x = UpdateItemRequest{}
-	mi := &file_vault_proto_msgTypes[3]
+	mi := &file_vault_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -866,7 +1326,7 @@ func (x *UpdateItemRequest) String() string {
 func (*UpdateItemRequest) ProtoMessage() {}
 
 func (x *UpdateItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_vault_proto_msgTypes[3]
+	mi := &file_vault_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1165,7 +1625,7 @@ func (b0 UpdateItemRequest_builder) Build() *UpdateItemRequest {
 type case_UpdateItemRequest_Data protoreflect.FieldNumber
 
 func (x case_UpdateItemRequest_Data) String() string {
-	md := file_vault_proto_msgTypes[3].Descriptor()
+	md := file_vault_proto_msgTypes[7].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -1203,7 +1663,6 @@ func (*updateItemRequest_Note) isUpdateItemRequest_Data() {}
 type DeleteItemRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_ItemType    ItemType               `protobuf:"varint,2,opt,name=item_type,json=itemType,enum=gophkeeper.ItemType"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -1212,7 +1671,7 @@ type DeleteItemRequest struct {
 
 func (x *DeleteItemRequest) Reset() {
 	*x = DeleteItemRequest{}
-	mi := &file_vault_proto_msgTypes[4]
+	mi := &file_vault_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1224,7 +1683,7 @@ func (x *DeleteItemRequest) String() string {
 func (*DeleteItemRequest) ProtoMessage() {}
 
 func (x *DeleteItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_vault_proto_msgTypes[4]
+	mi := &file_vault_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1245,23 +1704,9 @@ func (x *DeleteItemRequest) GetId() string {
 	return ""
 }
 
-func (x *DeleteItemRequest) GetItemType() ItemType {
-	if x != nil {
-		if protoimpl.X.Present(&(x.XXX_presence[0]), 1) {
-			return x.xxx_hidden_ItemType
-		}
-	}
-	return ItemType_BINARY
-}
-
 func (x *DeleteItemRequest) SetId(v string) {
 	x.xxx_hidden_Id = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
-}
-
-func (x *DeleteItemRequest) SetItemType(v ItemType) {
-	x.xxx_hidden_ItemType = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
 }
 
 func (x *DeleteItemRequest) HasId() bool {
@@ -1271,28 +1716,15 @@ func (x *DeleteItemRequest) HasId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *DeleteItemRequest) HasItemType() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
-}
-
 func (x *DeleteItemRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
 }
 
-func (x *DeleteItemRequest) ClearItemType() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_ItemType = ItemType_BINARY
-}
-
 type DeleteItemRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id       *string
-	ItemType *ItemType
+	Id *string
 }
 
 func (b0 DeleteItemRequest_builder) Build() *DeleteItemRequest {
@@ -1300,12 +1732,8 @@ func (b0 DeleteItemRequest_builder) Build() *DeleteItemRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
 		x.xxx_hidden_Id = b.Id
-	}
-	if b.ItemType != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
-		x.xxx_hidden_ItemType = *b.ItemType
 	}
 	return m0
 }
@@ -1315,9 +1743,23 @@ var File_vault_proto protoreflect.FileDescriptor
 const file_vault_proto_rawDesc = "" +
 	"\n" +
 	"\vvault.proto\x12\n" +
-	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fbinary.proto\x1a\n" +
-	"card.proto\x1a\vlogin.proto\x1a\n" +
-	"note.proto\"\xac\x02\n" +
+	"gophkeeper\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"8\n" +
+	"\x06Binary\x12\x1a\n" +
+	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x12\n" +
+	"\x04size\x18\x02 \x01(\x03R\x04size\"k\n" +
+	"\x04Card\x12\x16\n" +
+	"\x06number\x18\x01 \x01(\tR\x06number\x12\x19\n" +
+	"\bexp_date\x18\x02 \x01(\tR\aexpDate\x12\x10\n" +
+	"\x03cvv\x18\x03 \x01(\tR\x03cvv\x12\x1e\n" +
+	"\n" +
+	"cardholder\x18\x04 \x01(\tR\n" +
+	"cardholder\"S\n" +
+	"\x05Login\x12\x14\n" +
+	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x18\n" +
+	"\awebsite\x18\x03 \x01(\tR\awebsite\"\x1a\n" +
+	"\x04Note\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"\xac\x02\n" +
 	"\x04Item\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1350,16 +1792,9 @@ const file_vault_proto_rawDesc = "" +
 	"\x04card\x18\v \x01(\v2\x10.gophkeeper.CardH\x00R\x04card\x12)\n" +
 	"\x05login\x18\f \x01(\v2\x11.gophkeeper.LoginH\x00R\x05login\x12&\n" +
 	"\x04note\x18\r \x01(\v2\x10.gophkeeper.NoteH\x00R\x04noteB\x06\n" +
-	"\x04data\"V\n" +
+	"\x04data\"#\n" +
 	"\x11DeleteItemRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x121\n" +
-	"\titem_type\x18\x02 \x01(\x0e2\x14.gophkeeper.ItemTypeR\bitemType*5\n" +
-	"\bItemType\x12\n" +
-	"\n" +
-	"\x06BINARY\x10\x00\x12\b\n" +
-	"\x04CARD\x10\x01\x12\t\n" +
-	"\x05LOGIN\x10\x02\x12\b\n" +
-	"\x04NOTE\x10\x032\x83\x02\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id2\x83\x02\n" +
 	"\fVaultService\x120\n" +
 	"\x03Get\x12\x16.google.protobuf.Empty\x1a\x11.gophkeeper.Vault\x12=\n" +
 	"\n" +
@@ -1367,68 +1802,55 @@ const file_vault_proto_rawDesc = "" +
 	"\n" +
 	"UpdateItem\x12\x1d.gophkeeper.UpdateItemRequest\x1a\x10.gophkeeper.Item\x12C\n" +
 	"\n" +
-	"DeleteItem\x12\x1d.gophkeeper.DeleteItemRequest\x1a\x16.google.protobuf.Empty2\xa5\x01\n" +
-	"\vBlobService\x12A\n" +
-	"\x06Upload\x12\x1d.gophkeeper.SaveBinaryRequest\x1a\x16.google.protobuf.Empty(\x01\x12S\n" +
-	"\bDownload\x12!.gophkeeper.DownloadBinaryRequest\x1a\".gophkeeper.DownloadBinaryResponse0\x01Bs\n" +
+	"DeleteItem\x12\x1d.gophkeeper.DeleteItemRequest\x1a\x16.google.protobuf.EmptyBs\n" +
 	"\x0ecom.gophkeeperB\n" +
 	"VaultProtoP\x01Z\r/gophkeeperv1\xa2\x02\x03GXX\xaa\x02\n" +
 	"Gophkeeper\xca\x02\n" +
 	"Gophkeeper\xe2\x02\x16Gophkeeper\\GPBMetadata\xea\x02\n" +
 	"Gophkeeperb\beditionsp\xe8\a"
 
-var file_vault_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_vault_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_vault_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_vault_proto_goTypes = []any{
-	(ItemType)(0),                  // 0: gophkeeper.ItemType
-	(*Item)(nil),                   // 1: gophkeeper.Item
-	(*Vault)(nil),                  // 2: gophkeeper.Vault
-	(*CreateItemRequest)(nil),      // 3: gophkeeper.CreateItemRequest
-	(*UpdateItemRequest)(nil),      // 4: gophkeeper.UpdateItemRequest
-	(*DeleteItemRequest)(nil),      // 5: gophkeeper.DeleteItemRequest
-	(*timestamppb.Timestamp)(nil),  // 6: google.protobuf.Timestamp
-	(*Binary)(nil),                 // 7: gophkeeper.Binary
-	(*Card)(nil),                   // 8: gophkeeper.Card
-	(*Login)(nil),                  // 9: gophkeeper.Login
-	(*Note)(nil),                   // 10: gophkeeper.Note
-	(*emptypb.Empty)(nil),          // 11: google.protobuf.Empty
-	(*SaveBinaryRequest)(nil),      // 12: gophkeeper.SaveBinaryRequest
-	(*DownloadBinaryRequest)(nil),  // 13: gophkeeper.DownloadBinaryRequest
-	(*DownloadBinaryResponse)(nil), // 14: gophkeeper.DownloadBinaryResponse
+	(*Binary)(nil),                // 0: gophkeeper.Binary
+	(*Card)(nil),                  // 1: gophkeeper.Card
+	(*Login)(nil),                 // 2: gophkeeper.Login
+	(*Note)(nil),                  // 3: gophkeeper.Note
+	(*Item)(nil),                  // 4: gophkeeper.Item
+	(*Vault)(nil),                 // 5: gophkeeper.Vault
+	(*CreateItemRequest)(nil),     // 6: gophkeeper.CreateItemRequest
+	(*UpdateItemRequest)(nil),     // 7: gophkeeper.UpdateItemRequest
+	(*DeleteItemRequest)(nil),     // 8: gophkeeper.DeleteItemRequest
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 10: google.protobuf.Empty
 }
 var file_vault_proto_depIdxs = []int32{
-	6,  // 0: gophkeeper.Item.updated_at:type_name -> google.protobuf.Timestamp
-	7,  // 1: gophkeeper.Item.binary:type_name -> gophkeeper.Binary
-	8,  // 2: gophkeeper.Item.card:type_name -> gophkeeper.Card
-	9,  // 3: gophkeeper.Item.login:type_name -> gophkeeper.Login
-	10, // 4: gophkeeper.Item.note:type_name -> gophkeeper.Note
-	1,  // 5: gophkeeper.Vault.items:type_name -> gophkeeper.Item
-	7,  // 6: gophkeeper.CreateItemRequest.binary:type_name -> gophkeeper.Binary
-	8,  // 7: gophkeeper.CreateItemRequest.card:type_name -> gophkeeper.Card
-	9,  // 8: gophkeeper.CreateItemRequest.login:type_name -> gophkeeper.Login
-	10, // 9: gophkeeper.CreateItemRequest.note:type_name -> gophkeeper.Note
-	7,  // 10: gophkeeper.UpdateItemRequest.binary:type_name -> gophkeeper.Binary
-	8,  // 11: gophkeeper.UpdateItemRequest.card:type_name -> gophkeeper.Card
-	9,  // 12: gophkeeper.UpdateItemRequest.login:type_name -> gophkeeper.Login
-	10, // 13: gophkeeper.UpdateItemRequest.note:type_name -> gophkeeper.Note
-	0,  // 14: gophkeeper.DeleteItemRequest.item_type:type_name -> gophkeeper.ItemType
-	11, // 15: gophkeeper.VaultService.Get:input_type -> google.protobuf.Empty
-	3,  // 16: gophkeeper.VaultService.CreateItem:input_type -> gophkeeper.CreateItemRequest
-	4,  // 17: gophkeeper.VaultService.UpdateItem:input_type -> gophkeeper.UpdateItemRequest
-	5,  // 18: gophkeeper.VaultService.DeleteItem:input_type -> gophkeeper.DeleteItemRequest
-	12, // 19: gophkeeper.BlobService.Upload:input_type -> gophkeeper.SaveBinaryRequest
-	13, // 20: gophkeeper.BlobService.Download:input_type -> gophkeeper.DownloadBinaryRequest
-	2,  // 21: gophkeeper.VaultService.Get:output_type -> gophkeeper.Vault
-	1,  // 22: gophkeeper.VaultService.CreateItem:output_type -> gophkeeper.Item
-	1,  // 23: gophkeeper.VaultService.UpdateItem:output_type -> gophkeeper.Item
-	11, // 24: gophkeeper.VaultService.DeleteItem:output_type -> google.protobuf.Empty
-	11, // 25: gophkeeper.BlobService.Upload:output_type -> google.protobuf.Empty
-	14, // 26: gophkeeper.BlobService.Download:output_type -> gophkeeper.DownloadBinaryResponse
-	21, // [21:27] is the sub-list for method output_type
-	15, // [15:21] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	9,  // 0: gophkeeper.Item.updated_at:type_name -> google.protobuf.Timestamp
+	0,  // 1: gophkeeper.Item.binary:type_name -> gophkeeper.Binary
+	1,  // 2: gophkeeper.Item.card:type_name -> gophkeeper.Card
+	2,  // 3: gophkeeper.Item.login:type_name -> gophkeeper.Login
+	3,  // 4: gophkeeper.Item.note:type_name -> gophkeeper.Note
+	4,  // 5: gophkeeper.Vault.items:type_name -> gophkeeper.Item
+	0,  // 6: gophkeeper.CreateItemRequest.binary:type_name -> gophkeeper.Binary
+	1,  // 7: gophkeeper.CreateItemRequest.card:type_name -> gophkeeper.Card
+	2,  // 8: gophkeeper.CreateItemRequest.login:type_name -> gophkeeper.Login
+	3,  // 9: gophkeeper.CreateItemRequest.note:type_name -> gophkeeper.Note
+	0,  // 10: gophkeeper.UpdateItemRequest.binary:type_name -> gophkeeper.Binary
+	1,  // 11: gophkeeper.UpdateItemRequest.card:type_name -> gophkeeper.Card
+	2,  // 12: gophkeeper.UpdateItemRequest.login:type_name -> gophkeeper.Login
+	3,  // 13: gophkeeper.UpdateItemRequest.note:type_name -> gophkeeper.Note
+	10, // 14: gophkeeper.VaultService.Get:input_type -> google.protobuf.Empty
+	6,  // 15: gophkeeper.VaultService.CreateItem:input_type -> gophkeeper.CreateItemRequest
+	7,  // 16: gophkeeper.VaultService.UpdateItem:input_type -> gophkeeper.UpdateItemRequest
+	8,  // 17: gophkeeper.VaultService.DeleteItem:input_type -> gophkeeper.DeleteItemRequest
+	5,  // 18: gophkeeper.VaultService.Get:output_type -> gophkeeper.Vault
+	4,  // 19: gophkeeper.VaultService.CreateItem:output_type -> gophkeeper.Item
+	4,  // 20: gophkeeper.VaultService.UpdateItem:output_type -> gophkeeper.Item
+	10, // 21: gophkeeper.VaultService.DeleteItem:output_type -> google.protobuf.Empty
+	18, // [18:22] is the sub-list for method output_type
+	14, // [14:18] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_vault_proto_init() }
@@ -1436,23 +1858,19 @@ func file_vault_proto_init() {
 	if File_vault_proto != nil {
 		return
 	}
-	file_binary_proto_init()
-	file_card_proto_init()
-	file_login_proto_init()
-	file_note_proto_init()
-	file_vault_proto_msgTypes[0].OneofWrappers = []any{
+	file_vault_proto_msgTypes[4].OneofWrappers = []any{
 		(*item_Binary)(nil),
 		(*item_Card)(nil),
 		(*item_Login)(nil),
 		(*item_Note)(nil),
 	}
-	file_vault_proto_msgTypes[2].OneofWrappers = []any{
+	file_vault_proto_msgTypes[6].OneofWrappers = []any{
 		(*createItemRequest_Binary)(nil),
 		(*createItemRequest_Card)(nil),
 		(*createItemRequest_Login)(nil),
 		(*createItemRequest_Note)(nil),
 	}
-	file_vault_proto_msgTypes[3].OneofWrappers = []any{
+	file_vault_proto_msgTypes[7].OneofWrappers = []any{
 		(*updateItemRequest_Binary)(nil),
 		(*updateItemRequest_Card)(nil),
 		(*updateItemRequest_Login)(nil),
@@ -1463,14 +1881,13 @@ func file_vault_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_vault_proto_rawDesc), len(file_vault_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   5,
+			NumEnums:      0,
+			NumMessages:   9,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   1,
 		},
 		GoTypes:           file_vault_proto_goTypes,
 		DependencyIndexes: file_vault_proto_depIdxs,
-		EnumInfos:         file_vault_proto_enumTypes,
 		MessageInfos:      file_vault_proto_msgTypes,
 	}.Build()
 	File_vault_proto = out.File
