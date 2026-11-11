@@ -153,22 +153,22 @@ func newRouter(
 		// TODO: поправить после исправления апи
 		logins, err := loginService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		binaries, err := binaryService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		notes, err := noteService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		cards, err := cardService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		return sse.PatchElementTempl(components.Vault(components.VaultData{
@@ -216,22 +216,22 @@ func newRouter(
 		// TODO: поправить после исправления апи
 		logins, err := loginService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		binaries, err := binaryService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		notes, err := noteService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		cards, err := cardService.GetAll(c.Request().Context())
 		if err != nil {
-			return render(c, components.Vault(components.VaultData{}))
+			// return render(c, components.Vault(components.VaultData{}))
 		}
 
 		return sse.PatchElementTempl(components.Vault(components.VaultData{
@@ -243,17 +243,6 @@ func newRouter(
 	})
 
 	return e
-}
-
-func render(c *echo.Context, t templ.Component) error {
-	buf := templ.GetBuffer()
-	defer templ.ReleaseBuffer(buf)
-
-	if err := t.Render(c.Request().Context(), buf); err != nil {
-		return err
-	}
-
-	return c.HTML(http.StatusOK, buf.String())
 }
 
 func datastarTemplWrapper(cmp templ.Component) echo.HandlerFunc {
