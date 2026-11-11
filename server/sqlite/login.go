@@ -5,10 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
+
+var _ server.LoginService = (*LoginService)(nil)
 
 type LoginService struct {
 	qs        *sqlc.Queries
@@ -22,35 +26,35 @@ func NewLoginService(queries *sqlc.Queries, converter converter.DataConverter) *
 	}
 }
 
-func (s *LoginService) Create(ctx context.Context, data server.LoginData) error {
-	_, err := s.qs.InsertLogin(ctx, s.converter.ConvertToInsertLogin(ctx, data))
-	return unwrapInsertError(err)
+func (s *LoginService) Create(ctx context.Context, data server.LoginData) (int64, time.Time, error) {
+	result, err := s.qs.InsertLogin(ctx, s.converter.ConvertToInsertLogin(ctx, data))
+	return result.ID, time.Unix(result.UpdatedAt, 0), unwrapInsertError(err)
 }
 
 func (s *LoginService) GetAll(ctx context.Context) ([]server.LoginData, error) {
 	return getAllData(ctx, s.qs.SelectLogins, s.converter.ConvertToLoginDataSlice)
 }
 
-func (s *LoginService) Update(ctx context.Context, id int64, data server.LoginDataUpdate) error {
+func (s *LoginService) Update(ctx context.Context, id int64, data server.LoginDataUpdate) (time.Time, error) {
 	login, err := s.qs.SelectLogin(ctx, id, server.UserFromContext(ctx))
 	if errors.Is(err, sql.ErrNoRows) {
-		return server.ErrDataNotFound
+		return time.Time{}, server.ErrDataNotFound
 	}
 	if err != nil {
-		return fmt.Errorf("update: %w", err)
+		return time.Time{}, fmt.Errorf("update: %w", err)
 	}
 
 	params := s.converter.ConvertToUpdateLogin(login)
 	s.converter.ConvertToUpdateLoginUpdate(data, &params)
 
-	n, err := s.qs.UpdateLogin(ctx, params)
-	if n == 0 {
-		return server.ErrDataNotFound
-	}
+	updatedAt, err := s.qs.UpdateLogin(ctx, params)
 	if err != nil {
-		return fmt.Errorf("update: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return time.Time{}, server.ErrDataNotFound
+		}
+		return time.Time{}, fmt.Errorf("update: %w", err)
 	}
-	return nil
+	return time.Unix(updatedAt, 0), nil
 }
 
 func (s *LoginService) Remove(ctx context.Context, id int64) error {

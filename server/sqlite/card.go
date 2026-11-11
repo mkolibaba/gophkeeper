@@ -5,10 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/sqlite/converter"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
+
+var _ server.CardService = (*CardService)(nil)
 
 type CardService struct {
 	qs        *sqlc.Queries
@@ -22,35 +26,35 @@ func NewCardService(queries *sqlc.Queries, converter converter.DataConverter) *C
 	}
 }
 
-func (s *CardService) Create(ctx context.Context, data server.CardData) error {
-	_, err := s.qs.InsertCard(ctx, s.converter.ConvertToInsertCard(ctx, data))
-	return unwrapInsertError(err)
+func (s *CardService) Create(ctx context.Context, data server.CardData) (int64, time.Time, error) {
+	result, err := s.qs.InsertCard(ctx, s.converter.ConvertToInsertCard(ctx, data))
+	return result.ID, time.Unix(result.UpdatedAt, 0), unwrapInsertError(err)
 }
 
 func (s *CardService) GetAll(ctx context.Context) ([]server.CardData, error) {
 	return getAllData(ctx, s.qs.SelectCards, s.converter.ConvertToCardDataSlice)
 }
 
-func (s *CardService) Update(ctx context.Context, id int64, data server.CardDataUpdate) error {
+func (s *CardService) Update(ctx context.Context, id int64, data server.CardDataUpdate) (time.Time, error) {
 	card, err := s.qs.SelectCard(ctx, id, server.UserFromContext(ctx))
 	if errors.Is(err, sql.ErrNoRows) {
-		return server.ErrDataNotFound
+		return time.Time{}, server.ErrDataNotFound
 	}
 	if err != nil {
-		return fmt.Errorf("update: %w", err)
+		return time.Time{}, fmt.Errorf("update: %w", err)
 	}
 
 	params := s.converter.ConvertToUpdateCard(card)
 	s.converter.ConvertToUpdateCardUpdate(data, &params)
 
-	n, err := s.qs.UpdateCard(ctx, params)
-	if n == 0 {
-		return server.ErrDataNotFound
-	}
+	updatedAt, err := s.qs.UpdateCard(ctx, params)
 	if err != nil {
-		return fmt.Errorf("update: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return time.Time{}, server.ErrDataNotFound
+		}
+		return time.Time{}, fmt.Errorf("update: %w", err)
 	}
-	return nil
+	return time.Unix(updatedAt, 0), nil
 }
 
 func (s *CardService) Remove(ctx context.Context, id int64) error {

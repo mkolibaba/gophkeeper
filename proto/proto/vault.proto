@@ -24,7 +24,6 @@ message Login {
 }
 
 message Note {
-    string text = 1;
 }
 
 message Item {

@@ -1,10 +1,11 @@
 package sqlite
 
 import (
+	"testing"
+
 	"github.com/mkolibaba/gophkeeper/server"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 	"github.com/stretchr/testify/require"
-	"testing"
 )
 
 func TestNoteCreate(t *testing.T) {
@@ -21,7 +22,7 @@ func TestNoteCreate(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.NoteData{
+		_, _, err := srv.Create(ctx, server.NoteData{
 			Name: "note3",
 			Text: "third note text",
 		})
@@ -29,7 +30,7 @@ func TestNoteCreate(t *testing.T) {
 	})
 	t.Run("user_not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "charlie")
-		err := srv.Create(ctx, server.NoteData{
+		_, _, err := srv.Create(ctx, server.NoteData{
 			Name: "note3",
 			Text: "third note text",
 		})
@@ -37,7 +38,7 @@ func TestNoteCreate(t *testing.T) {
 	})
 	t.Run("existing_name", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.NoteData{
+		_, _, err := srv.Create(ctx, server.NoteData{
 			Name: "note1",
 			Text: "some text",
 		})
@@ -94,7 +95,7 @@ func TestNoteUpdate(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		text := "brand new text"
-		err := srv.Update(ctx, note1ID, server.NoteDataUpdate{
+		_, err := srv.Update(ctx, note1ID, server.NoteDataUpdate{
 			Text: &text,
 		})
 		require.NoError(t, err)
@@ -107,7 +108,7 @@ func TestNoteUpdate(t *testing.T) {
 	t.Run("not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		text := "brand new text"
-		err := srv.Update(ctx, -100, server.NoteDataUpdate{
+		_, err := srv.Update(ctx, -100, server.NoteDataUpdate{
 			Text: &text,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -115,7 +116,7 @@ func TestNoteUpdate(t *testing.T) {
 	t.Run("user_not_owner", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "bob")
 		text := "brand new text"
-		err := srv.Update(ctx, note1ID, server.NoteDataUpdate{
+		_, err := srv.Update(ctx, note1ID, server.NoteDataUpdate{
 			Text: &text,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -155,11 +156,11 @@ func TestNoteDelete(t *testing.T) {
 }
 
 func mustCreateNote(t *testing.T, name string, text string, user string) int64 {
-	id, err := queries.InsertNote(t.Context(), sqlc.InsertNoteParams{
+	result, err := queries.InsertNote(t.Context(), sqlc.InsertNoteParams{
 		Name: name,
 		Text: &text,
 		User: user,
 	})
 	require.NoError(t, err)
-	return id
+	return result.ID
 }

@@ -2,34 +2,40 @@ package core
 
 import (
 	"context"
-	"github.com/go-playground/validator/v10"
 	"regexp"
+	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
-type Data interface {
-	GetID() int64
+type Item interface {
+	GetID() string
 	GetName() string
 }
 
+type ItemHeader struct {
+	ID   string
+	Name string `validate:"required"`
+}
+
+func (h ItemHeader) GetID() string {
+	return h.ID
+}
+
+func (h ItemHeader) GetName() string {
+	return h.Name
+}
+
 type LoginData struct {
-	ID       int64
-	Name     string `validate:"required"`
+	ItemHeader
 	Login    string `validate:"required"`
 	Password string
 	Website  string
 	Notes    string
 }
 
-func (d LoginData) GetID() int64 {
-	return d.ID
-}
-
-func (d LoginData) GetName() string {
-	return d.Name
-}
-
 type LoginDataUpdate struct {
-	ID       int64
+	ID       string
 	Name     *string
 	Login    *string
 	Password *string
@@ -37,73 +43,32 @@ type LoginDataUpdate struct {
 	Notes    *string
 }
 
-type LoginService interface {
-	Save(ctx context.Context, data LoginData) error
-	GetAll(ctx context.Context) ([]LoginData, error)
-	Update(ctx context.Context, data LoginDataUpdate) error
-	Remove(ctx context.Context, id int64) error
-}
-
 type NoteData struct {
-	ID   int64
-	Name string `validate:"required"`
+	ItemHeader
 	Text string
 }
 
-func (d NoteData) GetID() int64 {
-	return d.ID
-}
-
-func (d NoteData) GetName() string {
-	return d.Name
-}
-
 type NoteDataUpdate struct {
-	ID   int64
+	ID   string
 	Name *string
 	Text *string
 }
 
-type NoteService interface {
-	Save(ctx context.Context, data NoteData) error
-	GetAll(ctx context.Context) ([]NoteData, error)
-	Update(ctx context.Context, data NoteDataUpdate) error
-	Remove(ctx context.Context, id int64) error
-}
-
 type BinaryData struct {
-	ID       int64
-	Name     string `validate:"required"`
+	ItemHeader
 	Filename string `validate:"required"`
 	Size     int64
 	Notes    string
 }
 
-func (d BinaryData) GetID() int64 {
-	return d.ID
-}
-
-func (d BinaryData) GetName() string {
-	return d.Name
-}
-
 type BinaryDataUpdate struct {
-	ID    int64
+	ID    string
 	Name  *string
 	Notes *string
 }
 
-type BinaryService interface {
-	Save(ctx context.Context, data BinaryData) error
-	GetAll(ctx context.Context) ([]BinaryData, error)
-	Update(ctx context.Context, data BinaryDataUpdate) error
-	Remove(ctx context.Context, id int64) error
-	Download(ctx context.Context, id int64) error
-}
-
 type CardData struct {
-	ID         int64
-	Name       string `validate:"required"`
+	ItemHeader
 	Number     string `validate:"required,credit_card"`
 	ExpDate    string `validate:"required,exp_date"`
 	CVV        string `validate:"required,len=3"`
@@ -111,16 +76,8 @@ type CardData struct {
 	Notes      string
 }
 
-func (d CardData) GetID() int64 {
-	return d.ID
-}
-
-func (d CardData) GetName() string {
-	return d.Name
-}
-
 type CardDataUpdate struct {
-	ID         int64
+	ID         string
 	Name       *string
 	Number     *string
 	ExpDate    *string
@@ -129,11 +86,22 @@ type CardDataUpdate struct {
 	Notes      *string
 }
 
-type CardService interface {
-	Save(ctx context.Context, data CardData) error
-	GetAll(ctx context.Context) ([]CardData, error)
-	Update(ctx context.Context, data CardDataUpdate) error
-	Remove(ctx context.Context, id int64) error
+type VaultService interface {
+	Get(ctx context.Context) ([]Item, error)
+
+	CreateBinary(ctx context.Context, data BinaryData) (BinaryData, error)
+	CreateCard(ctx context.Context, data CardData) (CardData, error)
+	CreateLogin(ctx context.Context, data LoginData) (LoginData, error)
+	CreateNote(ctx context.Context, data NoteData) (NoteData, error)
+
+	UpdateNote(ctx context.Context, data NoteDataUpdate) (time.Time, error)
+	UpdateLogin(ctx context.Context, data LoginDataUpdate) (time.Time, error)
+	UpdateCard(ctx context.Context, data CardDataUpdate) (time.Time, error)
+	UpdateBinary(ctx context.Context, data BinaryDataUpdate) (time.Time, error)
+
+	DownloadBinary(ctx context.Context, id string) error
+
+	DeleteItem(ctx context.Context, id string) error
 }
 
 func NewDataValidator() (*validator.Validate, error) {

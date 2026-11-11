@@ -22,7 +22,7 @@ func TestCardCreate(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.CardData{
+		_, _, err := srv.Create(ctx, server.CardData{
 			Name:   "card3",
 			Number: "222333333",
 		})
@@ -30,7 +30,7 @@ func TestCardCreate(t *testing.T) {
 	})
 	t.Run("user_not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "charlie")
-		err := srv.Create(ctx, server.CardData{
+		_, _, err := srv.Create(ctx, server.CardData{
 			Name:   "card3",
 			Number: "222333333",
 		})
@@ -38,7 +38,7 @@ func TestCardCreate(t *testing.T) {
 	})
 	t.Run("existing_name", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.CardData{
+		_, _, err := srv.Create(ctx, server.CardData{
 			Name:    "card1",
 			Number:  "223322",
 			ExpDate: "01/30",
@@ -96,7 +96,7 @@ func TestCardUpdate(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		number := "41110011"
-		err := srv.Update(ctx, card1ID, server.CardDataUpdate{
+		_, err := srv.Update(ctx, card1ID, server.CardDataUpdate{
 			Number: &number,
 		})
 		require.NoError(t, err)
@@ -109,7 +109,7 @@ func TestCardUpdate(t *testing.T) {
 	t.Run("not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		number := "41110011"
-		err := srv.Update(ctx, -100, server.CardDataUpdate{
+		_, err := srv.Update(ctx, -100, server.CardDataUpdate{
 			Number: &number,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -117,7 +117,7 @@ func TestCardUpdate(t *testing.T) {
 	t.Run("user_not_owner", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "bob")
 		number := "41110011"
-		err := srv.Update(ctx, card1ID, server.CardDataUpdate{
+		_, err := srv.Update(ctx, card1ID, server.CardDataUpdate{
 			Number: &number,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -157,7 +157,7 @@ func TestCardDelete(t *testing.T) {
 }
 
 func mustCreateCard(t *testing.T, name string, number string, expdate string, user string) int64 {
-	id, err := queries.InsertCard(t.Context(), sqlc.InsertCardParams{
+	result, err := queries.InsertCard(t.Context(), sqlc.InsertCardParams{
 		Name:       name,
 		Number:     number,
 		ExpDate:    expdate,
@@ -167,5 +167,5 @@ func mustCreateCard(t *testing.T, name string, number string, expdate string, us
 		User:       user,
 	})
 	require.NoError(t, err)
-	return id
+	return result.ID
 }

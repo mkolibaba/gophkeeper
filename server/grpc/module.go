@@ -13,10 +13,8 @@ var Module = fx.Module(
 		interceptors.NewAuthInterceptor,
 		interceptors.NewLoggerInterceptor,
 		NewAuthorizationServiceServer,
-		NewLoginServiceServer,
-		NewNoteServiceServer,
-		NewBinaryServiceServer,
-		NewCardServiceServer,
+		NewVaultServiceServer,
+		NewByteStreamServer,
 		fx.Annotate(
 			NewServer,
 			fx.OnStart(func(server *Server) error {

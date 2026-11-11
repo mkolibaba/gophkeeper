@@ -7,18 +7,21 @@ WHERE login = ?;
 INSERT INTO user (login, password)
 VALUES (?, ?);
 
--- name: InsertLogin :execlastid
+-- name: InsertLogin :one
 INSERT INTO login (name, login, password, website, notes, user)
-VALUES (?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, updated_at;
 
--- name: UpdateLogin :execrows
+-- name: UpdateLogin :one
 UPDATE login
 SET name     = ?,
     login    = ?,
     password = ?,
     website  = ?,
-    notes    = ?
-WHERE id = ?;
+    notes    = ?,
+    updated_at = unixepoch()
+WHERE id = ?
+RETURNING updated_at;
 
 -- name: SelectLogin :one
 SELECT *
@@ -42,15 +45,18 @@ FROM login
 WHERE id = ?
   AND user = ?;
 
--- name: InsertNote :execlastid
+-- name: InsertNote :one
 INSERT INTO note (name, text, user)
-VALUES (?, ?, ?);
+VALUES (?, ?, ?)
+RETURNING id, updated_at;
 
--- name: UpdateNote :execrows
+-- name: UpdateNote :one
 UPDATE note
 SET name = ?,
-    text = ?
-WHERE id = ?;
+    text = ?,
+    updated_at = unixepoch()
+WHERE id = ?
+RETURNING updated_at;
 
 -- name: SelectNote :one
 SELECT *
@@ -77,13 +83,15 @@ WHERE id = ?
 -- name: InsertBinary :one
 INSERT INTO binary (name, filename, size, notes, user)
 VALUES (?, ?, ?, ?, ?)
-RETURNING id;
+RETURNING id, updated_at;
 
--- name: UpdateBinary :execrows
+-- name: UpdateBinary :one
 UPDATE binary
 SET name  = ?,
-    notes = ?
-WHERE id = ?;
+    notes = ?,
+    updated_at = unixepoch()
+WHERE id = ?
+RETURNING updated_at;
 
 -- name: SelectBinary :one
 SELECT *
@@ -107,19 +115,22 @@ FROM binary
 WHERE id = ?
   AND user = ?;
 
--- name: InsertCard :execlastid
+-- name: InsertCard :one
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
-VALUES (?, ?, ?, ?, ?, ?, ?);
+VALUES (?, ?, ?, ?, ?, ?, ?)
+RETURNING id, updated_at;
 
--- name: UpdateCard :execrows
+-- name: UpdateCard :one
 UPDATE card
 SET name       = ?,
     number     = ?,
     exp_date   = ?,
     cvv        = ?,
     cardholder = ?,
-    notes      = ?
-WHERE id = ?;
+    notes      = ?,
+    updated_at = unixepoch()
+WHERE id = ?
+RETURNING updated_at;
 
 -- name: SelectCard :one
 SELECT *

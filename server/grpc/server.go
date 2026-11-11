@@ -9,6 +9,7 @@ import (
 	"github.com/mkolibaba/gophkeeper/server"
 	"github.com/mkolibaba/gophkeeper/server/grpc/interceptors"
 	"go.uber.org/fx"
+	"google.golang.org/genproto/googleapis/bytestream"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -25,10 +26,8 @@ type ServerParams struct {
 	AuthInterceptor            *interceptors.AuthInterceptor
 	LoggerInterceptor          *interceptors.LoggerInterceptor
 	AuthorizationServiceServer *AuthorizationServiceServer
-	LoginServiceServer         *LoginServiceServer
-	NoteServiceServer          *NoteServiceServer
-	BinaryServiceServer        *BinaryServiceServer
-	CardServiceServer          *CardServiceServer
+	VaultServiceServer         *VaultServiceServer
+	ByteStreamServer           *ByteStreamServer
 	Config                     *server.Config
 	Logger                     *log.Logger
 }
@@ -45,10 +44,8 @@ func NewServer(p ServerParams) *Server {
 		),
 	)
 	gophkeeperv1.RegisterAuthorizationServiceServer(s, p.AuthorizationServiceServer)
-	gophkeeperv1.RegisterLoginServiceServer(s, p.LoginServiceServer)
-	gophkeeperv1.RegisterNoteServiceServer(s, p.NoteServiceServer)
-	gophkeeperv1.RegisterBinaryServiceServer(s, p.BinaryServiceServer)
-	gophkeeperv1.RegisterCardServiceServer(s, p.CardServiceServer)
+	gophkeeperv1.RegisterVaultServiceServer(s, p.VaultServiceServer)
+	bytestream.RegisterByteStreamServer(s, p.ByteStreamServer)
 	reflection.Register(s)
 
 	return &Server{

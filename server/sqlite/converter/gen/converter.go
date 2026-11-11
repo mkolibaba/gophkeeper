@@ -21,6 +21,7 @@ func (c *DataConverterImpl) ConvertToBinaryData(source gen.Binary) server.Binary
 	if source.Notes != nil {
 		serverBinaryData.Notes = *source.Notes
 	}
+	serverBinaryData.UpdatedAt = converter.Int64ToTime(source.UpdatedAt)
 	return serverBinaryData
 }
 func (c *DataConverterImpl) ConvertToBinaryDataSlice(source []gen.Binary) []server.BinaryData {
@@ -44,6 +45,7 @@ func (c *DataConverterImpl) ConvertToCardData(source gen.Card) server.CardData {
 	if source.Notes != nil {
 		serverCardData.Notes = *source.Notes
 	}
+	serverCardData.UpdatedAt = converter.Int64ToTime(source.UpdatedAt)
 	return serverCardData
 }
 func (c *DataConverterImpl) ConvertToCardDataSlice(source []gen.Card) []server.CardData {
@@ -56,12 +58,12 @@ func (c *DataConverterImpl) ConvertToCardDataSlice(source []gen.Card) []server.C
 	}
 	return serverCardDataList
 }
-func (c *DataConverterImpl) ConvertToInsertBinary(context context.Context, source server.ReadableBinaryData) gen.InsertBinaryParams {
+func (c *DataConverterImpl) ConvertToInsertBinary(context context.Context, source server.BinaryData) gen.InsertBinaryParams {
 	var sqlcInsertBinaryParams gen.InsertBinaryParams
-	sqlcInsertBinaryParams.Name = source.BinaryData.Name
-	sqlcInsertBinaryParams.Filename = source.BinaryData.Filename
-	sqlcInsertBinaryParams.Size = source.BinaryData.Size
-	pString := source.BinaryData.Notes
+	sqlcInsertBinaryParams.Name = source.Name
+	sqlcInsertBinaryParams.Filename = source.Filename
+	sqlcInsertBinaryParams.Size = source.Size
+	pString := source.Notes
 	sqlcInsertBinaryParams.Notes = &pString
 	sqlcInsertBinaryParams.User = converter.UserFromContext(context)
 	return sqlcInsertBinaryParams
@@ -113,6 +115,7 @@ func (c *DataConverterImpl) ConvertToLoginData(source gen.Login) server.LoginDat
 	if source.Notes != nil {
 		serverLoginData.Notes = *source.Notes
 	}
+	serverLoginData.UpdatedAt = converter.Int64ToTime(source.UpdatedAt)
 	return serverLoginData
 }
 func (c *DataConverterImpl) ConvertToLoginDataSlice(source []gen.Login) []server.LoginData {
@@ -132,6 +135,7 @@ func (c *DataConverterImpl) ConvertToNoteData(source gen.Note) server.NoteData {
 	if source.Text != nil {
 		serverNoteData.Text = *source.Text
 	}
+	serverNoteData.UpdatedAt = converter.Int64ToTime(source.UpdatedAt)
 	return serverNoteData
 }
 func (c *DataConverterImpl) ConvertToNoteDataSlice(source []gen.Note) []server.NoteData {

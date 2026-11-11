@@ -6,7 +6,9 @@ package mock
 
 import (
 	"context"
+	"io"
 	"sync"
+	"time"
 
 	"github.com/mkolibaba/gophkeeper/server"
 )
@@ -97,7 +99,7 @@ var _ server.LoginService = &LoginServiceMock{}
 //
 //		// make and configure a mocked server.LoginService
 //		mockedLoginService := &LoginServiceMock{
-//			CreateFunc: func(ctx context.Context, data server.LoginData) error {
+//			CreateFunc: func(ctx context.Context, data server.LoginData) (int64, time.Time, error) {
 //				panic("mock out the Create method")
 //			},
 //			GetAllFunc: func(ctx context.Context) ([]server.LoginData, error) {
@@ -106,7 +108,7 @@ var _ server.LoginService = &LoginServiceMock{}
 //			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
-//			UpdateFunc: func(ctx context.Context, id int64, data server.LoginDataUpdate) error {
+//			UpdateFunc: func(ctx context.Context, id int64, data server.LoginDataUpdate) (time.Time, error) {
 //				panic("mock out the Update method")
 //			},
 //		}
@@ -117,7 +119,7 @@ var _ server.LoginService = &LoginServiceMock{}
 //	}
 type LoginServiceMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, data server.LoginData) error
+	CreateFunc func(ctx context.Context, data server.LoginData) (int64, time.Time, error)
 
 	// GetAllFunc mocks the GetAll method.
 	GetAllFunc func(ctx context.Context) ([]server.LoginData, error)
@@ -126,7 +128,7 @@ type LoginServiceMock struct {
 	RemoveFunc func(ctx context.Context, id int64) error
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, id int64, data server.LoginDataUpdate) error
+	UpdateFunc func(ctx context.Context, id int64, data server.LoginDataUpdate) (time.Time, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -166,7 +168,7 @@ type LoginServiceMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *LoginServiceMock) Create(ctx context.Context, data server.LoginData) error {
+func (mock *LoginServiceMock) Create(ctx context.Context, data server.LoginData) (int64, time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		Data server.LoginData
@@ -179,9 +181,11 @@ func (mock *LoginServiceMock) Create(ctx context.Context, data server.LoginData)
 	mock.lockCreate.Unlock()
 	if mock.CreateFunc == nil {
 		var (
-			err error
+			n     int64
+			time1 time.Time
+			err   error
 		)
-		return err
+		return n, time1, err
 	}
 	return mock.CreateFunc(ctx, data)
 }
@@ -280,7 +284,7 @@ func (mock *LoginServiceMock) RemoveCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *LoginServiceMock) Update(ctx context.Context, id int64, data server.LoginDataUpdate) error {
+func (mock *LoginServiceMock) Update(ctx context.Context, id int64, data server.LoginDataUpdate) (time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		ID   int64
@@ -295,9 +299,10 @@ func (mock *LoginServiceMock) Update(ctx context.Context, id int64, data server.
 	mock.lockUpdate.Unlock()
 	if mock.UpdateFunc == nil {
 		var (
-			err error
+			time1 time.Time
+			err   error
 		)
-		return err
+		return time1, err
 	}
 	return mock.UpdateFunc(ctx, id, data)
 }
@@ -332,7 +337,7 @@ var _ server.NoteService = &NoteServiceMock{}
 //
 //		// make and configure a mocked server.NoteService
 //		mockedNoteService := &NoteServiceMock{
-//			CreateFunc: func(ctx context.Context, data server.NoteData) error {
+//			CreateFunc: func(ctx context.Context, data server.NoteData) (int64, time.Time, error) {
 //				panic("mock out the Create method")
 //			},
 //			GetAllFunc: func(ctx context.Context) ([]server.NoteData, error) {
@@ -341,7 +346,7 @@ var _ server.NoteService = &NoteServiceMock{}
 //			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
-//			UpdateFunc: func(ctx context.Context, id int64, data server.NoteDataUpdate) error {
+//			UpdateFunc: func(ctx context.Context, id int64, data server.NoteDataUpdate) (time.Time, error) {
 //				panic("mock out the Update method")
 //			},
 //		}
@@ -352,7 +357,7 @@ var _ server.NoteService = &NoteServiceMock{}
 //	}
 type NoteServiceMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, data server.NoteData) error
+	CreateFunc func(ctx context.Context, data server.NoteData) (int64, time.Time, error)
 
 	// GetAllFunc mocks the GetAll method.
 	GetAllFunc func(ctx context.Context) ([]server.NoteData, error)
@@ -361,7 +366,7 @@ type NoteServiceMock struct {
 	RemoveFunc func(ctx context.Context, id int64) error
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, id int64, data server.NoteDataUpdate) error
+	UpdateFunc func(ctx context.Context, id int64, data server.NoteDataUpdate) (time.Time, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -401,7 +406,7 @@ type NoteServiceMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *NoteServiceMock) Create(ctx context.Context, data server.NoteData) error {
+func (mock *NoteServiceMock) Create(ctx context.Context, data server.NoteData) (int64, time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		Data server.NoteData
@@ -414,9 +419,11 @@ func (mock *NoteServiceMock) Create(ctx context.Context, data server.NoteData) e
 	mock.lockCreate.Unlock()
 	if mock.CreateFunc == nil {
 		var (
-			err error
+			n     int64
+			time1 time.Time
+			err   error
 		)
-		return err
+		return n, time1, err
 	}
 	return mock.CreateFunc(ctx, data)
 }
@@ -515,7 +522,7 @@ func (mock *NoteServiceMock) RemoveCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *NoteServiceMock) Update(ctx context.Context, id int64, data server.NoteDataUpdate) error {
+func (mock *NoteServiceMock) Update(ctx context.Context, id int64, data server.NoteDataUpdate) (time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		ID   int64
@@ -530,9 +537,10 @@ func (mock *NoteServiceMock) Update(ctx context.Context, id int64, data server.N
 	mock.lockUpdate.Unlock()
 	if mock.UpdateFunc == nil {
 		var (
-			err error
+			time1 time.Time
+			err   error
 		)
-		return err
+		return time1, err
 	}
 	return mock.UpdateFunc(ctx, id, data)
 }
@@ -567,20 +575,29 @@ var _ server.BinaryService = &BinaryServiceMock{}
 //
 //		// make and configure a mocked server.BinaryService
 //		mockedBinaryService := &BinaryServiceMock{
-//			CreateFunc: func(ctx context.Context, data server.ReadableBinaryData) error {
+//			CreateFunc: func(ctx context.Context, data server.BinaryData) (int64, time.Time, error) {
 //				panic("mock out the Create method")
-//			},
-//			GetFunc: func(ctx context.Context, id int64) (*server.ReadableBinaryData, error) {
-//				panic("mock out the Get method")
 //			},
 //			GetAllFunc: func(ctx context.Context) ([]server.BinaryData, error) {
 //				panic("mock out the GetAll method")
 //			},
+//			OpenFunc: func(ctx context.Context, id int64) (io.ReadSeekCloser, int64, error) {
+//				panic("mock out the Open method")
+//			},
 //			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
-//			UpdateFunc: func(ctx context.Context, id int64, data server.BinaryDataUpdate) error {
+//			UpdateFunc: func(ctx context.Context, id int64, data server.BinaryDataUpdate) (time.Time, error) {
 //				panic("mock out the Update method")
+//			},
+//			UploadFunc: func(ctx context.Context, id int64, content io.Reader) error {
+//				panic("mock out the Upload method")
+//			},
+//			WriteChunkFunc: func(ctx context.Context, id int64, offset int64, data []byte, finish bool) (int64, error) {
+//				panic("mock out the WriteChunk method")
+//			},
+//			WriteStatusFunc: func(ctx context.Context, id int64) (int64, bool, error) {
+//				panic("mock out the WriteStatus method")
 //			},
 //		}
 //
@@ -590,19 +607,28 @@ var _ server.BinaryService = &BinaryServiceMock{}
 //	}
 type BinaryServiceMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, data server.ReadableBinaryData) error
-
-	// GetFunc mocks the Get method.
-	GetFunc func(ctx context.Context, id int64) (*server.ReadableBinaryData, error)
+	CreateFunc func(ctx context.Context, data server.BinaryData) (int64, time.Time, error)
 
 	// GetAllFunc mocks the GetAll method.
 	GetAllFunc func(ctx context.Context) ([]server.BinaryData, error)
+
+	// OpenFunc mocks the Open method.
+	OpenFunc func(ctx context.Context, id int64) (io.ReadSeekCloser, int64, error)
 
 	// RemoveFunc mocks the Remove method.
 	RemoveFunc func(ctx context.Context, id int64) error
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, id int64, data server.BinaryDataUpdate) error
+	UpdateFunc func(ctx context.Context, id int64, data server.BinaryDataUpdate) (time.Time, error)
+
+	// UploadFunc mocks the Upload method.
+	UploadFunc func(ctx context.Context, id int64, content io.Reader) error
+
+	// WriteChunkFunc mocks the WriteChunk method.
+	WriteChunkFunc func(ctx context.Context, id int64, offset int64, data []byte, finish bool) (int64, error)
+
+	// WriteStatusFunc mocks the WriteStatus method.
+	WriteStatusFunc func(ctx context.Context, id int64) (int64, bool, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -611,19 +637,19 @@ type BinaryServiceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Data is the data argument value.
-			Data server.ReadableBinaryData
-		}
-		// Get holds details about calls to the Get method.
-		Get []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// ID is the id argument value.
-			ID int64
+			Data server.BinaryData
 		}
 		// GetAll holds details about calls to the GetAll method.
 		GetAll []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+		}
+		// Open holds details about calls to the Open method.
+		Open []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID int64
 		}
 		// Remove holds details about calls to the Remove method.
 		Remove []struct {
@@ -641,19 +667,51 @@ type BinaryServiceMock struct {
 			// Data is the data argument value.
 			Data server.BinaryDataUpdate
 		}
+		// Upload holds details about calls to the Upload method.
+		Upload []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID int64
+			// Content is the content argument value.
+			Content io.Reader
+		}
+		// WriteChunk holds details about calls to the WriteChunk method.
+		WriteChunk []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID int64
+			// Offset is the offset argument value.
+			Offset int64
+			// Data is the data argument value.
+			Data []byte
+			// Finish is the finish argument value.
+			Finish bool
+		}
+		// WriteStatus holds details about calls to the WriteStatus method.
+		WriteStatus []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// ID is the id argument value.
+			ID int64
+		}
 	}
-	lockCreate sync.RWMutex
-	lockGet    sync.RWMutex
-	lockGetAll sync.RWMutex
-	lockRemove sync.RWMutex
-	lockUpdate sync.RWMutex
+	lockCreate      sync.RWMutex
+	lockGetAll      sync.RWMutex
+	lockOpen        sync.RWMutex
+	lockRemove      sync.RWMutex
+	lockUpdate      sync.RWMutex
+	lockUpload      sync.RWMutex
+	lockWriteChunk  sync.RWMutex
+	lockWriteStatus sync.RWMutex
 }
 
 // Create calls CreateFunc.
-func (mock *BinaryServiceMock) Create(ctx context.Context, data server.ReadableBinaryData) error {
+func (mock *BinaryServiceMock) Create(ctx context.Context, data server.BinaryData) (int64, time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
-		Data server.ReadableBinaryData
+		Data server.BinaryData
 	}{
 		Ctx:  ctx,
 		Data: data,
@@ -663,9 +721,11 @@ func (mock *BinaryServiceMock) Create(ctx context.Context, data server.ReadableB
 	mock.lockCreate.Unlock()
 	if mock.CreateFunc == nil {
 		var (
-			err error
+			n     int64
+			time1 time.Time
+			err   error
 		)
-		return err
+		return n, time1, err
 	}
 	return mock.CreateFunc(ctx, data)
 }
@@ -676,55 +736,15 @@ func (mock *BinaryServiceMock) Create(ctx context.Context, data server.ReadableB
 //	len(mockedBinaryService.CreateCalls())
 func (mock *BinaryServiceMock) CreateCalls() []struct {
 	Ctx  context.Context
-	Data server.ReadableBinaryData
+	Data server.BinaryData
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Data server.ReadableBinaryData
+		Data server.BinaryData
 	}
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create
 	mock.lockCreate.RUnlock()
-	return calls
-}
-
-// Get calls GetFunc.
-func (mock *BinaryServiceMock) Get(ctx context.Context, id int64) (*server.ReadableBinaryData, error) {
-	callInfo := struct {
-		Ctx context.Context
-		ID  int64
-	}{
-		Ctx: ctx,
-		ID:  id,
-	}
-	mock.lockGet.Lock()
-	mock.calls.Get = append(mock.calls.Get, callInfo)
-	mock.lockGet.Unlock()
-	if mock.GetFunc == nil {
-		var (
-			readableBinaryData *server.ReadableBinaryData
-			err                error
-		)
-		return readableBinaryData, err
-	}
-	return mock.GetFunc(ctx, id)
-}
-
-// GetCalls gets all the calls that were made to Get.
-// Check the length with:
-//
-//	len(mockedBinaryService.GetCalls())
-func (mock *BinaryServiceMock) GetCalls() []struct {
-	Ctx context.Context
-	ID  int64
-} {
-	var calls []struct {
-		Ctx context.Context
-		ID  int64
-	}
-	mock.lockGet.RLock()
-	calls = mock.calls.Get
-	mock.lockGet.RUnlock()
 	return calls
 }
 
@@ -761,6 +781,47 @@ func (mock *BinaryServiceMock) GetAllCalls() []struct {
 	mock.lockGetAll.RLock()
 	calls = mock.calls.GetAll
 	mock.lockGetAll.RUnlock()
+	return calls
+}
+
+// Open calls OpenFunc.
+func (mock *BinaryServiceMock) Open(ctx context.Context, id int64) (io.ReadSeekCloser, int64, error) {
+	callInfo := struct {
+		Ctx context.Context
+		ID  int64
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	mock.lockOpen.Lock()
+	mock.calls.Open = append(mock.calls.Open, callInfo)
+	mock.lockOpen.Unlock()
+	if mock.OpenFunc == nil {
+		var (
+			readSeekCloser io.ReadSeekCloser
+			n              int64
+			err            error
+		)
+		return readSeekCloser, n, err
+	}
+	return mock.OpenFunc(ctx, id)
+}
+
+// OpenCalls gets all the calls that were made to Open.
+// Check the length with:
+//
+//	len(mockedBinaryService.OpenCalls())
+func (mock *BinaryServiceMock) OpenCalls() []struct {
+	Ctx context.Context
+	ID  int64
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  int64
+	}
+	mock.lockOpen.RLock()
+	calls = mock.calls.Open
+	mock.lockOpen.RUnlock()
 	return calls
 }
 
@@ -804,7 +865,7 @@ func (mock *BinaryServiceMock) RemoveCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *BinaryServiceMock) Update(ctx context.Context, id int64, data server.BinaryDataUpdate) error {
+func (mock *BinaryServiceMock) Update(ctx context.Context, id int64, data server.BinaryDataUpdate) (time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		ID   int64
@@ -819,9 +880,10 @@ func (mock *BinaryServiceMock) Update(ctx context.Context, id int64, data server
 	mock.lockUpdate.Unlock()
 	if mock.UpdateFunc == nil {
 		var (
-			err error
+			time1 time.Time
+			err   error
 		)
-		return err
+		return time1, err
 	}
 	return mock.UpdateFunc(ctx, id, data)
 }
@@ -846,6 +908,142 @@ func (mock *BinaryServiceMock) UpdateCalls() []struct {
 	return calls
 }
 
+// Upload calls UploadFunc.
+func (mock *BinaryServiceMock) Upload(ctx context.Context, id int64, content io.Reader) error {
+	callInfo := struct {
+		Ctx     context.Context
+		ID      int64
+		Content io.Reader
+	}{
+		Ctx:     ctx,
+		ID:      id,
+		Content: content,
+	}
+	mock.lockUpload.Lock()
+	mock.calls.Upload = append(mock.calls.Upload, callInfo)
+	mock.lockUpload.Unlock()
+	if mock.UploadFunc == nil {
+		var (
+			err error
+		)
+		return err
+	}
+	return mock.UploadFunc(ctx, id, content)
+}
+
+// UploadCalls gets all the calls that were made to Upload.
+// Check the length with:
+//
+//	len(mockedBinaryService.UploadCalls())
+func (mock *BinaryServiceMock) UploadCalls() []struct {
+	Ctx     context.Context
+	ID      int64
+	Content io.Reader
+} {
+	var calls []struct {
+		Ctx     context.Context
+		ID      int64
+		Content io.Reader
+	}
+	mock.lockUpload.RLock()
+	calls = mock.calls.Upload
+	mock.lockUpload.RUnlock()
+	return calls
+}
+
+// WriteChunk calls WriteChunkFunc.
+func (mock *BinaryServiceMock) WriteChunk(ctx context.Context, id int64, offset int64, data []byte, finish bool) (int64, error) {
+	callInfo := struct {
+		Ctx    context.Context
+		ID     int64
+		Offset int64
+		Data   []byte
+		Finish bool
+	}{
+		Ctx:    ctx,
+		ID:     id,
+		Offset: offset,
+		Data:   data,
+		Finish: finish,
+	}
+	mock.lockWriteChunk.Lock()
+	mock.calls.WriteChunk = append(mock.calls.WriteChunk, callInfo)
+	mock.lockWriteChunk.Unlock()
+	if mock.WriteChunkFunc == nil {
+		var (
+			committedSize int64
+			err           error
+		)
+		return committedSize, err
+	}
+	return mock.WriteChunkFunc(ctx, id, offset, data, finish)
+}
+
+// WriteChunkCalls gets all the calls that were made to WriteChunk.
+// Check the length with:
+//
+//	len(mockedBinaryService.WriteChunkCalls())
+func (mock *BinaryServiceMock) WriteChunkCalls() []struct {
+	Ctx    context.Context
+	ID     int64
+	Offset int64
+	Data   []byte
+	Finish bool
+} {
+	var calls []struct {
+		Ctx    context.Context
+		ID     int64
+		Offset int64
+		Data   []byte
+		Finish bool
+	}
+	mock.lockWriteChunk.RLock()
+	calls = mock.calls.WriteChunk
+	mock.lockWriteChunk.RUnlock()
+	return calls
+}
+
+// WriteStatus calls WriteStatusFunc.
+func (mock *BinaryServiceMock) WriteStatus(ctx context.Context, id int64) (int64, bool, error) {
+	callInfo := struct {
+		Ctx context.Context
+		ID  int64
+	}{
+		Ctx: ctx,
+		ID:  id,
+	}
+	mock.lockWriteStatus.Lock()
+	mock.calls.WriteStatus = append(mock.calls.WriteStatus, callInfo)
+	mock.lockWriteStatus.Unlock()
+	if mock.WriteStatusFunc == nil {
+		var (
+			committedSize int64
+			complete      bool
+			err           error
+		)
+		return committedSize, complete, err
+	}
+	return mock.WriteStatusFunc(ctx, id)
+}
+
+// WriteStatusCalls gets all the calls that were made to WriteStatus.
+// Check the length with:
+//
+//	len(mockedBinaryService.WriteStatusCalls())
+func (mock *BinaryServiceMock) WriteStatusCalls() []struct {
+	Ctx context.Context
+	ID  int64
+} {
+	var calls []struct {
+		Ctx context.Context
+		ID  int64
+	}
+	mock.lockWriteStatus.RLock()
+	calls = mock.calls.WriteStatus
+	mock.lockWriteStatus.RUnlock()
+	return calls
+}
+
 // Ensure that CardServiceMock does implement server.CardService.
 // If this is not the case, regenerate this file with mockery.
 var _ server.CardService = &CardServiceMock{}
@@ -856,7 +1054,7 @@ var _ server.CardService = &CardServiceMock{}
 //
 //		// make and configure a mocked server.CardService
 //		mockedCardService := &CardServiceMock{
-//			CreateFunc: func(ctx context.Context, data server.CardData) error {
+//			CreateFunc: func(ctx context.Context, data server.CardData) (int64, time.Time, error) {
 //				panic("mock out the Create method")
 //			},
 //			GetAllFunc: func(ctx context.Context) ([]server.CardData, error) {
@@ -865,7 +1063,7 @@ var _ server.CardService = &CardServiceMock{}
 //			RemoveFunc: func(ctx context.Context, id int64) error {
 //				panic("mock out the Remove method")
 //			},
-//			UpdateFunc: func(ctx context.Context, id int64, data server.CardDataUpdate) error {
+//			UpdateFunc: func(ctx context.Context, id int64, data server.CardDataUpdate) (time.Time, error) {
 //				panic("mock out the Update method")
 //			},
 //		}
@@ -876,7 +1074,7 @@ var _ server.CardService = &CardServiceMock{}
 //	}
 type CardServiceMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, data server.CardData) error
+	CreateFunc func(ctx context.Context, data server.CardData) (int64, time.Time, error)
 
 	// GetAllFunc mocks the GetAll method.
 	GetAllFunc func(ctx context.Context) ([]server.CardData, error)
@@ -885,7 +1083,7 @@ type CardServiceMock struct {
 	RemoveFunc func(ctx context.Context, id int64) error
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, id int64, data server.CardDataUpdate) error
+	UpdateFunc func(ctx context.Context, id int64, data server.CardDataUpdate) (time.Time, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -925,7 +1123,7 @@ type CardServiceMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *CardServiceMock) Create(ctx context.Context, data server.CardData) error {
+func (mock *CardServiceMock) Create(ctx context.Context, data server.CardData) (int64, time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		Data server.CardData
@@ -938,9 +1136,11 @@ func (mock *CardServiceMock) Create(ctx context.Context, data server.CardData) e
 	mock.lockCreate.Unlock()
 	if mock.CreateFunc == nil {
 		var (
-			err error
+			n     int64
+			time1 time.Time
+			err   error
 		)
-		return err
+		return n, time1, err
 	}
 	return mock.CreateFunc(ctx, data)
 }
@@ -1039,7 +1239,7 @@ func (mock *CardServiceMock) RemoveCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *CardServiceMock) Update(ctx context.Context, id int64, data server.CardDataUpdate) error {
+func (mock *CardServiceMock) Update(ctx context.Context, id int64, data server.CardDataUpdate) (time.Time, error) {
 	callInfo := struct {
 		Ctx  context.Context
 		ID   int64
@@ -1054,9 +1254,10 @@ func (mock *CardServiceMock) Update(ctx context.Context, id int64, data server.C
 	mock.lockUpdate.Unlock()
 	if mock.UpdateFunc == nil {
 		var (
-			err error
+			time1 time.Time
+			err   error
 		)
-		return err
+		return time1, err
 	}
 	return mock.UpdateFunc(ctx, id, data)
 }
