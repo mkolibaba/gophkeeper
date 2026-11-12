@@ -10,7 +10,6 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"
@@ -361,7 +360,7 @@ func (s *VaultServiceServer) DeleteItem(ctx context.Context, in *gophkeeperv1.De
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *VaultServiceServer) parseID(id string) (int64, string, error) {
