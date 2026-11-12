@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"charm.land/log/v2"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/server"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -22,7 +22,7 @@ func updateData[I updateIn, U any](
 	mapper func(I) U,
 	updater func(context.Context, int64, U) error,
 	logger *log.Logger,
-) (*empty.Empty, error) {
+) (*emptypb.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")
 	}
@@ -39,7 +39,7 @@ func updateData[I updateIn, U any](
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
 type removable interface {
@@ -52,7 +52,7 @@ func removeData(
 	in removable,
 	remove func(context.Context, int64) error,
 	logger *log.Logger,
-) (*empty.Empty, error) {
+) (*emptypb.Empty, error) {
 	if !in.HasId() {
 		return nil, status.Error(codes.InvalidArgument, "id is required")
 	}
@@ -65,5 +65,5 @@ func removeData(
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }

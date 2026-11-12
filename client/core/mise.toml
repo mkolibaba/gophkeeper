@@ -1,0 +1,21 @@
+[tools]
+go = "1.27.3"
+gotestsum = "latest"
+"go:github.com/vladopajic/go-test-coverage/v2" = "latest"
+mockery = "latest"
+
+[tasks.gen]
+description = "Run generate"
+run = "mockery"
+
+[tasks.test]
+description = "Run tests"
+run = "gotestsum -- ./..."
+
+[tasks.coverage]
+description = "Run tests with coverage"
+run = [
+    "go test ./... -coverprofile=./cover.out -covermode=atomic -coverpkg=./...",
+    "go tool cover -html cover.out -o cover.html",
+    "go-test-coverage --config=./.testcoverage.yml --badge-file-name=./coverage.svg"
+]

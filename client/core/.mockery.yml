@@ -1,0 +1,29 @@
+template: matryer
+packages:
+  github.com/mkolibaba/gophkeeper/client/core:
+    config:
+      dir: "mock"
+      filename: "core.go"
+      pkgname: "mock"
+      structname: "{{.InterfaceName}}Mock"
+    interfaces:
+      LoginService:
+      NoteService:
+      BinaryService:
+      CardService:
+      AuthorizationService:
+      UserService:
+  github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1:
+    config:
+      dir: "grpc/mock"
+      filename: "core.go"
+      pkgname: "mock"
+      structname: "{{.InterfaceName}}Mock"
+    interfaces:
+      CardServiceClient:
+      LoginServiceClient:
+      NoteServiceClient:
+      AuthorizationServiceClient:
+template-data:
+  stub-impl: true
+include-auto-generated: true

@@ -5,7 +5,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
@@ -32,7 +32,7 @@ func NewNoteServiceServer(
 	}
 }
 
-func (s *NoteServiceServer) Save(ctx context.Context, in *gophkeeperv1.Note) (*empty.Empty, error) {
+func (s *NoteServiceServer) Save(ctx context.Context, in *gophkeeperv1.Note) (*emptypb.Empty, error) {
 	data := server.NoteData{
 		Name: in.GetName(),
 		Text: in.GetText(),
@@ -47,10 +47,10 @@ func (s *NoteServiceServer) Save(ctx context.Context, in *gophkeeperv1.Note) (*e
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllNotesResponse, error) {
+func (s *NoteServiceServer) GetAll(ctx context.Context, _ *emptypb.Empty) (*gophkeeperv1.GetAllNotesResponse, error) {
 	notes, err := s.noteService.GetAll(ctx)
 
 	if err != nil {
@@ -73,12 +73,12 @@ func (s *NoteServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophke
 	return &out, nil
 }
 
-func (s *NoteServiceServer) Update(ctx context.Context, in *gophkeeperv1.Note) (*empty.Empty, error) {
+func (s *NoteServiceServer) Update(ctx context.Context, in *gophkeeperv1.Note) (*emptypb.Empty, error) {
 	return updateData(ctx, in, func(i *gophkeeperv1.Note) server.NoteDataUpdate {
 		return grpcgen.MapNoteDataUpdate(i)
 	}, s.noteService.Update, s.logger)
 }
 
-func (s *NoteServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
+func (s *NoteServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*emptypb.Empty, error) {
 	return removeData(ctx, in, s.noteService.Remove, s.logger)
 }

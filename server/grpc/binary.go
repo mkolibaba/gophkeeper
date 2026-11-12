@@ -8,7 +8,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
@@ -36,7 +36,7 @@ func NewBinaryServiceServer(
 	}
 }
 
-func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeeperv1.SaveBinaryRequest, empty.Empty]) error {
+func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeeperv1.SaveBinaryRequest, emptypb.Empty]) error {
 	file, err := os.CreateTemp("", "*.tmp")
 	if err != nil {
 		return status.Error(codes.Internal, err.Error())
@@ -88,10 +88,10 @@ func (s *BinaryServiceServer) Upload(stream grpc.ClientStreamingServer[gophkeepe
 		return status.Error(codes.Internal, err.Error())
 	}
 
-	return stream.SendAndClose(&empty.Empty{})
+	return stream.SendAndClose(&emptypb.Empty{})
 }
 
-func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllBinariesResponse, error) {
+func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *emptypb.Empty) (*gophkeeperv1.GetAllBinariesResponse, error) {
 	binaries, err := s.binaryService.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("failed to retrieve binary data", "err", err)
@@ -115,13 +115,13 @@ func (s *BinaryServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*goph
 	return &out, nil
 }
 
-func (s *BinaryServiceServer) Update(ctx context.Context, in *gophkeeperv1.UpdateBinaryRequest) (*empty.Empty, error) {
+func (s *BinaryServiceServer) Update(ctx context.Context, in *gophkeeperv1.UpdateBinaryRequest) (*emptypb.Empty, error) {
 	return updateData(ctx, in, func(i *gophkeeperv1.UpdateBinaryRequest) server.BinaryDataUpdate {
 		return grpcgen.MapBinaryDataUpdate(i)
 	}, s.binaryService.Update, s.logger)
 }
 
-func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
+func (s *BinaryServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*emptypb.Empty, error) {
 	return removeData(ctx, in, s.binaryService.Remove, s.logger)
 }
 

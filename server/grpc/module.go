@@ -17,7 +17,20 @@ var Module = fx.Module(
 		NewNoteServiceServer,
 		NewBinaryServiceServer,
 		NewCardServiceServer,
-		NewServer,
+		fx.Annotate(
+			NewServer,
+			fx.OnStart(func(server *Server) error {
+				ln, err := server.Listen()
+				if err != nil {
+					return err
+				}
+				go server.Start(ln)
+				return nil
+			}),
+			fx.OnStop(func(server *Server) {
+				server.Stop()
+			}),
+		),
 	),
 	fx.Invoke(
 		StartServer,

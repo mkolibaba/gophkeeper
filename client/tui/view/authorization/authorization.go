@@ -5,7 +5,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
@@ -17,15 +17,15 @@ type CallRegistrationViewMsg struct{}
 type Model struct {
 	view.BaseModel
 	inputSet             *inputset.Model
-	authorizationService client.AuthorizationService
-	userService          client.UserService
+	authorizationService core.AuthorizationService
+	userService          core.UserService
 }
 
 type Params struct {
 	fx.In
 
-	AuthorizationService client.AuthorizationService
-	UserService          client.UserService
+	AuthorizationService core.AuthorizationService
+	UserService          core.UserService
 }
 
 func New(p Params) *Model {

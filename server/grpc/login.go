@@ -5,7 +5,7 @@ import (
 
 	"charm.land/log/v2"
 	"github.com/go-playground/validator/v10"
-	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/mkolibaba/gophkeeper/proto/gen/go/gophkeeperv1"
 	"github.com/mkolibaba/gophkeeper/server"
 	grpcgen "github.com/mkolibaba/gophkeeper/server/grpc/gen"
@@ -32,7 +32,7 @@ func NewLoginServiceServer(
 	}
 }
 
-func (s *LoginServiceServer) Save(ctx context.Context, in *gophkeeperv1.Login) (*empty.Empty, error) {
+func (s *LoginServiceServer) Save(ctx context.Context, in *gophkeeperv1.Login) (*emptypb.Empty, error) {
 	data := server.LoginData{
 		Name:     in.GetName(),
 		Login:    in.GetLogin(),
@@ -50,10 +50,10 @@ func (s *LoginServiceServer) Save(ctx context.Context, in *gophkeeperv1.Login) (
 		return nil, status.Error(codes.Internal, "internal server error")
 	}
 
-	return &empty.Empty{}, nil
+	return &emptypb.Empty{}, nil
 }
 
-func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophkeeperv1.GetAllLoginsResponse, error) {
+func (s *LoginServiceServer) GetAll(ctx context.Context, _ *emptypb.Empty) (*gophkeeperv1.GetAllLoginsResponse, error) {
 	logins, err := s.loginService.GetAll(ctx)
 	if err != nil {
 		s.logger.Error("failed to retrieve login data", "err", err)
@@ -78,12 +78,12 @@ func (s *LoginServiceServer) GetAll(ctx context.Context, _ *empty.Empty) (*gophk
 	return &out, nil
 }
 
-func (s *LoginServiceServer) Update(ctx context.Context, in *gophkeeperv1.Login) (*empty.Empty, error) {
+func (s *LoginServiceServer) Update(ctx context.Context, in *gophkeeperv1.Login) (*emptypb.Empty, error) {
 	return updateData(ctx, in, func(i *gophkeeperv1.Login) server.LoginDataUpdate {
 		return grpcgen.MapLoginDataUpdate(i)
 	}, s.loginService.Update, s.logger)
 }
 
-func (s *LoginServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*empty.Empty, error) {
+func (s *LoginServiceServer) Remove(ctx context.Context, in *gophkeeperv1.RemoveDataRequest) (*emptypb.Empty, error) {
 	return removeData(ctx, in, s.loginService.Remove, s.logger)
 }

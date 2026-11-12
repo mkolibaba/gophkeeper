@@ -6,7 +6,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 )
 
@@ -31,7 +31,7 @@ type Row struct {
 
 type Model struct {
 	cursor       int
-	data         []client.Data
+	data         []core.Data
 	renderedRows []Row
 
 	valueWidth int
@@ -69,7 +69,7 @@ func (m *Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, rows...)
 }
 
-func (m *Model) GetCurrentRow() client.Data {
+func (m *Model) GetCurrentRow() core.Data {
 	if len(m.data) == 0 {
 		return nil
 	}
@@ -113,35 +113,35 @@ func (m Model) renderRow(t helper.DataType, name, value string, selected bool) s
 		Render(lipgloss.JoinHorizontal(lipgloss.Left, columns...))
 }
 
-func (m *Model) ProcessFetchedData(msg []client.Data) {
+func (m *Model) ProcessFetchedData(msg []core.Data) {
 	m.data = msg
 	m.cursor = min(max(0, m.cursor), len(m.data)-1)
 
 	m.renderedRows = make([]Row, 0, len(m.data))
 	for _, el := range m.data {
 		switch el := el.(type) {
-		case client.LoginData:
+		case core.LoginData:
 			m.renderedRows = append(m.renderedRows, Row{
 				DataType:      helper.DataTypeLogin,
 				Name:          el.Name,
 				Value:         el.Login,
 				RenderedValue: el.Login,
 			})
-		case client.NoteData:
+		case core.NoteData:
 			m.renderedRows = append(m.renderedRows, Row{
 				DataType:      helper.DataTypeNote,
 				Name:          el.Name,
 				Value:         el.Text,
 				RenderedValue: m.trimNoteText(el.Text),
 			})
-		case client.BinaryData:
+		case core.BinaryData:
 			m.renderedRows = append(m.renderedRows, Row{
 				DataType:      helper.DataTypeBinary,
 				Name:          el.Name,
 				Value:         "<binary>",
 				RenderedValue: "<binary>",
 			})
-		case client.CardData:
+		case core.CardData:
 			m.renderedRows = append(m.renderedRows, Row{
 				DataType:      helper.DataTypeCard,
 				Name:          el.Name,

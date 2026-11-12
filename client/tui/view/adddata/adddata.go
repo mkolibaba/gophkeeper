@@ -8,7 +8,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mkolibaba/gophkeeper/client"
+	"github.com/mkolibaba/gophkeeper/client/core"
 	"github.com/mkolibaba/gophkeeper/client/tui/components/inputset"
 	"github.com/mkolibaba/gophkeeper/client/tui/helper"
 	"github.com/mkolibaba/gophkeeper/client/tui/view"
@@ -53,19 +53,19 @@ type Model struct {
 	dataType      helper.DataType
 	inputSet      *inputset.Model
 	send          func(map[string]string) error
-	loginService  client.LoginService
-	noteService   client.NoteService
-	binaryService client.BinaryService
-	cardService   client.CardService
+	loginService  core.LoginService
+	noteService   core.NoteService
+	binaryService core.BinaryService
+	cardService   core.CardService
 }
 
 type Params struct {
 	fx.In
 
-	LoginService  client.LoginService
-	NoteService   client.NoteService
-	BinaryService client.BinaryService
-	CardService   client.CardService
+	LoginService  core.LoginService
+	NoteService   core.NoteService
+	BinaryService core.BinaryService
+	CardService   core.CardService
 }
 
 func New(p Params) *Model {
@@ -159,7 +159,7 @@ func (m *Model) ResetFor(t helper.DataType) {
 			inputset.NewTextInput("Notes"),
 		)
 		m.send = func(values map[string]string) error {
-			return m.loginService.Save(context.Background(), client.LoginData{
+			return m.loginService.Save(context.Background(), core.LoginData{
 				Name:     values["Name"],
 				Login:    values["Login"],
 				Password: values["Password"],
@@ -173,7 +173,7 @@ func (m *Model) ResetFor(t helper.DataType) {
 			inputset.NewTextArea("Text"),
 		)
 		m.send = func(values map[string]string) error {
-			return m.noteService.Save(context.Background(), client.NoteData{
+			return m.noteService.Save(context.Background(), core.NoteData{
 				Name: values["Name"],
 				Text: values["Text"],
 			})
@@ -185,7 +185,7 @@ func (m *Model) ResetFor(t helper.DataType) {
 			inputset.NewTextInput("Notes"),
 		)
 		m.send = func(values map[string]string) error {
-			return m.binaryService.Save(context.Background(), client.BinaryData{
+			return m.binaryService.Save(context.Background(), core.BinaryData{
 				Name:     values["Name"],
 				Filename: values["File path"],
 				Notes:    values["Notes"],
@@ -201,7 +201,7 @@ func (m *Model) ResetFor(t helper.DataType) {
 			inputset.NewTextInput("Notes"),
 		)
 		m.send = func(values map[string]string) error {
-			return m.cardService.Save(context.Background(), client.CardData{
+			return m.cardService.Save(context.Background(), core.CardData{
 				Name:       values["Name"],
 				Number:     values["Number"],
 				ExpDate:    values["Expiration date"],
