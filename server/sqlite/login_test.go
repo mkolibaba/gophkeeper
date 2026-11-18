@@ -21,7 +21,7 @@ func TestLoginCreate(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.LoginData{
+		_, _, err := srv.Create(ctx, server.LoginData{
 			Name:  "app3",
 			Login: "login3",
 		})
@@ -29,7 +29,7 @@ func TestLoginCreate(t *testing.T) {
 	})
 	t.Run("user_not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "charlie")
-		err := srv.Create(ctx, server.LoginData{
+		_, _, err := srv.Create(ctx, server.LoginData{
 			Name:  "app3",
 			Login: "login3",
 		})
@@ -37,7 +37,7 @@ func TestLoginCreate(t *testing.T) {
 	})
 	t.Run("existing_name", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
-		err := srv.Create(ctx, server.LoginData{
+		_, _, err := srv.Create(ctx, server.LoginData{
 			Name:     "app1",
 			Login:    "login1",
 			Password: "123",
@@ -95,7 +95,7 @@ func TestLoginUpdate(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		password := "superpassword"
-		err := srv.Update(ctx, login1ID, server.LoginDataUpdate{
+		_, err := srv.Update(ctx, login1ID, server.LoginDataUpdate{
 			Password: &password,
 		})
 		require.NoError(t, err)
@@ -108,7 +108,7 @@ func TestLoginUpdate(t *testing.T) {
 	t.Run("not_found", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "alice")
 		password := "superpassword"
-		err := srv.Update(ctx, -100, server.LoginDataUpdate{
+		_, err := srv.Update(ctx, -100, server.LoginDataUpdate{
 			Password: &password,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -116,7 +116,7 @@ func TestLoginUpdate(t *testing.T) {
 	t.Run("user_not_owner", func(t *testing.T) {
 		ctx := server.NewContextWithUser(t.Context(), "bob")
 		password := "superpassword"
-		err := srv.Update(ctx, login1ID, server.LoginDataUpdate{
+		_, err := srv.Update(ctx, login1ID, server.LoginDataUpdate{
 			Password: &password,
 		})
 		require.ErrorIs(t, err, server.ErrDataNotFound)
@@ -156,12 +156,12 @@ func TestLoginDelete(t *testing.T) {
 }
 
 func mustCreateLogin(t *testing.T, name string, login string, password string, user string) int64 {
-	id, err := queries.InsertLogin(t.Context(), sqlc.InsertLoginParams{
+	result, err := queries.InsertLogin(t.Context(), sqlc.InsertLoginParams{
 		Name:     name,
 		Login:    login,
 		Password: &password,
 		User:     user,
 	})
 	require.NoError(t, err)
-	return id
+	return result.ID
 }

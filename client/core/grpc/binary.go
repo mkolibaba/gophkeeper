@@ -79,24 +79,6 @@ func (s *BinaryService) Save(ctx context.Context, data core.BinaryData) error {
 	return nil
 }
 
-func (s *BinaryService) GetAll(ctx context.Context) ([]core.BinaryData, error) {
-	result, err := s.client.GetAll(ctx, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	var binaries []core.BinaryData
-	for _, b := range result.GetResult() {
-		binaries = append(binaries, core.BinaryData{
-			ID:       b.GetId(),
-			Name:     b.GetName(),
-			Filename: b.GetFilename(),
-			Size:     b.GetSize(),
-			Notes:    b.GetNotes(),
-		})
-	}
-	return binaries, nil
-}
 
 func (s *BinaryService) Update(ctx context.Context, data core.BinaryDataUpdate) error {
 	var in gophkeeperv1.UpdateBinaryRequest

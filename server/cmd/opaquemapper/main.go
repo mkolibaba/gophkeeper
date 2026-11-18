@@ -11,11 +11,12 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
-	"golang.org/x/tools/go/packages"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"golang.org/x/tools/go/packages"
 )
 
 const templateStr = `
@@ -186,7 +187,7 @@ func main() {
 
 func pkgInfoFromPath(srcDir string) (*packages.Package, error) {
 	pkgs, err := packages.Load(&packages.Config{
-		Mode: packages.NeedName | packages.NeedSyntax | packages.NeedTypes,
+		Mode: packages.NeedName,
 		Dir:  srcDir,
 	})
 	if err != nil {

@@ -5,12 +5,14 @@
 package sqlc
 
 type Binary struct {
-	ID       int64
-	Name     string
-	Filename string
-	Size     int64
-	Notes    *string
-	User     string
+	ID        int64
+	Name      string
+	Filename  string
+	Size      int64
+	Notes     *string
+	User      string
+	Version   int64
+	UpdatedAt int64
 }
 
 type Card struct {
@@ -22,23 +24,29 @@ type Card struct {
 	Cardholder string
 	Notes      *string
 	User       string
+	Version    int64
+	UpdatedAt  int64
 }
 
 type Login struct {
-	ID       int64
-	Name     string
-	Login    string
-	Password *string
-	Website  *string
-	Notes    *string
-	User     string
+	ID        int64
+	Name      string
+	Login     string
+	Password  *string
+	Website   *string
+	Notes     *string
+	User      string
+	Version   int64
+	UpdatedAt int64
 }
 
 type Note struct {
-	ID   int64
-	Name string
-	Text *string
-	User string
+	ID        int64
+	Name      string
+	Text      *string
+	User      string
+	Version   int64
+	UpdatedAt int64
 }
 
 type User struct {

@@ -72,7 +72,7 @@ func (q *Queries) DeleteNote(ctx context.Context, iD int64, user string) (int64,
 const insertBinary = `-- name: InsertBinary :one
 INSERT INTO binary (name, filename, size, notes, user)
 VALUES (?, ?, ?, ?, ?)
-RETURNING id
+RETURNING id, updated_at
 `
 
 type InsertBinaryParams struct {
@@ -83,7 +83,12 @@ type InsertBinaryParams struct {
 	User     string
 }
 
-func (q *Queries) InsertBinary(ctx context.Context, arg InsertBinaryParams) (int64, error) {
+type InsertBinaryRow struct {
+	ID        int64
+	UpdatedAt int64
+}
+
+func (q *Queries) InsertBinary(ctx context.Context, arg InsertBinaryParams) (InsertBinaryRow, error) {
 	row := q.db.QueryRowContext(ctx, insertBinary,
 		arg.Name,
 		arg.Filename,
@@ -91,14 +96,15 @@ func (q *Queries) InsertBinary(ctx context.Context, arg InsertBinaryParams) (int
 		arg.Notes,
 		arg.User,
 	)
-	var id int64
-	err := row.Scan(&id)
-	return id, err
+	var i InsertBinaryRow
+	err := row.Scan(&i.ID, &i.UpdatedAt)
+	return i, err
 }
 
-const insertCard = `-- name: InsertCard :execlastid
+const insertCard = `-- name: InsertCard :one
 INSERT INTO card (name, number, exp_date, cvv, cardholder, notes, user)
 VALUES (?, ?, ?, ?, ?, ?, ?)
+RETURNING id, updated_at
 `
 
 type InsertCardParams struct {
@@ -111,8 +117,13 @@ type InsertCardParams struct {
 	User       string
 }
 
-func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, insertCard,
+type InsertCardRow struct {
+	ID        int64
+	UpdatedAt int64
+}
+
+func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) (InsertCardRow, error) {
+	row := q.db.QueryRowContext(ctx, insertCard,
 		arg.Name,
 		arg.Number,
 		arg.ExpDate,
@@ -121,15 +132,15 @@ func (q *Queries) InsertCard(ctx context.Context, arg InsertCardParams) (int64, 
 		arg.Notes,
 		arg.User,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
+	var i InsertCardRow
+	err := row.Scan(&i.ID, &i.UpdatedAt)
+	return i, err
 }
 
-const insertLogin = `-- name: InsertLogin :execlastid
+const insertLogin = `-- name: InsertLogin :one
 INSERT INTO login (name, login, password, website, notes, user)
 VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, updated_at
 `
 
 type InsertLoginParams struct {
@@ -141,8 +152,13 @@ type InsertLoginParams struct {
 	User     string
 }
 
-func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, insertLogin,
+type InsertLoginRow struct {
+	ID        int64
+	UpdatedAt int64
+}
+
+func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (InsertLoginRow, error) {
+	row := q.db.QueryRowContext(ctx, insertLogin,
 		arg.Name,
 		arg.Login,
 		arg.Password,
@@ -150,15 +166,15 @@ func (q *Queries) InsertLogin(ctx context.Context, arg InsertLoginParams) (int64
 		arg.Notes,
 		arg.User,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
+	var i InsertLoginRow
+	err := row.Scan(&i.ID, &i.UpdatedAt)
+	return i, err
 }
 
-const insertNote = `-- name: InsertNote :execlastid
+const insertNote = `-- name: InsertNote :one
 INSERT INTO note (name, text, user)
 VALUES (?, ?, ?)
+RETURNING id, updated_at
 `
 
 type InsertNoteParams struct {
@@ -167,12 +183,16 @@ type InsertNoteParams struct {
 	User string
 }
 
-func (q *Queries) InsertNote(ctx context.Context, arg InsertNoteParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, insertNote, arg.Name, arg.Text, arg.User)
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
+type InsertNoteRow struct {
+	ID        int64
+	UpdatedAt int64
+}
+
+func (q *Queries) InsertNote(ctx context.Context, arg InsertNoteParams) (InsertNoteRow, error) {
+	row := q.db.QueryRowContext(ctx, insertNote, arg.Name, arg.Text, arg.User)
+	var i InsertNoteRow
+	err := row.Scan(&i.ID, &i.UpdatedAt)
+	return i, err
 }
 
 const insertUser = `-- name: InsertUser :exec
@@ -186,7 +206,7 @@ func (q *Queries) InsertUser(ctx context.Context, login string, password string)
 }
 
 const selectBinaries = `-- name: SelectBinaries :many
-SELECT id, name, filename, size, notes, user
+SELECT id, name, filename, size, notes, user, version, updated_at
 FROM binary
 WHERE user = ?
 `
@@ -207,6 +227,8 @@ func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]Binary, er
 			&i.Size,
 			&i.Notes,
 			&i.User,
+			&i.Version,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -222,7 +244,7 @@ func (q *Queries) SelectBinaries(ctx context.Context, user string) ([]Binary, er
 }
 
 const selectBinary = `-- name: SelectBinary :one
-SELECT id, name, filename, size, notes, user
+SELECT id, name, filename, size, notes, user, version, updated_at
 FROM binary
 WHERE id = ?
   AND user = ?
@@ -238,6 +260,8 @@ func (q *Queries) SelectBinary(ctx context.Context, iD int64, user string) (Bina
 		&i.Size,
 		&i.Notes,
 		&i.User,
+		&i.Version,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -256,7 +280,7 @@ func (q *Queries) SelectBinaryUser(ctx context.Context, id int64) (string, error
 }
 
 const selectCard = `-- name: SelectCard :one
-SELECT id, name, number, exp_date, cvv, cardholder, notes, user
+SELECT id, name, number, exp_date, cvv, cardholder, notes, user, version, updated_at
 FROM card
 WHERE id = ?
   AND user = ?
@@ -274,6 +298,8 @@ func (q *Queries) SelectCard(ctx context.Context, iD int64, user string) (Card, 
 		&i.Cardholder,
 		&i.Notes,
 		&i.User,
+		&i.Version,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -292,7 +318,7 @@ func (q *Queries) SelectCardUser(ctx context.Context, id int64) (string, error) 
 }
 
 const selectCards = `-- name: SelectCards :many
-SELECT id, name, number, exp_date, cvv, cardholder, notes, user
+SELECT id, name, number, exp_date, cvv, cardholder, notes, user, version, updated_at
 FROM card
 WHERE user = ?
 `
@@ -315,6 +341,8 @@ func (q *Queries) SelectCards(ctx context.Context, user string) ([]Card, error) 
 			&i.Cardholder,
 			&i.Notes,
 			&i.User,
+			&i.Version,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -330,7 +358,7 @@ func (q *Queries) SelectCards(ctx context.Context, user string) ([]Card, error) 
 }
 
 const selectLogin = `-- name: SelectLogin :one
-SELECT id, name, login, password, website, notes, user
+SELECT id, name, login, password, website, notes, user, version, updated_at
 FROM login
 WHERE id = ?
   AND user = ?
@@ -347,6 +375,8 @@ func (q *Queries) SelectLogin(ctx context.Context, iD int64, user string) (Login
 		&i.Website,
 		&i.Notes,
 		&i.User,
+		&i.Version,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -365,7 +395,7 @@ func (q *Queries) SelectLoginUser(ctx context.Context, id int64) (string, error)
 }
 
 const selectLogins = `-- name: SelectLogins :many
-SELECT id, name, login, password, website, notes, user
+SELECT id, name, login, password, website, notes, user, version, updated_at
 FROM login
 WHERE user = ?
 `
@@ -387,6 +417,8 @@ func (q *Queries) SelectLogins(ctx context.Context, user string) ([]Login, error
 			&i.Website,
 			&i.Notes,
 			&i.User,
+			&i.Version,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -402,7 +434,7 @@ func (q *Queries) SelectLogins(ctx context.Context, user string) ([]Login, error
 }
 
 const selectNote = `-- name: SelectNote :one
-SELECT id, name, text, user
+SELECT id, name, text, user, version, updated_at
 FROM note
 WHERE id = ?
   AND user = ?
@@ -416,6 +448,8 @@ func (q *Queries) SelectNote(ctx context.Context, iD int64, user string) (Note, 
 		&i.Name,
 		&i.Text,
 		&i.User,
+		&i.Version,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -434,7 +468,7 @@ func (q *Queries) SelectNoteUser(ctx context.Context, id int64) (string, error) 
 }
 
 const selectNotes = `-- name: SelectNotes :many
-SELECT id, name, text, user
+SELECT id, name, text, user, version, updated_at
 FROM note
 WHERE user = ?
 `
@@ -453,6 +487,8 @@ func (q *Queries) SelectNotes(ctx context.Context, user string) ([]Note, error) 
 			&i.Name,
 			&i.Text,
 			&i.User,
+			&i.Version,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -480,11 +516,13 @@ func (q *Queries) SelectUser(ctx context.Context, login string) (User, error) {
 	return i, err
 }
 
-const updateBinary = `-- name: UpdateBinary :execrows
+const updateBinary = `-- name: UpdateBinary :one
 UPDATE binary
 SET name  = ?,
-    notes = ?
+    notes = ?,
+    updated_at = unixepoch()
 WHERE id = ?
+RETURNING updated_at
 `
 
 type UpdateBinaryParams struct {
@@ -494,22 +532,23 @@ type UpdateBinaryParams struct {
 }
 
 func (q *Queries) UpdateBinary(ctx context.Context, arg UpdateBinaryParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateBinary, arg.Name, arg.Notes, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	row := q.db.QueryRowContext(ctx, updateBinary, arg.Name, arg.Notes, arg.ID)
+	var updated_at int64
+	err := row.Scan(&updated_at)
+	return updated_at, err
 }
 
-const updateCard = `-- name: UpdateCard :execrows
+const updateCard = `-- name: UpdateCard :one
 UPDATE card
 SET name       = ?,
     number     = ?,
     exp_date   = ?,
     cvv        = ?,
     cardholder = ?,
-    notes      = ?
+    notes      = ?,
+    updated_at = unixepoch()
 WHERE id = ?
+RETURNING updated_at
 `
 
 type UpdateCardParams struct {
@@ -523,7 +562,7 @@ type UpdateCardParams struct {
 }
 
 func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateCard,
+	row := q.db.QueryRowContext(ctx, updateCard,
 		arg.Name,
 		arg.Number,
 		arg.ExpDate,
@@ -532,20 +571,21 @@ func (q *Queries) UpdateCard(ctx context.Context, arg UpdateCardParams) (int64, 
 		arg.Notes,
 		arg.ID,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	var updated_at int64
+	err := row.Scan(&updated_at)
+	return updated_at, err
 }
 
-const updateLogin = `-- name: UpdateLogin :execrows
+const updateLogin = `-- name: UpdateLogin :one
 UPDATE login
 SET name     = ?,
     login    = ?,
     password = ?,
     website  = ?,
-    notes    = ?
+    notes    = ?,
+    updated_at = unixepoch()
 WHERE id = ?
+RETURNING updated_at
 `
 
 type UpdateLoginParams struct {
@@ -558,7 +598,7 @@ type UpdateLoginParams struct {
 }
 
 func (q *Queries) UpdateLogin(ctx context.Context, arg UpdateLoginParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateLogin,
+	row := q.db.QueryRowContext(ctx, updateLogin,
 		arg.Name,
 		arg.Login,
 		arg.Password,
@@ -566,17 +606,18 @@ func (q *Queries) UpdateLogin(ctx context.Context, arg UpdateLoginParams) (int64
 		arg.Notes,
 		arg.ID,
 	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	var updated_at int64
+	err := row.Scan(&updated_at)
+	return updated_at, err
 }
 
-const updateNote = `-- name: UpdateNote :execrows
+const updateNote = `-- name: UpdateNote :one
 UPDATE note
 SET name = ?,
-    text = ?
+    text = ?,
+    updated_at = unixepoch()
 WHERE id = ?
+RETURNING updated_at
 `
 
 type UpdateNoteParams struct {
@@ -586,9 +627,8 @@ type UpdateNoteParams struct {
 }
 
 func (q *Queries) UpdateNote(ctx context.Context, arg UpdateNoteParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateNote, arg.Name, arg.Text, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
+	row := q.db.QueryRowContext(ctx, updateNote, arg.Name, arg.Text, arg.ID)
+	var updated_at int64
+	err := row.Scan(&updated_at)
+	return updated_at, err
 }

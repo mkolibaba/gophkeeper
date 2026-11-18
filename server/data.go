@@ -1,31 +1,31 @@
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/login_mapping.go . LoginDataUpdate
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/note_mapping.go . NoteDataUpdate
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/binary_mapping.go . BinaryDataUpdate
-//go:generate go run cmd/opaquemapper/main.go -pkg grpcgen -out grpc/gen/card_mapping.go -mappings CVV:Cvv . CardDataUpdate
-
 package server
 
 import (
 	"context"
 	"errors"
-	"github.com/go-playground/validator/v10"
 	"io"
 	"regexp"
+	"time"
+
+	"github.com/go-playground/validator/v10"
 )
 
 var (
 	ErrDataNotFound      = errors.New("data not found")
 	ErrUserAlreadyExists = errors.New("user already exists")
 	ErrUserNotFound      = errors.New("user not found")
+	ErrInvalidOffset     = errors.New("invalid offset")
+	ErrUploadIncomplete  = errors.New("binary file upload has not been finished")
 )
 
 type LoginData struct {
-	ID       int64
-	Name     string `validate:"required"`
-	Login    string `validate:"required"`
-	Password string
-	Website  string
-	Notes    string
+	ID        int64
+	Name      string `validate:"required"`
+	Login     string `validate:"required"`
+	Password  string
+	Website   string
+	Notes     string
+	UpdatedAt time.Time
 }
 
 type LoginDataUpdate struct {
@@ -40,14 +40,14 @@ type LoginDataUpdate struct {
 // Работать с данными может только их владелец.
 type LoginService interface {
 	// Create сохраняет данные для текущего пользователя.
-	Create(ctx context.Context, data LoginData) error
+	Create(ctx context.Context, data LoginData) (int64, time.Time, error)
 
 	// GetAll возвращает все данные текущего пользователя.
 	GetAll(ctx context.Context) ([]LoginData, error)
 
 	// Update обновляет данные с переданным id. Только владелец
 	// данных может редактировать их.
-	Update(ctx context.Context, id int64, data LoginDataUpdate) error
+	Update(ctx context.Context, id int64, data LoginDataUpdate) (time.Time, error)
 
 	// Remove удаляет данные. Только владелец данных может
 	// удалять их.
@@ -55,9 +55,10 @@ type LoginService interface {
 }
 
 type NoteData struct {
-	ID   int64
-	Name string `validate:"required"`
-	Text string
+	ID        int64
+	Name      string `validate:"required"`
+	Text      string
+	UpdatedAt time.Time
 }
 
 type NoteDataUpdate struct {
@@ -69,14 +70,14 @@ type NoteDataUpdate struct {
 // Работать с данными может только их владелец.
 type NoteService interface {
 	// Create сохраняет текстовые данные для текущего пользователя.
-	Create(ctx context.Context, data NoteData) error
+	Create(ctx context.Context, data NoteData) (int64, time.Time, error)
 
 	// GetAll возвращает все текстовые данные текущего пользователя.
 	GetAll(ctx context.Context) ([]NoteData, error)
 
 	// Update обновляет бинарные данные с переданным id. Только владелец
 	// данных может редактировать их.
-	Update(ctx context.Context, id int64, data NoteDataUpdate) error
+	Update(ctx context.Context, id int64, data NoteDataUpdate) (time.Time, error)
 
 	// Remove удаляет данные. Только владелец данных может
 	// удалять их.
@@ -84,16 +85,12 @@ type NoteService interface {
 }
 
 type BinaryData struct {
-	ID       int64
-	Name     string `validate:"required"`
-	Filename string `validate:"required"`
-	Size     int64
-	Notes    string
-}
-
-type ReadableBinaryData struct {
-	BinaryData
-	DataReader io.ReadCloser
+	ID        int64
+	Name      string `validate:"required"`
+	Filename  string `validate:"required"`
+	Size      int64
+	Notes     string
+	UpdatedAt time.Time
 }
 
 type BinaryDataUpdate struct {
@@ -105,21 +102,30 @@ type BinaryDataUpdate struct {
 // Работать с данными может только их владелец.
 type BinaryService interface {
 	// Create сохраняет бинарные данные для текущего пользователя.
-	Create(ctx context.Context, data ReadableBinaryData) error
+	Create(ctx context.Context, data BinaryData) (int64, time.Time, error)
 
-	// Get возвращает бинарные данные с переданным id.
-	Get(ctx context.Context, id int64) (*ReadableBinaryData, error)
+	// Upload записывает содержимое ранее созданной записи.
+	Upload(ctx context.Context, id int64, content io.Reader) error
 
 	// GetAll возвращает все бинарные данные текущего пользователя.
 	GetAll(ctx context.Context) ([]BinaryData, error)
 
+	// Open открывает файл для чтения. 
+	Open(ctx context.Context, id int64) (io.ReadSeekCloser, int64, error)
+
 	// Update обновляет бинарные данные с переданным id. Только владелец
 	// данных может редактировать их.
-	Update(ctx context.Context, id int64, data BinaryDataUpdate) error
+	Update(ctx context.Context, id int64, data BinaryDataUpdate) (time.Time, error)
 
-	// Remove удаляет данные. Только владелец данных может
-	// удалять их.
+	// Remove удаляет данные. Только владелец данных может удалять их.
 	Remove(ctx context.Context, id int64) error
+
+	// WriteChunk сохраняет чанк в pending-файл.
+	WriteChunk(ctx context.Context, id int64, offset int64, data []byte, finish bool) (committedSize int64, err error)
+
+	// WriteStatus возвращает сохранённый размер и состояние.
+	// Если загрузка ещё не начиналась, возвращает ErrDataNotFound.
+	WriteStatus(ctx context.Context, id int64) (committedSize int64, complete bool, err error)
 }
 
 type CardData struct {
@@ -130,6 +136,7 @@ type CardData struct {
 	CVV        string `validate:"required,len=3"`
 	Cardholder string `validate:"required"`
 	Notes      string
+	UpdatedAt  time.Time
 }
 
 type CardDataUpdate struct {
@@ -145,14 +152,14 @@ type CardDataUpdate struct {
 // Работать с данными может только их владелец.
 type CardService interface {
 	// Create сохраняет данные карты для текущего пользователя.
-	Create(ctx context.Context, data CardData) error
+	Create(ctx context.Context, data CardData) (int64, time.Time, error)
 
 	// GetAll возвращает все данные карт текущего пользователя.
 	GetAll(ctx context.Context) ([]CardData, error)
 
 	// Update обновляет данные карты с переданным id. Только владелец
 	// данных может редактировать их.
-	Update(ctx context.Context, id int64, data CardDataUpdate) error
+	Update(ctx context.Context, id int64, data CardDataUpdate) (time.Time, error)
 
 	// Remove удаляет данные. Только владелец данных может
 	// удалять их.

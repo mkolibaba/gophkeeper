@@ -2,12 +2,15 @@ package converter
 
 import (
 	"context"
+	"time"
+
 	"github.com/mkolibaba/gophkeeper/server"
 	sqlc "github.com/mkolibaba/gophkeeper/server/sqlite/sqlc/gen"
 )
 
 // goverter:converter
 // goverter:output:file ./gen/converter.go
+// goverter:extend Int64ToTime
 type DataConverter interface {
 	// -- Login --
 
@@ -49,8 +52,7 @@ type DataConverter interface {
 
 	// goverter:context ctx
 	// goverter:map User | UserFromContext
-	// goverter:autoMap BinaryData
-	ConvertToInsertBinary(ctx context.Context, source server.ReadableBinaryData) sqlc.InsertBinaryParams
+	ConvertToInsertBinary(ctx context.Context, source server.BinaryData) sqlc.InsertBinaryParams
 
 	ConvertToBinaryDataSlice(source []sqlc.Binary) []server.BinaryData
 
@@ -89,4 +91,8 @@ type DataConverter interface {
 // goverter:context ctx
 func UserFromContext(ctx context.Context) string {
 	return server.UserFromContext(ctx)
+}
+
+func Int64ToTime(v int64) time.Time {
+	return time.Unix(v, 0)
 }
